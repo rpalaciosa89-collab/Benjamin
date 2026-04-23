@@ -439,12 +439,19 @@
     // --- TTS SYSTEM ---
     function speakText(text) {
         if ('speechSynthesis' in window) {
+            // Cancel and resume to clear any stuck states
             window.speechSynthesis.cancel();
+            window.speechSynthesis.resume();
+            
             const msg = new SpeechSynthesisUtterance();
             msg.text = text;
-            msg.lang = 'es-ES'; 
+            msg.lang = 'es'; // More generic Spanish
             msg.rate = 1.0;
             msg.pitch = 1.2;
+            
+            // Log for debugging (internal only)
+            console.log("Speaking:", text);
+            
             window.speechSynthesis.speak(msg);
         }
     }
@@ -509,16 +516,20 @@
             scoreDisplay.innerText = `Puntos: ${score}`;
             
             // Lower music volume while speaking
-            if (bgMusic) bgMusic.volume = 0.2;
-            speakText(`${currentProblem.a} más ${currentProblem.b} es ${currentProblem.result}`);
+            try { if (bgMusic && !bgMusic.paused) bgMusic.volume = 0.2; } catch(e) {}
             
             successSound.currentTime = 0;
-            successSound.play().catch(e => console.log("Audio play failed", e));
+            successSound.play().then(() => {
+                // Speak AFTER the success sound starts for better clarity
+                setTimeout(() => {
+                    speakText(`${currentProblem.a} más ${currentProblem.b} es ${currentProblem.result}`);
+                }, 100);
+            }).catch(e => console.log("Audio play failed", e));
             
             setTimeout(() => {
-                if (bgMusic) bgMusic.volume = 1.0;
+                try { if (bgMusic) bgMusic.volume = 1.0; } catch(e) {}
                 showWinModal();
-            }, 1500); // Wait a bit more for the speech to finish
+            }, 2000); 
         } else {
             btn.classList.add('wrong');
             speakText('Ese no');
