@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Color Fun!</title>
+    <title>Aritmi - ¡Aprende a sumar!</title>
     <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&display=swap" rel="stylesheet">
     <style>
         * {
@@ -13,7 +13,7 @@
             -webkit-tap-highlight-color: transparent;
         }
         body {
-            background: linear-gradient(135deg, #ffe259 0%, #ffa751 100%);
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
             font-family: 'Baloo 2', cursive, sans-serif;
             color: #333;
             margin: 0;
@@ -119,90 +119,121 @@
             color: #2c3e50;
             font-weight: 800;
         }
-        .hearts {
-            color: #f97316;
+        .score {
+            color: #10b981;
             font-size: 18px;
+            font-weight: 700;
             margin-top: 2px;
         }
         
         .game-area {
             flex: 1;
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
             padding: 20px;
             background: #f8fafc;
             position: relative;
         }
-        
-        .grid {
-            display: grid;
-            gap: 12px;
-            width: 100%;
-            max-width: 400px;
-            padding: 16px;
+
+        .question-container {
             background: #ffffff;
-            border-radius: 24px;
+            width: 100%;
+            padding: 30px 20px;
+            border-radius: 32px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.06);
-            align-content: center;
+            text-align: center;
+            margin-bottom: 30px;
         }
-        
-        .card {
-            width: 100%;
-            aspect-ratio: 1;
-            perspective: 1000px;
-            cursor: pointer;
-        }
-        .card-inner {
-            width: 100%;
-            height: 100%;
-            position: relative;
-            transition: transform 0.5s cubic-bezier(0.4, 0.2, 0.2, 1);
-            transform-style: preserve-3d;
-        }
-        .card.flipped .card-inner, .card.matched .card-inner {
-            transform: rotateY(180deg);
-        }
-        
-        /* Efecto pop al coincidir */
-        .card.matched {
-            animation: pop 0.4s ease-out;
-        }
-        @keyframes pop {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.1); }
-            100% { transform: scale(1); }
-        }
-        
-        .card-front, .card-back {
-            width: 100%;
-            height: 100%;
-            position: absolute;
-            backface-visibility: hidden;
-            border-radius: 16px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+
+        .visual-aid {
             display: flex;
             justify-content: center;
             align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
         }
-        
-        .card-front {
+
+        .group {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+            justify-content: center;
+            padding: 10px;
+            background: #fff9f0;
+            border-radius: 16px;
+            border: 2px dashed #ffedd5;
+        }
+
+        .emoji {
+            font-size: 32px;
+            animation: bounce 2s infinite ease-in-out;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+
+        .operator {
+            font-size: 32px;
+            font-weight: 800;
+            color: #f97316;
+        }
+
+        .math-text {
+            font-size: 48px;
+            font-weight: 800;
+            color: #2c3e50;
+            margin: 10px 0;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            width: 100%;
+        }
+
+        .option-btn {
             background: #ffffff;
             border: 4px solid #f1f5f9;
+            border-radius: 20px;
+            padding: 20px;
             font-size: 36px;
-            color: #cbd5e1;
-            /* Patrón bonito en la parte de atrás de la carta (boca abajo) */
-            background-image: radial-gradient(#e2e8f0 20%, transparent 20%), radial-gradient(#e2e8f0 20%, transparent 20%);
-            background-color: #f8fafc;
-            background-position: 0 0, 10px 10px;
-            background-size: 20px 20px;
+            font-family: inherit;
+            font-weight: 800;
+            color: #2c3e50;
+            cursor: pointer;
+            transition: transform 0.2s, border-color 0.2s, background-color 0.2s;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
         }
-        
-        .card-back {
-            transform: rotateY(180deg);
-            border: 4px solid rgba(255,255,255,0.3);
+
+        .option-btn:active {
+            transform: scale(0.9);
         }
-        
+
+        .option-btn.correct {
+            background-color: #dcfce7;
+            border-color: #22c55e;
+            color: #15803d;
+        }
+
+        .option-btn.wrong {
+            background-color: #fee2e2;
+            border-color: #ef4444;
+            color: #b91c1c;
+            animation: shake 0.4s ease-in-out;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
         .modal {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -263,7 +294,7 @@
             transform: translateY(4px);
             box-shadow: 0 4px 10px rgba(249, 115, 22, 0.3);
         }
-        
+
         .instructions {
             position: absolute;
             bottom: 20px;
@@ -283,35 +314,60 @@
             <div class="menu-btn" id="menu-btn">☰</div>
             <div class="dropdown-content" id="dropdown-menu">
                 <a href="../benji-al-rescate/index.html">🐶 Benji al Rescate!</a>
-                <a href="#" class="active">🎨 Color Fun!</a>
-                <a href="../aritmi/index.html">🔢 Aritmi</a>
+                <a href="../color-fun/index.html">🎨 Color Fun!</a>
+                <a href="#" class="active">🔢 Aritmi</a>
             </div>
         </div>
         <div class="level-info">
-            <h1 id="level-title">Nivel 1</h1>
-            <div class="hearts" id="pairs-display" style="font-weight: 700;">Pares: 0/2</div>
-            <div id="moves-display" style="color: #ef4444; font-weight: 700; font-size: 14px; margin-top: 2px;">Intentos: 0</div>
+            <h1 id="level-title">Aritmi</h1>
+            <div class="score" id="score-display">Puntos: 0</div>
         </div>
         <div style="width: 44px"></div>
     </header>
     
     <div class="game-area">
-        <div class="grid" id="grid"></div>
-        <div class="instructions">Toca para descubrir los colores</div>
+        <div class="question-container">
+            <div class="visual-aid" id="visual-aid">
+                <!-- Emojis will go here -->
+            </div>
+            <div class="math-text" id="math-text">
+                2 + 1 = ?
+            </div>
+        </div>
+
+        <div class="options-grid" id="options-grid">
+            <!-- Options will go here -->
+        </div>
+
+        <div class="instructions">¡Toca la respuesta correcta!</div>
     </div>
     
     <div id="result-modal" class="modal hidden">
         <div class="modal-content">
             <div id="modal-emoji" style="font-size: 60px; margin-bottom: 10px;">🌟</div>
             <h2 id="modal-title">¡Excelente!</h2>
-            <p id="modal-desc">¡Encontraste todos los colores!</p>
-            <button class="btn" id="next-btn">Siguiente Nivel 🚀</button>
+            <p id="modal-desc">¡Eres un genio de las matemáticas!</p>
+            <button class="btn" id="next-btn">¡Otro más! 🚀</button>
         </div>
     </div>
 </div>
 
 <script>
-    const successSound = new Audio('floraphonic-woman-excited-cheers-and-phrases-says-yippee-2-186752.mp3');
+    // --- CONFIG ---
+    const successSound = new Audio('../color-fun/floraphonic-woman-excited-cheers-and-phrases-says-yippee-2-186752.mp3');
+    const EMOJIS = ['🍎', '⭐', '🎈', '🍪', '🐸', '🦁', '🚗', '🍦'];
+
+    let score = 0;
+    let currentProblem = {};
+    let isLocked = false;
+
+    // --- ELEMENTS ---
+    const visualAid = document.getElementById('visual-aid');
+    const mathText = document.getElementById('math-text');
+    const optionsGrid = document.getElementById('options-grid');
+    const scoreDisplay = document.getElementById('score-display');
+    const modal = document.getElementById('result-modal');
+    const nextBtn = document.getElementById('next-btn');
 
     // --- DROPDOWN MENU ---
     document.addEventListener('DOMContentLoaded', () => {
@@ -330,223 +386,92 @@
                 menuBtn.classList.remove('active');
             }
         });
+
+        generateProblem();
     });
 
     // --- TTS SYSTEM ---
-    function speakColor(colorName) {
+    function speakProblem(a, b) {
         if ('speechSynthesis' in window) {
-            window.speechSynthesis.cancel(); // Stop any current speaking
+            window.speechSynthesis.cancel();
             const msg = new SpeechSynthesisUtterance();
-            msg.text = colorName;
+            msg.text = `¿Cuánto es ${a} más ${b}?`;
             msg.lang = 'es-ES'; 
-            msg.rate = 1.1; // Un poco más rápido y alegre
-            msg.pitch = 1.2; // Tono ligeramente más agudo para niños
+            msg.rate = 0.9;
+            msg.pitch = 1.2;
             window.speechSynthesis.speak(msg);
         }
     }
 
     // --- GAME LOGIC ---
-    const COLORS = [
-        { name: 'Rojo', hex: '#ef4444' },
-        { name: 'Azul', hex: '#3b82f6' },
-        { name: 'Verde', hex: '#10b981' },
-        { name: 'Amarillo', hex: '#fbbf24' },
-        { name: 'Morado', hex: '#8b5cf6' },
-        { name: 'Naranja', hex: '#f97316' },
-        { name: 'Rosa', hex: '#ec4899' },
-        { name: 'Celeste', hex: '#06b6d4' }
-    ];
-
-    let currentLevel = 1;
-    let cards = [];
-    let flippedCards = [];
-    let matchedPairs = 0;
-    let totalPairs = 0;
-    let isLocked = false;
-    let maxMoves = 0;
-    let movesLeft = 0;
-    let isGameOver = false;
-
-    const container = document.getElementById('grid');
-    const modal = document.getElementById('result-modal');
-    const nextBtn = document.getElementById('next-btn');
-    const levelTitle = document.getElementById('level-title');
-    const pairsDisplay = document.getElementById('pairs-display');
-    const movesDisplay = document.getElementById('moves-display');
-    const modalEmoji = document.getElementById('modal-emoji');
-    const modalTitle = document.getElementById('modal-title');
-    const modalDesc = document.getElementById('modal-desc');
-
-    nextBtn.addEventListener('click', () => {
-        modal.classList.add('hidden');
-        if (!isGameOver) {
-            currentLevel++;
-        }
-        initLevel();
-    });
-
-    function initLevel() {
-        // Nivel 1: 2 pares (4 cartas)
-        // Nivel 2: 3 pares (6 cartas)
-        // Nivel 3: 4 pares (8 cartas)
-        // Nivel 4: 6 pares (12 cartas)
-        // Nivel 5: 8 pares (16 cartas)
-        
-        if(currentLevel === 1) totalPairs = 2;
-        else if(currentLevel === 2) totalPairs = 3;
-        else if(currentLevel === 3) totalPairs = 4;
-        else if(currentLevel === 4) totalPairs = 6;
-        else totalPairs = 8;
-        
-        maxMoves = Math.ceil(totalPairs * 2);
-        movesLeft = maxMoves;
-        matchedPairs = 0;
-        flippedCards = [];
+    function generateProblem() {
         isLocked = false;
-        isGameOver = false;
         
-        levelTitle.innerText = `Nivel ${currentLevel}`;
-        pairsDisplay.innerText = `Pares: 0/${totalPairs}`;
-        movesDisplay.innerText = `Intentos: ${movesLeft}`;
-        
-        generateCards(totalPairs);
-        renderGrid();
-    }
+        // Simple addition for 5 year olds (sum <= 10)
+        const a = Math.floor(Math.random() * 5) + 1; // 1 to 5
+        const b = Math.floor(Math.random() * 5) + 1; // 1 to 5
+        const result = a + b;
 
-    function generateCards(pairsCount) {
-        // Shuffle colors to pick random ones for this level
-        const shuffledColors = [...COLORS].sort(() => Math.random() - 0.5);
-        const selectedColors = shuffledColors.slice(0, pairsCount);
-        
-        // Create 2 of each
-        cards = [];
-        selectedColors.forEach(color => {
-            cards.push({ ...color, id: Math.random() });
-            cards.push({ ...color, id: Math.random() });
-        });
-        
-        // Shuffle cards
-        cards.sort(() => Math.random() - 0.5);
-    }
+        currentProblem = { a, b, result };
 
-    function renderGrid() {
-        container.innerHTML = '';
-        
-        // Set columns based on card count
-        let cols = 2;
-        if(cards.length >= 6) cols = 3;
-        if(cards.length >= 12) cols = 4;
-        
-        container.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
-        
-        cards.forEach((card, index) => {
-            const el = document.createElement('div');
-            el.className = 'card';
-            
-            el.innerHTML = `
-                <div class="card-inner">
-                    <div class="card-front">❓</div>
-                    <div class="card-back" style="background-color: ${card.hex};"></div>
-                </div>
-            `;
-            
-            el.addEventListener('click', () => flipCard(el, card, index));
-            card.element = el;
-            card.isFlipped = false;
-            card.isMatched = false;
-            
-            container.appendChild(el);
-        });
-    }
+        // Visual Aid
+        const emoji = EMOJIS[Math.floor(Math.random() * EMOJIS.length)];
+        visualAid.innerHTML = `
+            <div class="group">${Array(a).fill(`<span class="emoji">${emoji}</span>`).join('')}</div>
+            <div class="operator">+</div>
+            <div class="group">${Array(b).fill(`<span class="emoji">${emoji}</span>`).join('')}</div>
+        `;
 
-    function flipCard(el, card, index) {
-        if (isLocked) return;
-        if (card.isFlipped || card.isMatched) return;
-        
-        // Flip visual
-        el.classList.add('flipped');
-        card.isFlipped = true;
-        
-        // Speak color name!
-        speakColor(card.name);
-        
-        flippedCards.push(card);
-        
-        if (flippedCards.length === 2) {
-            checkMatch();
+        mathText.innerText = `${a} + ${b} = ?`;
+
+        // Options
+        const options = [result];
+        while (options.length < 3) {
+            const wrong = Math.floor(Math.random() * 10) + 1;
+            if (!options.includes(wrong)) options.push(wrong);
         }
+        options.sort(() => Math.random() - 0.5);
+
+        optionsGrid.innerHTML = '';
+        options.forEach(opt => {
+            const btn = document.createElement('button');
+            btn.className = 'option-btn';
+            btn.innerText = opt;
+            btn.onclick = () => checkAnswer(opt, btn);
+            optionsGrid.appendChild(btn);
+        });
+
+        speakProblem(a, b);
     }
 
-    function checkMatch() {
-        if (isGameOver) return;
-        isLocked = true;
-        const [card1, card2] = flippedCards;
-        
-        movesLeft--;
-        movesDisplay.innerText = `Intentos: ${movesLeft}`;
-        
-        if (card1.name === card2.name) {
-            // Match!
+    function checkAnswer(selected, btn) {
+        if (isLocked) return;
+
+        if (selected === currentProblem.result) {
+            isLocked = true;
+            btn.classList.add('correct');
+            score += 10;
+            scoreDisplay.innerText = `Puntos: ${score}`;
+            
             successSound.currentTime = 0;
             successSound.play().catch(e => console.log("Audio play failed", e));
-            matchedPairs++;
-            pairsDisplay.innerText = `Pares: ${matchedPairs}/${totalPairs}`;
             
-            card1.isMatched = true;
-            card2.isMatched = true;
-            
-            setTimeout(() => {
-                card1.element.classList.add('matched');
-                card2.element.classList.add('matched');
-                
-                flippedCards = [];
-                isLocked = false;
-                
-                if (matchedPairs === totalPairs) {
-                    setTimeout(showWinModal, 600);
-                } else if (movesLeft === 0) {
-                    setTimeout(showLoseModal, 600);
-                }
-            }, 300);
-            
+            setTimeout(showWinModal, 600);
         } else {
-            // No match
-            setTimeout(() => {
-                card1.element.classList.remove('flipped');
-                card2.element.classList.remove('flipped');
-                
-                card1.isFlipped = false;
-                card2.isFlipped = false;
-                
-                flippedCards = [];
-                if (movesLeft === 0) {
-                    showLoseModal();
-                } else {
-                    isLocked = false;
-                }
-            }, 1000);
+            btn.classList.add('wrong');
+            setTimeout(() => btn.classList.remove('wrong'), 500);
         }
     }
 
     function showWinModal() {
-        modalEmoji.innerText = '🌟';
-        modalTitle.innerText = '¡Excelente!';
-        modalTitle.style.color = '#f97316';
-        modalDesc.innerText = '¡Encontraste todos los colores!';
-        nextBtn.innerText = 'Siguiente Nivel 🚀';
         spawnConfetti();
         modal.classList.remove('hidden');
     }
 
-    function showLoseModal() {
-        isGameOver = true;
-        modalEmoji.innerText = '💔';
-        modalTitle.innerText = '¡Oh no!';
-        modalTitle.style.color = '#ef4444';
-        modalDesc.innerText = 'Se acabaron los intentos. ¡Tú puedes!';
-        nextBtn.innerText = 'Volver a intentar 🔄';
-        modal.classList.remove('hidden');
-    }
+    nextBtn.onclick = () => {
+        modal.classList.add('hidden');
+        generateProblem();
+    };
 
     function spawnConfetti() {
         const colors = ['#ef4444', '#3b82f6', '#10b981', '#fbbf24', '#8b5cf6'];
@@ -571,7 +496,6 @@
             let rotSpeed = (Math.random() - 0.5) * 10;
             let currentRot = 0;
             
-            let opacity = 1;
             function anim() {
                 let left = parseFloat(conf.style.left) + vx;
                 let top = parseFloat(conf.style.top) + vy;
@@ -591,9 +515,6 @@
             requestAnimationFrame(anim);
         }
     }
-
-    // Start game
-    initLevel();
 </script>
 </body>
 </html>
