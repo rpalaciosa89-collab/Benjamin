@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Benji al Rescate!</title>
+    <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+        body {
+            background: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%);
+            font-family: 'Baloo 2', cursive, sans-serif;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+        .app {
+            background: #ffffff;
+            width: 100%;
+            max-width: 450px;
+            height: 100vh;
+            max-height: 900px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+        @media (min-width: 450px) {
+            .app {
+                border-radius: 24px;
+                height: 90vh;
+            }
+        }
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 24px 10px;
+            background: #fff;
+            border-bottom: 2px solid #f1f5f9;
+            z-index: 10;
+        }
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+        .menu-btn {
+            width: 44px;
+            height: 44px;
+            background: #eef2f5;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 20px;
+            cursor: pointer;
+            transition: transform 0.2s, background 0.3s;
+            color: #333;
+        }
+        .menu-btn:active { transform: scale(0.9); }
+        .menu-btn.active { background: #dbeafe; }
+        
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: #ffffff;
+            min-width: 220px;
+            box-shadow: 0px 8px 24px rgba(0,0,0,0.15);
+            border-radius: 16px;
+            z-index: 100;
+            top: 55px;
+            left: 0;
+            overflow: hidden;
+            border: 2px solid #f1f5f9;
+        }
+        .dropdown-content.show {
+            display: block;
+            animation: fadeIn 0.2s ease-out;
+        }
+        .dropdown-content a {
+            color: #4a4a4a;
+            padding: 14px 20px;
+            text-decoration: none;
+            display: block;
+            font-weight: 600;
+            font-size: 16px;
+            transition: background 0.2s;
+        }
+        .dropdown-content a:hover {
+            background-color: #f8fafc;
+        }
+        .dropdown-content a.active {
+            background-color: #e6f7ff;
+            color: #3b82f6;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .level-info {
+            text-align: center;
+            flex: 1;
+        }
+        .level-info h1 {
+            margin: 0;
+            font-size: 24px;
+            color: #2c3e50;
+            font-weight: 800;
+        }
+        .hearts {
+            color: #ff4d4f;
+            font-size: 20px;
+            letter-spacing: 2px;
+            margin-top: 2px;
+        }
+        
+        .game-area {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            background: #f8fafc;
+            position: relative;
+        }
+        
+        .grid {
+            display: grid;
+            gap: 6px;
+            width: 100%;
+            max-width: 400px;
+            padding: 16px;
+            background: #ffffff;
+            border-radius: 24px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.06);
+        }
+        
+        .tile {
+            background: #ffffff;
+            border: 2px solid #f1f5f9;
+            border-radius: 14px;
+            aspect-ratio: 1;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            transition: transform 0.15s, border-color 0.3s;
+        }
+        .tile:active {
+            transform: scale(0.92);
+        }
+        .tile.fixed {
+            background: #f0f7ff;
+            border-color: #dbeafe;
+            cursor: default;
+        }
+        .tile.fixed:active {
+            transform: scale(1);
+        }
+        
+        .tile svg {
+            width: 100%;
+            height: 100%;
+            stroke: #94a3b8; /* Default disconnected color */
+            stroke-width: 16;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            fill: none;
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), stroke 0.3s;
+        }
+        
+        /* Connected colors */
+        .tile.connected svg {
+            stroke: #3b82f6; /* Blue water/energy */
+            filter: drop-shadow(0px 2px 4px rgba(59, 130, 246, 0.3));
+        }
+        .tile.win svg {
+            stroke: #10b981; /* Green win */
+            filter: drop-shadow(0px 2px 4px rgba(16, 185, 129, 0.3));
+        }
+        
+        /* Emoji adjustments inside SVG */
+        .tile text {
+            stroke: none;
+            fill: #333;
+            font-family: sans-serif;
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .music-btn {
+            width: 44px;
+            height: 44px;
+            background: #eef2f5;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 20px;
+            cursor: pointer;
+            transition: transform 0.2s, background 0.3s;
+        }
+        .music-btn:active { transform: scale(0.9); }
+        .music-btn.playing { background: #dbeafe; }
+
+        .modal {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255,255,255,0.85);
+            backdrop-filter: blur(8px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            opacity: 1;
+            transition: opacity 0.4s;
+        }
+        .modal.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+        .modal-content {
+            background: #fff;
+            padding: 40px 30px;
+            border-radius: 32px;
+            text-align: center;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.15);
+            transform: scale(1) translateY(0);
+            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            width: 85%;
+            max-width: 320px;
+        }
+        .modal.hidden .modal-content {
+            transform: scale(0.8) translateY(20px);
+        }
+        .modal h2 {
+            color: #10b981;
+            font-size: 32px;
+            margin: 0 0 8px;
+            font-weight: 800;
+        }
+        .modal p {
+            color: #64748b;
+            font-size: 18px;
+            margin: 0 0 28px;
+            font-weight: 500;
+        }
+        .btn {
+            background: #3b82f6;
+            color: #fff;
+            border: none;
+            padding: 16px 32px;
+            font-size: 20px;
+            font-family: inherit;
+            font-weight: 700;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 8px 20px rgba(59, 130, 246, 0.3);
+            transition: transform 0.2s, box-shadow 0.2s;
+            width: 100%;
+        }
+        .btn:active {
+            transform: translateY(4px);
+            box-shadow: 0 4px 10px rgba(59, 130, 246, 0.3);
+        }
+        
+        .instructions {
+            position: absolute;
+            bottom: 20px;
+            text-align: center;
+            width: 100%;
+            color: #64748b;
+            font-weight: 500;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="app">
+    <header>
+        <div class="dropdown">
+            <div class="menu-btn" id="menu-btn">☰</div>
+            <div class="dropdown-content" id="dropdown-menu">
+                <a href="#" class="active">🐶 Benji al Rescate!</a>
+                <a href="#">Próximamente...</a>
+            </div>
+        </div>
+        <div class="level-info">
+            <h1 id="level-title">Nivel 1</h1>
+            <div class="hearts">❤️❤️❤️❤️❤️</div>
+        </div>
+        <div class="music-btn" id="music-btn" title="Música">🔇</div>
+    </header>
+    
+    <div class="game-area">
+        <div class="grid" id="grid"></div>
+        <div class="instructions">Toca los caminos para girarlos</div>
+    </div>
+    
+    <div id="win-modal" class="modal hidden">
+        <div class="modal-content">
+            <div style="font-size: 60px; margin-bottom: 10px;">🌟</div>
+            <h2>¡Lo lograste!</h2>
+            <p>¡Benji rescató a su amigo!</p>
+            <button class="btn" id="next-btn">Siguiente Nivel 🚀</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // --- DROPDOWN MENU ---
+    document.addEventListener('DOMContentLoaded', () => {
+        const menuBtn = document.getElementById('menu-btn');
+        const dropdownMenu = document.getElementById('dropdown-menu');
+        
+        menuBtn.addEventListener('click', (e) => {
+            dropdownMenu.classList.toggle('show');
+            menuBtn.classList.toggle('active');
+            e.stopPropagation();
+        });
+        
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.dropdown')) {
+                dropdownMenu.classList.remove('show');
+                menuBtn.classList.remove('active');
+            }
+        });
+    });
+
+    // --- AUDIO SYSTEM (MP3 File) ---
+    const bgMusic = new Audio('Wheatus - Teenage Dirtbag (Official Video).mp3');
+    bgMusic.loop = true;
+    let isMusicPlaying = false;
+
+    const musicBtn = document.getElementById('music-btn');
+    musicBtn.addEventListener('click', () => {
+        isMusicPlaying = !isMusicPlaying;
+        if(isMusicPlaying) {
+            musicBtn.innerText = '🔊';
+            musicBtn.classList.add('playing');
+            bgMusic.play().catch(e => console.log('Audio play failed:', e));
+        } else {
+            musicBtn.innerText = '🔇';
+            musicBtn.classList.remove('playing');
+            bgMusic.pause();
+        }
+    });
+
+    let currentLevel = 1;
+    let gridSize = 3;
+    let grid = [];
+    let startPos = null;
+    let endPos = null;
+    let isAnimating = false;
+
+    const container = document.getElementById('grid');
+    const modal = document.getElementById('win-modal');
+    const nextBtn = document.getElementById('next-btn');
+    const levelTitle = document.getElementById('level-title');
+
+    nextBtn.addEventListener('click', () => {
+        modal.classList.add('hidden');
+        currentLevel++;
+        initLevel();
+    });
+
+    function initLevel() {
+        isAnimating = false;
+        // Increment size slightly every 2 levels, cap at 6x6
+        gridSize = Math.min(3 + Math.floor((currentLevel - 1) / 2), 6);
+        levelTitle.innerText = `Nivel ${currentLevel}`;
+        
+        const levelData = generateLevel(gridSize);
+        grid = levelData.grid;
+        startPos = levelData.start;
+        endPos = levelData.end;
+        
+        renderGrid();
+        updateHighlights();
+    }
+
+    function generateLevel(size) {
+        let tempGrid = Array(size).fill(0).map(() => Array(size).fill(null));
+        let path = [];
+        let start = {x: 0, y: Math.floor(Math.random() * size)};
+        let end = {x: size - 1, y: Math.floor(Math.random() * size)};
+        
+        function dfs(x, y, currentPath) {
+            if (x === end.x && y === end.y) {
+                path = [...currentPath, {x, y}];
+                return true;
+            }
+            
+            let dirs = [
+                {dx: 0, dy: -1, name: 'top'},
+                {dx: 1, dy: 0, name: 'right'},
+                {dx: 0, dy: 1, name: 'bottom'},
+                {dx: -1, dy: 0, name: 'left'}
+            ].sort(() => Math.random() - 0.5); // Shuffle
+            
+            for (let d of dirs) {
+                let nx = x + d.dx;
+                let ny = y + d.dy;
+                // Check bounds and if unvisited
+                if (nx >= 0 && nx < size && ny >= 0 && ny < size && !currentPath.some(p => p.x === nx && p.y === ny)) {
+                    if (dfs(nx, ny, [...currentPath, {x, y}])) return true;
+                }
+            }
+            return false;
+        }
+        
+        // This will always find a path on an empty grid
+        dfs(start.x, start.y, []);
+        
+        const dirMap = { '0,-1': 0, '1,0': 1, '0,1': 2, '-1,0': 3 };
+        
+        // Generate path tiles
+        path.forEach((p, i) => {
+            let connects = [];
+            if (i > 0) {
+                let prev = path[i-1];
+                connects.push(dirMap[`${prev.x - p.x},${prev.y - p.y}`]);
+            }
+            if (i < path.length - 1) {
+                let next = path[i+1];
+                connects.push(dirMap[`${next.x - p.x},${next.y - p.y}`]);
+            }
+            
+            connects.sort();
+            let type = '';
+            let rot = 0;
+            
+            if (i === 0) {
+                type = 'start';
+                rot = connects[0];
+            } else if (i === path.length - 1) {
+                type = 'end';
+                rot = connects[0];
+            } else {
+                let cStr = connects.join(',');
+                if (cStr === '0,2' || cStr === '1,3') {
+                    type = 'straight';
+                    rot = cStr === '0,2' ? 0 : 1;
+                } else {
+                    type = 'corner';
+                    if (cStr === '0,1') rot = 0;
+                    if (cStr === '1,2') rot = 1;
+                    if (cStr === '2,3') rot = 2;
+                    if (cStr === '0,3') rot = 3;
+                }
+            }
+            
+            // Randomly rotate, except start and end will be fixed later
+            let currentRot = Math.floor(Math.random() * 4);
+            tempGrid[p.y][p.x] = { type, correctRot: rot, rot: currentRot, x: p.x, y: p.y };
+        });
+        
+        // Fill empty cells
+        for (let y = 0; y < size; y++) {
+            for (let x = 0; x < size; x++) {
+                if (!tempGrid[y][x]) {
+                    tempGrid[y][x] = {
+                        type: Math.random() > 0.5 ? 'straight' : 'corner',
+                        rot: Math.floor(Math.random() * 4),
+                        x, y
+                    };
+                }
+            }
+        }
+        
+        // Fix start and end
+        tempGrid[start.y][start.x].rot = tempGrid[start.y][start.x].correctRot;
+        tempGrid[end.y][end.x].rot = tempGrid[end.y][end.x].correctRot;
+        
+        return { grid: tempGrid, start, end };
+    }
+
+    function renderGrid() {
+        container.innerHTML = '';
+        container.style.gridTemplateColumns = `repeat(${gridSize}, 1fr)`;
+        
+        for(let y=0; y<gridSize; y++) {
+            for(let x=0; x<gridSize; x++) {
+                const tile = grid[y][x];
+                const el = document.createElement('div');
+                el.className = 'tile';
+                tile.element = el;
+                
+                if(tile.type === 'start' || tile.type === 'end') {
+                    el.classList.add('fixed');
+                }
+                
+                let svgContent = '';
+                if(tile.type === 'straight') {
+                    svgContent = `<path d="M 50 0 L 50 100" />`;
+                } else if(tile.type === 'corner') {
+                    svgContent = `<path d="M 50 0 L 50 50 L 100 50" />`;
+                } else if(tile.type === 'start') {
+                    let invRot = -tile.rot * 90;
+                    svgContent = `<path d="M 50 50 L 50 0" /><text x="50" y="65" text-anchor="middle" font-size="45" transform="rotate(${invRot}, 50, 50)">🐶</text>`;
+                } else if(tile.type === 'end') {
+                    let invRot = -tile.rot * 90;
+                    svgContent = `<path d="M 50 50 L 50 0" /><text x="50" y="65" text-anchor="middle" font-size="45" transform="rotate(${invRot}, 50, 50)">🐱</text>`;
+                }
+                
+                el.innerHTML = `<svg viewBox="0 0 100 100" style="transform: rotate(${tile.rot * 90}deg)">${svgContent}</svg>`;
+                
+                el.addEventListener('click', () => {
+                    if(isAnimating) return;
+                    if(tile.type === 'start' || tile.type === 'end') return;
+                    
+                    // Play pop sound (optional/visual only here)
+                    tile.rot = (tile.rot + 1) % 4;
+                    const svg = el.querySelector('svg');
+                    
+                    // Smooth rotation tracking
+                    let currentRotStr = svg.style.transform;
+                    let currentDeg = parseInt(currentRotStr.replace(/[^0-9\-]/g, '')) || 0;
+                    svg.style.transform = `rotate(${currentDeg + 90}deg)`;
+                    
+                    updateHighlights();
+                });
+                
+                container.appendChild(el);
+            }
+        }
+    }
+
+    function getPorts(tile) {
+        if (tile.type === 'start' || tile.type === 'end') return [tile.rot];
+        if (tile.type === 'straight') return [tile.rot % 2, (tile.rot % 2) + 2];
+        if (tile.type === 'corner') return [tile.rot, (tile.rot + 1) % 4];
+        return [];
+    }
+
+    function updateHighlights() {
+        // Reset all classes
+        for(let y=0; y<gridSize; y++) {
+            for(let x=0; x<gridSize; x++) {
+                grid[y][x].element.classList.remove('connected', 'win');
+            }
+        }
+        
+        let visited = new Set();
+        let queue = [startPos];
+        let win = false;
+        
+        while(queue.length > 0) {
+            let curr = queue.shift();
+            let key = `${curr.x},${curr.y}`;
+            if(visited.has(key)) continue;
+            visited.add(key);
+            
+            grid[curr.y][curr.x].element.classList.add('connected');
+            
+            if(curr.x === endPos.x && curr.y === endPos.y) {
+                win = true;
+            }
+            
+            let tile = grid[curr.y][curr.x];
+            let ports = getPorts(tile);
+            
+            for(let p of ports) {
+                let dx = p === 1 ? 1 : p === 3 ? -1 : 0;
+                let dy = p === 2 ? 1 : p === 0 ? -1 : 0;
+                let nx = curr.x + dx;
+                let ny = curr.y + dy;
+                
+                if(nx >= 0 && nx < gridSize && ny >= 0 && ny < gridSize) {
+                    let nTile = grid[ny][nx];
+                    let nPorts = getPorts(nTile);
+                    let opp = (p + 2) % 4;
+                    if(nPorts.includes(opp)) {
+                        queue.push({x: nx, y: ny});
+                    }
+                }
+            }
+        }
+        
+        if(win) {
+            isAnimating = true;
+            visited.forEach(key => {
+                let [x, y] = key.split(',').map(Number);
+                grid[y][x].element.classList.remove('connected');
+                grid[y][x].element.classList.add('win');
+            });
+            setTimeout(() => {
+                spawnConfetti();
+                modal.classList.remove('hidden');
+            }, 600);
+        }
+    }
+
+    function spawnConfetti() {
+        const colors = ['#ff4d4f', '#3b82f6', '#10b981', '#f59e0b', '#a855f7'];
+        for(let i=0; i<60; i++) {
+            let conf = document.createElement('div');
+            conf.style.position = 'absolute';
+            conf.style.width = Math.random() > 0.5 ? '12px' : '8px';
+            conf.style.height = Math.random() > 0.5 ? '12px' : '8px';
+            conf.style.backgroundColor = colors[Math.floor(Math.random()*colors.length)];
+            conf.style.left = '50%';
+            conf.style.top = '40%';
+            conf.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+            conf.style.pointerEvents = 'none';
+            conf.style.zIndex = '1000';
+            conf.style.transform = `rotate(${Math.random() * 360}deg)`;
+            document.body.appendChild(conf);
+            
+            let angle = Math.random() * Math.PI * 2;
+            let velocity = 5 + Math.random() * 15;
+            let vx = Math.cos(angle) * velocity;
+            let vy = Math.sin(angle) * velocity - 5; // Upward bias
+            let rotSpeed = (Math.random() - 0.5) * 10;
+            let currentRot = 0;
+            
+            let opacity = 1;
+            function anim() {
+                let left = parseFloat(conf.style.left) + vx;
+                let top = parseFloat(conf.style.top) + vy;
+                vy += 0.4; // Gravity
+                currentRot += rotSpeed;
+                
+                conf.style.left = left + 'px';
+                conf.style.top = top + 'px';
+                conf.style.transform = `rotate(${currentRot}deg)`;
+                
+                if(top > window.innerHeight) {
+                    conf.remove();
+                    return;
+                }
+                requestAnimationFrame(anim);
+            }
+            requestAnimationFrame(anim);
+        }
+    }
+
+    // Start game
+    initLevel();
+</script>
+</body>
+</html>
