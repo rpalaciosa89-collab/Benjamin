@@ -437,16 +437,20 @@
     });
 
     // --- TTS SYSTEM ---
-    function speakProblem(a, b) {
+    function speakText(text) {
         if ('speechSynthesis' in window) {
             window.speechSynthesis.cancel();
             const msg = new SpeechSynthesisUtterance();
-            msg.text = `¿Cuánto es ${a} más ${b}?`;
+            msg.text = text;
             msg.lang = 'es-ES'; 
-            msg.rate = 0.9;
+            msg.rate = 1.0;
             msg.pitch = 1.2;
             window.speechSynthesis.speak(msg);
         }
+    }
+
+    function speakProblem(a, b) {
+        speakText(`¿Cuánto es ${a} más ${b}?`);
     }
 
     // --- GAME LOGIC ---
@@ -504,12 +508,20 @@
             score += 10;
             scoreDisplay.innerText = `Puntos: ${score}`;
             
+            // Lower music volume while speaking
+            if (bgMusic) bgMusic.volume = 0.2;
+            speakText(`${currentProblem.a} más ${currentProblem.b} es ${currentProblem.result}`);
+            
             successSound.currentTime = 0;
             successSound.play().catch(e => console.log("Audio play failed", e));
             
-            setTimeout(showWinModal, 600);
+            setTimeout(() => {
+                if (bgMusic) bgMusic.volume = 1.0;
+                showWinModal();
+            }, 1500); // Wait a bit more for the speech to finish
         } else {
             btn.classList.add('wrong');
+            speakText('Ese no');
             setTimeout(() => btn.classList.remove('wrong'), 500);
         }
     }
