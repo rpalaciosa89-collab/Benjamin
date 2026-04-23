@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Color Fun!</title>
+    <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+        body {
+            background: linear-gradient(135deg, #ffe259 0%, #ffa751 100%);
+            font-family: 'Baloo 2', cursive, sans-serif;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+        .app {
+            background: #ffffff;
+            width: 100%;
+            max-width: 450px;
+            height: 100vh;
+            max-height: 900px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+        @media (min-width: 450px) {
+            .app {
+                border-radius: 24px;
+                height: 90vh;
+            }
+        }
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 24px 10px;
+            background: #fff;
+            border-bottom: 2px solid #f1f5f9;
+            z-index: 10;
+        }
+        
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+        .menu-btn {
+            width: 44px;
+            height: 44px;
+            background: #eef2f5;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 20px;
+            cursor: pointer;
+            transition: transform 0.2s, background 0.3s;
+            color: #333;
+        }
+        .menu-btn:active { transform: scale(0.9); }
+        .menu-btn.active { background: #dbeafe; }
+        
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: #ffffff;
+            min-width: 220px;
+            box-shadow: 0px 8px 24px rgba(0,0,0,0.15);
+            border-radius: 16px;
+            z-index: 100;
+            top: 55px;
+            left: 0;
+            overflow: hidden;
+            border: 2px solid #f1f5f9;
+        }
+        .dropdown-content.show {
+            display: block;
+            animation: fadeIn 0.2s ease-out;
+        }
+        .dropdown-content a {
+            color: #4a4a4a;
+            padding: 14px 20px;
+            text-decoration: none;
+            display: block;
+            font-weight: 600;
+            font-size: 16px;
+            transition: background 0.2s;
+        }
+        .dropdown-content a:hover {
+            background-color: #f8fafc;
+        }
+        .dropdown-content a.active {
+            background-color: #e6f7ff;
+            color: #f97316;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .level-info {
+            text-align: center;
+            flex: 1;
+        }
+        .level-info h1 {
+            margin: 0;
+            font-size: 24px;
+            color: #2c3e50;
+            font-weight: 800;
+        }
+        .hearts {
+            color: #f97316;
+            font-size: 18px;
+            margin-top: 2px;
+        }
+        
+        .game-area {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            background: #f8fafc;
+            position: relative;
+        }
+        
+        .grid {
+            display: grid;
+            gap: 12px;
+            width: 100%;
+            max-width: 400px;
+            padding: 16px;
+            background: #ffffff;
+            border-radius: 24px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.06);
+            align-content: center;
+        }
+        
+        .card {
+            width: 100%;
+            aspect-ratio: 1;
+            perspective: 1000px;
+            cursor: pointer;
+        }
+        .card-inner {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transition: transform 0.5s cubic-bezier(0.4, 0.2, 0.2, 1);
+            transform-style: preserve-3d;
+        }
+        .card.flipped .card-inner, .card.matched .card-inner {
+            transform: rotateY(180deg);
+        }
+        
+        /* Efecto pop al coincidir */
+        .card.matched {
+            animation: pop 0.4s ease-out;
+        }
+        @keyframes pop {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        
+        .card-front, .card-back {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            backface-visibility: hidden;
+            border-radius: 16px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .card-front {
+            background: #ffffff;
+            border: 4px solid #f1f5f9;
+            font-size: 36px;
+            color: #cbd5e1;
+            /* Patrón bonito en la parte de atrás de la carta (boca abajo) */
+            background-image: radial-gradient(#e2e8f0 20%, transparent 20%), radial-gradient(#e2e8f0 20%, transparent 20%);
+            background-color: #f8fafc;
+            background-position: 0 0, 10px 10px;
+            background-size: 20px 20px;
+        }
+        
+        .card-back {
+            transform: rotateY(180deg);
+            border: 4px solid rgba(255,255,255,0.3);
+        }
+        
+        .modal {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255,255,255,0.85);
+            backdrop-filter: blur(8px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            opacity: 1;
+            transition: opacity 0.4s;
+        }
+        .modal.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+        .modal-content {
+            background: #fff;
+            padding: 40px 30px;
+            border-radius: 32px;
+            text-align: center;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.15);
+            transform: scale(1) translateY(0);
+            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            width: 85%;
+            max-width: 320px;
+        }
+        .modal.hidden .modal-content {
+            transform: scale(0.8) translateY(20px);
+        }
+        .modal h2 {
+            color: #f97316;
+            font-size: 32px;
+            margin: 0 0 8px;
+            font-weight: 800;
+        }
+        .modal p {
+            color: #64748b;
+            font-size: 18px;
+            margin: 0 0 28px;
+            font-weight: 500;
+        }
+        .btn {
+            background: #f97316;
+            color: #fff;
+            border: none;
+            padding: 16px 32px;
+            font-size: 20px;
+            font-family: inherit;
+            font-weight: 700;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 8px 20px rgba(249, 115, 22, 0.3);
+            transition: transform 0.2s, box-shadow 0.2s;
+            width: 100%;
+        }
+        .btn:active {
+            transform: translateY(4px);
+            box-shadow: 0 4px 10px rgba(249, 115, 22, 0.3);
+        }
+        
+        .instructions {
+            position: absolute;
+            bottom: 20px;
+            text-align: center;
+            width: 100%;
+            color: #64748b;
+            font-weight: 500;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="app">
+    <header>
+        <div class="dropdown">
+            <div class="menu-btn" id="menu-btn">☰</div>
+            <div class="dropdown-content" id="dropdown-menu">
+                <a href="../benji-al-rescate/index.html">🐶 Benji al Rescate!</a>
+                <a href="#" class="active">🎨 Color Fun!</a>
+            </div>
+        </div>
+        <div class="level-info">
+            <h1 id="level-title">Nivel 1</h1>
+            <div class="hearts" id="pairs-display" style="font-weight: 700;">Pares: 0/2</div>
+        </div>
+        <div style="width: 44px"></div>
+    </header>
+    
+    <div class="game-area">
+        <div class="grid" id="grid"></div>
+        <div class="instructions">Toca para descubrir los colores</div>
+    </div>
+    
+    <div id="result-modal" class="modal hidden">
+        <div class="modal-content">
+            <div id="modal-emoji" style="font-size: 60px; margin-bottom: 10px;">🌟</div>
+            <h2 id="modal-title">¡Excelente!</h2>
+            <p id="modal-desc">¡Encontraste todos los colores!</p>
+            <button class="btn" id="next-btn">Siguiente Nivel 🚀</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // --- DROPDOWN MENU ---
+    document.addEventListener('DOMContentLoaded', () => {
+        const menuBtn = document.getElementById('menu-btn');
+        const dropdownMenu = document.getElementById('dropdown-menu');
+        
+        menuBtn.addEventListener('click', (e) => {
+            dropdownMenu.classList.toggle('show');
+            menuBtn.classList.toggle('active');
+            e.stopPropagation();
+        });
+        
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.dropdown')) {
+                dropdownMenu.classList.remove('show');
+                menuBtn.classList.remove('active');
+            }
+        });
+    });
+
+    // --- TTS SYSTEM ---
+    function speakColor(colorName) {
+        if ('speechSynthesis' in window) {
+            window.speechSynthesis.cancel(); // Stop any current speaking
+            const msg = new SpeechSynthesisUtterance();
+            msg.text = colorName;
+            msg.lang = 'es-ES'; 
+            msg.rate = 1.1; // Un poco más rápido y alegre
+            msg.pitch = 1.2; // Tono ligeramente más agudo para niños
+            window.speechSynthesis.speak(msg);
+        }
+    }
+
+    // --- GAME LOGIC ---
+    const COLORS = [
+        { name: 'Rojo', hex: '#ef4444' },
+        { name: 'Azul', hex: '#3b82f6' },
+        { name: 'Verde', hex: '#10b981' },
+        { name: 'Amarillo', hex: '#fbbf24' },
+        { name: 'Morado', hex: '#8b5cf6' },
+        { name: 'Naranja', hex: '#f97316' },
+        { name: 'Rosa', hex: '#ec4899' },
+        { name: 'Celeste', hex: '#06b6d4' }
+    ];
+
+    let currentLevel = 1;
+    let cards = [];
+    let flippedCards = [];
+    let matchedPairs = 0;
+    let totalPairs = 0;
+    let isLocked = false;
+
+    const container = document.getElementById('grid');
+    const modal = document.getElementById('result-modal');
+    const nextBtn = document.getElementById('next-btn');
+    const levelTitle = document.getElementById('level-title');
+    const pairsDisplay = document.getElementById('pairs-display');
+
+    nextBtn.addEventListener('click', () => {
+        modal.classList.add('hidden');
+        currentLevel++;
+        initLevel();
+    });
+
+    function initLevel() {
+        // Nivel 1: 2 pares (4 cartas)
+        // Nivel 2: 3 pares (6 cartas)
+        // Nivel 3: 4 pares (8 cartas)
+        // Nivel 4: 6 pares (12 cartas)
+        // Nivel 5: 8 pares (16 cartas)
+        
+        if(currentLevel === 1) totalPairs = 2;
+        else if(currentLevel === 2) totalPairs = 3;
+        else if(currentLevel === 3) totalPairs = 4;
+        else if(currentLevel === 4) totalPairs = 6;
+        else totalPairs = 8;
+        
+        matchedPairs = 0;
+        flippedCards = [];
+        isLocked = false;
+        
+        levelTitle.innerText = `Nivel ${currentLevel}`;
+        pairsDisplay.innerText = `Pares: 0/${totalPairs}`;
+        
+        generateCards(totalPairs);
+        renderGrid();
+    }
+
+    function generateCards(pairsCount) {
+        // Shuffle colors to pick random ones for this level
+        const shuffledColors = [...COLORS].sort(() => Math.random() - 0.5);
+        const selectedColors = shuffledColors.slice(0, pairsCount);
+        
+        // Create 2 of each
+        cards = [];
+        selectedColors.forEach(color => {
+            cards.push({ ...color, id: Math.random() });
+            cards.push({ ...color, id: Math.random() });
+        });
+        
+        // Shuffle cards
+        cards.sort(() => Math.random() - 0.5);
+    }
+
+    function renderGrid() {
+        container.innerHTML = '';
+        
+        // Set columns based on card count
+        let cols = 2;
+        if(cards.length >= 6) cols = 3;
+        if(cards.length >= 12) cols = 4;
+        
+        container.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+        
+        cards.forEach((card, index) => {
+            const el = document.createElement('div');
+            el.className = 'card';
+            
+            el.innerHTML = `
+                <div class="card-inner">
+                    <div class="card-front">❓</div>
+                    <div class="card-back" style="background-color: ${card.hex};"></div>
+                </div>
+            `;
+            
+            el.addEventListener('click', () => flipCard(el, card, index));
+            card.element = el;
+            card.isFlipped = false;
+            card.isMatched = false;
+            
+            container.appendChild(el);
+        });
+    }
+
+    function flipCard(el, card, index) {
+        if (isLocked) return;
+        if (card.isFlipped || card.isMatched) return;
+        
+        // Flip visual
+        el.classList.add('flipped');
+        card.isFlipped = true;
+        
+        // Speak color name!
+        speakColor(card.name);
+        
+        flippedCards.push(card);
+        
+        if (flippedCards.length === 2) {
+            checkMatch();
+        }
+    }
+
+    function checkMatch() {
+        isLocked = true;
+        const [card1, card2] = flippedCards;
+        
+        if (card1.name === card2.name) {
+            // Match!
+            matchedPairs++;
+            pairsDisplay.innerText = `Pares: ${matchedPairs}/${totalPairs}`;
+            
+            card1.isMatched = true;
+            card2.isMatched = true;
+            
+            setTimeout(() => {
+                card1.element.classList.add('matched');
+                card2.element.classList.add('matched');
+                
+                flippedCards = [];
+                isLocked = false;
+                
+                if (matchedPairs === totalPairs) {
+                    setTimeout(showWinModal, 600);
+                }
+            }, 300);
+            
+        } else {
+            // No match
+            setTimeout(() => {
+                card1.element.classList.remove('flipped');
+                card2.element.classList.remove('flipped');
+                
+                card1.isFlipped = false;
+                card2.isFlipped = false;
+                
+                flippedCards = [];
+                isLocked = false;
+            }, 1000);
+        }
+    }
+
+    function showWinModal() {
+        spawnConfetti();
+        modal.classList.remove('hidden');
+    }
+
+    function spawnConfetti() {
+        const colors = ['#ef4444', '#3b82f6', '#10b981', '#fbbf24', '#8b5cf6'];
+        for(let i=0; i<60; i++) {
+            let conf = document.createElement('div');
+            conf.style.position = 'absolute';
+            conf.style.width = Math.random() > 0.5 ? '12px' : '8px';
+            conf.style.height = Math.random() > 0.5 ? '12px' : '8px';
+            conf.style.backgroundColor = colors[Math.floor(Math.random()*colors.length)];
+            conf.style.left = '50%';
+            conf.style.top = '40%';
+            conf.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+            conf.style.pointerEvents = 'none';
+            conf.style.zIndex = '1000';
+            conf.style.transform = `rotate(${Math.random() * 360}deg)`;
+            document.body.appendChild(conf);
+            
+            let angle = Math.random() * Math.PI * 2;
+            let velocity = 5 + Math.random() * 15;
+            let vx = Math.cos(angle) * velocity;
+            let vy = Math.sin(angle) * velocity - 5; 
+            let rotSpeed = (Math.random() - 0.5) * 10;
+            let currentRot = 0;
+            
+            let opacity = 1;
+            function anim() {
+                let left = parseFloat(conf.style.left) + vx;
+                let top = parseFloat(conf.style.top) + vy;
+                vy += 0.4; 
+                currentRot += rotSpeed;
+                
+                conf.style.left = left + 'px';
+                conf.style.top = top + 'px';
+                conf.style.transform = `rotate(${currentRot}deg)`;
+                
+                if(top > window.innerHeight) {
+                    conf.remove();
+                    return;
+                }
+                requestAnimationFrame(anim);
+            }
+            requestAnimationFrame(anim);
+        }
+    }
+
+    // Start game
+    initLevel();
+</script>
+</body>
+</html>
