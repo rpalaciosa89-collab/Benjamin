@@ -320,6 +320,8 @@
 </div>
 
 <script>
+    const successSound = new Audio('../color-fun/floraphonic-woman-excited-cheers-and-phrases-says-yippee-2-186752.mp3');
+
     // --- DROPDOWN MENU ---
     document.addEventListener('DOMContentLoaded', () => {
         const menuBtn = document.getElementById('menu-btn');
@@ -389,6 +391,8 @@
         const modalDesc = document.getElementById('modal-desc');
         
         if(win) {
+            successSound.currentTime = 0;
+            successSound.play().catch(e => console.log("Audio play failed", e));
             modalEmoji.innerText = '🌟';
             modalTitle.innerText = '¡Lo lograste!';
             modalTitle.style.color = '#10b981';
