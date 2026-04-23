@@ -289,6 +289,7 @@
         <div class="level-info">
             <h1 id="level-title">Nivel 1</h1>
             <div class="hearts" id="pairs-display" style="font-weight: 700;">Pares: 0/2</div>
+            <div id="moves-display" style="color: #ef4444; font-weight: 700; font-size: 14px; margin-top: 2px;">Intentos: 0</div>
         </div>
         <div style="width: 44px"></div>
     </header>
@@ -361,16 +362,25 @@
     let matchedPairs = 0;
     let totalPairs = 0;
     let isLocked = false;
+    let maxMoves = 0;
+    let movesLeft = 0;
+    let isGameOver = false;
 
     const container = document.getElementById('grid');
     const modal = document.getElementById('result-modal');
     const nextBtn = document.getElementById('next-btn');
     const levelTitle = document.getElementById('level-title');
     const pairsDisplay = document.getElementById('pairs-display');
+    const movesDisplay = document.getElementById('moves-display');
+    const modalEmoji = document.getElementById('modal-emoji');
+    const modalTitle = document.getElementById('modal-title');
+    const modalDesc = document.getElementById('modal-desc');
 
     nextBtn.addEventListener('click', () => {
         modal.classList.add('hidden');
-        currentLevel++;
+        if (!isGameOver) {
+            currentLevel++;
+        }
         initLevel();
     });
 
@@ -387,12 +397,16 @@
         else if(currentLevel === 4) totalPairs = 6;
         else totalPairs = 8;
         
+        maxMoves = Math.ceil(totalPairs * 2);
+        movesLeft = maxMoves;
         matchedPairs = 0;
         flippedCards = [];
         isLocked = false;
+        isGameOver = false;
         
         levelTitle.innerText = `Nivel ${currentLevel}`;
         pairsDisplay.innerText = `Pares: 0/${totalPairs}`;
+        movesDisplay.innerText = `Intentos: ${movesLeft}`;
         
         generateCards(totalPairs);
         renderGrid();
@@ -463,8 +477,12 @@
     }
 
     function checkMatch() {
+        if (isGameOver) return;
         isLocked = true;
         const [card1, card2] = flippedCards;
+        
+        movesLeft--;
+        movesDisplay.innerText = `Intentos: ${movesLeft}`;
         
         if (card1.name === card2.name) {
             // Match!
@@ -485,6 +503,8 @@
                 
                 if (matchedPairs === totalPairs) {
                     setTimeout(showWinModal, 600);
+                } else if (movesLeft === 0) {
+                    setTimeout(showLoseModal, 600);
                 }
             }, 300);
             
@@ -498,13 +518,32 @@
                 card2.isFlipped = false;
                 
                 flippedCards = [];
-                isLocked = false;
+                if (movesLeft === 0) {
+                    showLoseModal();
+                } else {
+                    isLocked = false;
+                }
             }, 1000);
         }
     }
 
     function showWinModal() {
+        modalEmoji.innerText = '🌟';
+        modalTitle.innerText = '¡Excelente!';
+        modalTitle.style.color = '#f97316';
+        modalDesc.innerText = '¡Encontraste todos los colores!';
+        nextBtn.innerText = 'Siguiente Nivel 🚀';
         spawnConfetti();
+        modal.classList.remove('hidden');
+    }
+
+    function showLoseModal() {
+        isGameOver = true;
+        modalEmoji.innerText = '💔';
+        modalTitle.innerText = '¡Oh no!';
+        modalTitle.style.color = '#ef4444';
+        modalDesc.innerText = 'Se acabaron los intentos. ¡Tú puedes!';
+        nextBtn.innerText = 'Volver a intentar 🔄';
         modal.classList.remove('hidden');
     }
 
