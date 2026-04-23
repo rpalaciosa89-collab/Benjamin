@@ -299,7 +299,7 @@
         </div>
         <div class="level-info">
             <h1 id="level-title">Nivel 1</h1>
-            <div class="hearts">❤️❤️❤️❤️❤️</div>
+            <div class="hearts" id="moves-display" style="font-weight: 700;">Movimientos: 0</div>
         </div>
         <div class="music-btn" id="music-btn" title="Música">🔇</div>
     </header>
@@ -309,11 +309,11 @@
         <div class="instructions">Toca los caminos para girarlos</div>
     </div>
     
-    <div id="win-modal" class="modal hidden">
+    <div id="result-modal" class="modal hidden">
         <div class="modal-content">
-            <div style="font-size: 60px; margin-bottom: 10px;">🌟</div>
-            <h2>¡Lo lograste!</h2>
-            <p>¡Benji rescató a su amigo!</p>
+            <div id="modal-emoji" style="font-size: 60px; margin-bottom: 10px;">🌟</div>
+            <h2 id="modal-title">¡Lo lograste!</h2>
+            <p id="modal-desc">¡Benji rescató a su amigo!</p>
             <button class="btn" id="next-btn">Siguiente Nivel 🚀</button>
         </div>
     </div>
@@ -364,17 +364,47 @@
     let startPos = null;
     let endPos = null;
     let isAnimating = false;
+    let extraMovesAllowed = 5;
+    let movesRemaining = 0;
+    let isWinModal = true;
 
     const container = document.getElementById('grid');
-    const modal = document.getElementById('win-modal');
+    const modal = document.getElementById('result-modal');
     const nextBtn = document.getElementById('next-btn');
     const levelTitle = document.getElementById('level-title');
+    const movesDisplay = document.getElementById('moves-display');
 
     nextBtn.addEventListener('click', () => {
         modal.classList.add('hidden');
-        currentLevel++;
+        if(isWinModal) {
+            currentLevel++;
+        }
         initLevel();
     });
+
+    function showModal(win) {
+        isWinModal = win;
+        const modalEmoji = document.getElementById('modal-emoji');
+        const modalTitle = document.getElementById('modal-title');
+        const modalDesc = document.getElementById('modal-desc');
+        
+        if(win) {
+            modalEmoji.innerText = '🌟';
+            modalTitle.innerText = '¡Lo lograste!';
+            modalTitle.style.color = '#10b981';
+            modalDesc.innerText = '¡Benji rescató a su amigo!';
+            nextBtn.innerText = 'Siguiente Nivel 🚀';
+            nextBtn.style.background = '#3b82f6';
+        } else {
+            modalEmoji.innerText = '💔';
+            modalTitle.innerText = '¡Sin movimientos!';
+            modalTitle.style.color = '#ef4444';
+            modalDesc.innerText = 'Inténtalo de nuevo';
+            nextBtn.innerText = 'Reintentar 🔄';
+            nextBtn.style.background = '#ef4444';
+        }
+        modal.classList.remove('hidden');
+    }
 
     function initLevel() {
         isAnimating = false;
@@ -386,6 +416,9 @@
         grid = levelData.grid;
         startPos = levelData.start;
         endPos = levelData.end;
+        
+        movesRemaining = levelData.requiredClicks + extraMovesAllowed;
+        movesDisplay.innerText = `Movimientos: ${movesRemaining}`;
         
         renderGrid();
         updateHighlights();
@@ -425,6 +458,7 @@
         dfs(start.x, start.y, []);
         
         const dirMap = { '0,-1': 0, '1,0': 1, '0,1': 2, '-1,0': 3 };
+        let requiredClicks = 0;
         
         // Generate path tiles
         path.forEach((p, i) => {
@@ -464,6 +498,15 @@
             
             // Randomly rotate, except start and end will be fixed later
             let currentRot = Math.floor(Math.random() * 4);
+            
+            if (i !== 0 && i !== path.length - 1) {
+                if (type === 'straight') {
+                    requiredClicks += (rot % 2 === currentRot % 2) ? 0 : 1;
+                } else if (type === 'corner') {
+                    requiredClicks += (rot - currentRot + 4) % 4;
+                }
+            }
+            
             tempGrid[p.y][p.x] = { type, correctRot: rot, rot: currentRot, x: p.x, y: p.y };
         });
         
@@ -484,7 +527,7 @@
         tempGrid[start.y][start.x].rot = tempGrid[start.y][start.x].correctRot;
         tempGrid[end.y][end.x].rot = tempGrid[end.y][end.x].correctRot;
         
-        return { grid: tempGrid, start, end };
+        return { grid: tempGrid, start, end, requiredClicks };
     }
 
     function renderGrid() {
@@ -529,6 +572,9 @@
                     let currentRotStr = svg.style.transform;
                     let currentDeg = parseInt(currentRotStr.replace(/[^0-9\-]/g, '')) || 0;
                     svg.style.transform = `rotate(${currentDeg + 90}deg)`;
+                    
+                    movesRemaining--;
+                    movesDisplay.innerText = `Movimientos: ${movesRemaining}`;
                     
                     updateHighlights();
                 });
@@ -598,7 +644,12 @@
             });
             setTimeout(() => {
                 spawnConfetti();
-                modal.classList.remove('hidden');
+                showModal(true);
+            }, 600);
+        } else if (movesRemaining <= 0) {
+            isAnimating = true;
+            setTimeout(() => {
+                showModal(false);
             }, 600);
         }
     }
