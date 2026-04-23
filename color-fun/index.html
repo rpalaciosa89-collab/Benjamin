@@ -309,6 +309,8 @@
 </div>
 
 <script>
+    const eheatusSound = new Audio('../benji-al-rescate/Wheatus - Teenage Dirtbag (Official Video).mp3');
+
     // --- DROPDOWN MENU ---
     document.addEventListener('DOMContentLoaded', () => {
         const menuBtn = document.getElementById('menu-btn');
@@ -466,6 +468,8 @@
         
         if (card1.name === card2.name) {
             // Match!
+            eheatusSound.currentTime = 0;
+            eheatusSound.play().catch(e => console.log("Audio play failed", e));
             matchedPairs++;
             pairsDisplay.innerText = `Pares: ${matchedPairs}/${totalPairs}`;
             
