@@ -348,20 +348,34 @@
     let isMusicPlaying = false;
 
     const musicBtn = document.getElementById('music-btn');
+    
+    function startMusic() {
+        if (!isMusicPlaying) {
+            bgMusic.play().then(() => {
+                isMusicPlaying = true;
+                musicBtn.innerText = '🔊';
+                musicBtn.classList.add('playing');
+            }).catch(e => console.log('Audio play failed:', e));
+        }
+    }
+
     musicBtn.addEventListener('click', () => {
-        isMusicPlaying = !isMusicPlaying;
         if(isMusicPlaying) {
-            musicBtn.innerText = '🔊';
-            musicBtn.classList.add('playing');
-            bgMusic.play().catch(e => console.log('Audio play failed:', e));
-        } else {
             musicBtn.innerText = '🔇';
             musicBtn.classList.remove('playing');
             bgMusic.pause();
+            isMusicPlaying = false;
+        } else {
+            startMusic();
         }
     });
 
+    // Start music on first interaction
+    document.addEventListener('click', startMusic, { once: true });
+    document.addEventListener('touchstart', startMusic, { once: true });
+
     let currentLevel = 1;
+    let consecutiveWins = 0;
     let gridSize = 3;
     let grid = [];
     let startPos = null;
@@ -380,7 +394,16 @@
     nextBtn.addEventListener('click', () => {
         modal.classList.add('hidden');
         if(isWinModal) {
-            currentLevel++;
+            consecutiveWins++;
+            if (consecutiveWins >= 6) {
+                currentLevel++;
+                consecutiveWins = 0;
+            }
+        } else {
+            consecutiveWins = 0;
+            if (currentLevel > 1) {
+                currentLevel--;
+            }
         }
         initLevel();
     });
