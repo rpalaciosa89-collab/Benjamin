@@ -72,3 +72,25 @@ para [beneficio].
 Criterios de aceptación:
 - [ ] Dado [contexto], cuando [acción], entonces [resultado esperado]
 ```
+
+## 📝 Changelog (Living Spec)
+
+**Regla de oro**: La spec es un documento VIVO. Cada cambio post-implementación DEBE registrarse.
+
+```markdown
+### v1.3 — YYYY-MM-DD — Título del cambio
+| Cambio | Motivo | Agente |
+|--------|--------|--------|
+| Descripción de lo que cambió | Por qué se cambió | Agent XX |
+
+### v1.0 — YYYY-MM-DD — SPEC APROBADA
+| Cambio | Motivo | Agente |
+|--------|--------|--------|
+| Spec inicial | Spec-Driven Development | Agent 11 |
+```
+
+**Principios**:
+- La spec refleja el juego TAL COMO ESTÁ CONSTRUIDO, no como se planeó
+- Si el código y la spec difieren → se actualiza la spec
+- Cada cambio lleva: fecha, descripción, motivo, y agente responsable
+- Versionado semántico: `vMAJOR.MINOR` (MAJOR = nuevas features, MINOR = fixes/ajustes)

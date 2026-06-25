@@ -3,7 +3,7 @@
 > **Agent 11 — Specification Engineer**  
 > **Agente responsable**: Agent 06 (Game Designer) → Agent 07 (UX Children) → Agent 15 (Gameplay Engineer)  
 > **Fecha**: 2026-06-25  
-> **Versión**: 1.0 — ✅ APROBADA
+> **Versión**: 1.3 — ✅ LIVING SPEC (refleja el juego construido)
 
 ---
 
@@ -313,4 +313,43 @@ UserSystem.saveProgress(GAME_ID, { currentLevel, completedLetters, totalCoins, a
 
 ---
 
-**✅ SPEC APROBADA — Lista para Agent 06 (Game Designer)**
+## 📝 Changelog (Living Spec)
+
+> **Regla**: Todo cambio post-implementación se registra aquí.  
+> La spec refleja el juego TAL COMO ESTÁ CONSTRUIDO, no como se planeó originalmente.
+
+### v1.3 — 2026-06-25 — Estandarización de navegación
+
+| Cambio | Motivo | Agente |
+|--------|--------|--------|
+| Agregado menú ☰ (dropdown) en header | Navegación cruzada entre los 4 juegos, igual que Aritmi/Benji/ColorFun | Agent 07 |
+| Links en dropdown: Inicio, Benji al Rescate, Color Fun, Aritmi, MagicABC | Experiencia de usuario consistente | Agent 07 |
+
+### v1.2 — 2026-06-25 — Fix: Path de la letra B
+
+| Cambio | Motivo | Agente |
+|--------|--------|--------|
+| Corregido `LETTER_PATHS['B']`: ahora traza AMBAS jorobas (superior e inferior) | El path anterior solo trazaba la joroba inferior (×2), haciendo que la B se viera como "b" | Agent 21 (QA) |
+| Path anterior: `(30,20)→↓→(130,230)→(130,130)→(30,130)→(150,130)→(150,230)→(30,230)` | Solo joroba inferior repetida | — |
+| Path nuevo: `(30,20)→↓→(130,230)→(130,130)→(30,130)→(130,130)→(130,20)→(30,20)` | Joroba inferior → conector → joroba superior | Agent 15 |
+
+### v1.1 — 2026-06-25 — Fix: Renderizado de mayúsculas
+
+| Cambio | Motivo | Agente |
+|--------|--------|--------|
+| Agregado `text-transform: uppercase` en CSS de `.letter-display` | Protección contra renderizado en minúscula | Agent 21 (QA) |
+| Agregado `.toUpperCase()` en JS para letras y palabras | Doble seguridad: CSS + JS | Agent 15 |
+| Ambos aplican a letras individuales (`item.toUpperCase()`) y palabras (`item.word.toUpperCase()`) | Consistencia visual | Agent 15 |
+
+### v1.0 — 2026-06-25 — SPEC APROBADA
+
+| Cambio | Motivo | Agente |
+|--------|--------|--------|
+| Spec inicial completa | Spec-Driven Development | Agent 11 |
+| 15 intentos para degradación (no 20) | Balance neurociencia + práctica (Agent 02) | Agent 01 |
+| Botón "Ayuda ✨" en niveles 4-6 (no "sin guía") | Autonomía sin castigo | Agent 01 |
+| Monedas decorativas en Fase 1 | Evitar frustración (no hay tienda aún) | Agent 01 |
+
+---
+
+**✅ SPEC VIVA — Refleja el juego construido en `magic-abc/index.html`**
