@@ -178,34 +178,45 @@ const MusicPlayer = (() => {
     _panelEl = document.createElement('div');
     _panelEl.className = 'music-panel';
     _panelEl.innerHTML = `
-      <div class="music-panel-header">🎵 Elige la música</div>
+      <div class="music-panel-item music-panel-mute" data-action="mute">🔇 Silenciar</div>
       <div class="music-panel-list"></div>
     `;
     _panelEl.style.cssText = `
-      position: fixed;
-      bottom: 80px;
-      right: 16px;
-      background: rgba(30,10,60,0.95);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      border: 1px solid rgba(255,255,255,0.2);
-      border-radius: 20px;
-      padding: 16px;
+      position: absolute;
+      background: #ffffff;
+      border-radius: 16px;
+      padding: 8px;
       z-index: 9999;
-      min-width: 220px;
-      box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+      min-width: 200px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.2);
       display: none;
       font-family: 'Baloo 2', cursive, sans-serif;
+      border: 1px solid #e5e7eb;
     `;
 
-    const header = _panelEl.querySelector('.music-panel-header');
-    header.style.cssText = `
-      color: #fff;
-      font-size: 16px;
+    // Botón de silenciar
+    const muteBtn = _panelEl.querySelector('.music-panel-mute');
+    muteBtn.style.cssText = `
+      display: block;
+      width: 100%;
+      padding: 10px 14px;
+      margin-bottom: 4px;
+      border: none;
+      border-radius: 12px;
+      background: #fef2f2;
+      color: #ef4444;
+      font-family: 'Baloo 2', cursive, sans-serif;
+      font-size: 15px;
       font-weight: 700;
-      margin-bottom: 12px;
-      text-align: center;
+      cursor: pointer;
+      text-align: left;
+      transition: all 0.15s ease;
     `;
+    muteBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      pause();
+      _hidePanel();
+    });
 
     const list = _panelEl.querySelector('.music-panel-list');
     PLAYLIST.forEach(track => {
@@ -217,17 +228,17 @@ const MusicPlayer = (() => {
         display: block;
         width: 100%;
         padding: 10px 14px;
-        margin-bottom: 6px;
-        border: 2px solid rgba(255,255,255,0.15);
-        border-radius: 14px;
-        background: rgba(255,255,255,0.08);
-        color: #fff;
+        margin-bottom: 4px;
+        border: none;
+        border-radius: 12px;
+        background: #f3f4f6;
+        color: #374151;
         font-family: 'Baloo 2', cursive, sans-serif;
         font-size: 15px;
         font-weight: 600;
         cursor: pointer;
         text-align: left;
-        transition: all 0.2s ease;
+        transition: all 0.15s ease;
       `;
       item.addEventListener('click', (e) => {
         e.stopPropagation();
@@ -236,9 +247,8 @@ const MusicPlayer = (() => {
       });
       
       item.addEventListener('mouseenter', () => {
-        if (track.id !== _currentTrackId) {
-          item.style.background = 'rgba(255,255,255,0.18)';
-          item.style.borderColor = 'rgba(255,255,255,0.4)';
+        if (track.id !== _currentTrackId || !_isPlaying) {
+          item.style.background = '#e5e7eb';
         }
       });
       item.addEventListener('mouseleave', () => {
@@ -262,21 +272,48 @@ const MusicPlayer = (() => {
     if (!_panelEl) return;
     const items = _panelEl.querySelectorAll('.music-panel-item');
     items.forEach(item => {
-      if (item.dataset.trackId === _currentTrackId) {
-        item.style.background = 'rgba(124,58,237,0.5)';
-        item.style.borderColor = '#a78bfa';
+      if (item.dataset.trackId === _currentTrackId && _isPlaying) {
+        item.style.background = '#ede9fe';
+        item.style.color = '#7c3aed';
         item.style.fontWeight = '800';
       } else {
-        item.style.background = 'rgba(255,255,255,0.08)';
-        item.style.borderColor = 'rgba(255,255,255,0.15)';
+        item.style.background = '#f3f4f6';
+        item.style.color = '#374151';
         item.style.fontWeight = '600';
       }
     });
   }
 
+  function _positionPanel() {
+    if (!_panelEl || !_btnEl) return;
+    const btnRect = _btnEl.getBoundingClientRect();
+    const panelWidth = 200;
+    
+    // Posicionar debajo del botón, alineado a la derecha
+    let top = btnRect.bottom + 6;
+    let left = btnRect.right - panelWidth;
+    
+    // Si se sale por la izquierda, alinear a la izquierda del botón
+    if (left < 8) left = btnRect.left;
+    
+    // Si se sale por la derecha, ajustar
+    if (left + panelWidth > window.innerWidth - 8) {
+      left = window.innerWidth - panelWidth - 8;
+    }
+    
+    // Si se sale por abajo, mostrar arriba del botón
+    if (top + 200 > window.innerHeight - 8) {
+      top = btnRect.top - 210;
+    }
+    
+    _panelEl.style.top = top + 'px';
+    _panelEl.style.left = left + 'px';
+  }
+
   function _showPanel() {
     if (!_panelEl) _createPanel();
     _updatePanelUI();
+    _positionPanel();
     _panelEl.style.display = 'block';
     _panelVisible = true;
   }
@@ -307,55 +344,30 @@ const MusicPlayer = (() => {
     const state = _loadState();
     _currentTrackId = state.trackId;
 
-    // Encontrar o crear el botón
+    // Encontrar el botón
     _btnEl = document.getElementById(buttonElementId);
     if (!_btnEl) {
       console.warn('MusicPlayer: no se encontró el botón con id:', buttonElementId);
       return;
     }
 
-    // Reemplazar comportamiento del botón existente
+    // Reemplazar para limpiar event listeners previos
     const newBtn = _btnEl.cloneNode(true);
     _btnEl.parentNode.replaceChild(newBtn, _btnEl);
     _btnEl = newBtn;
 
+    // NO forzar CSS — respetar el estilo del juego
     _updateButtonUI();
 
-    // Click = toggle play/pause
+    // Click = abrir/cerrar selector de canciones
     _btnEl.addEventListener('click', (e) => {
       e.stopPropagation();
-      toggle();
-    });
-
-    // Doble click o long press = abrir selector de canciones
-    let longPressTimer;
-    _btnEl.addEventListener('touchstart', (e) => {
-      longPressTimer = setTimeout(() => {
-        e.preventDefault();
-        _togglePanel();
-      }, 500);
-    });
-    _btnEl.addEventListener('touchend', () => {
-      clearTimeout(longPressTimer);
-    });
-    _btnEl.addEventListener('touchmove', () => {
-      clearTimeout(longPressTimer);
-    });
-
-    // Click derecho o doble click en desktop
-    _btnEl.addEventListener('contextmenu', (e) => {
       e.preventDefault();
-      _togglePanel();
-    });
-    _btnEl.addEventListener('dblclick', (e) => {
-      e.preventDefault();
-      e.stopPropagation();
       _togglePanel();
     });
 
     // Auto-reproducir si estaba sonando antes
     if (state.wasPlaying) {
-      // Intentamos en la primera interacción del usuario
       const startOnInteraction = () => {
         const track = _getTrack(_currentTrackId);
         _createAudio(track.src);
@@ -368,29 +380,13 @@ const MusicPlayer = (() => {
       document.addEventListener('touchstart', startOnInteraction, { once: true });
     }
 
-    // CSS para el botón (por si el juego no lo tiene)
-    _btnEl.style.cssText = `
-      position: fixed;
-      top: 16px;
-      right: 16px;
-      width: 48px;
-      height: 48px;
-      border-radius: 50%;
-      background: rgba(255,255,255,0.15);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      border: 2px solid rgba(255,255,255,0.25);
-      font-size: 22px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      z-index: 9998;
-      transition: all 0.2s ease;
-      user-select: none;
-      -webkit-user-select: none;
-      -webkit-tap-highlight-color: transparent;
-    `;
+    // Reposicionar panel al hacer scroll o resize
+    window.addEventListener('scroll', () => {
+      if (_panelVisible) _positionPanel();
+    }, { passive: true });
+    window.addEventListener('resize', () => {
+      if (_panelVisible) _positionPanel();
+    }, { passive: true });
   }
 
   // ==========================================
