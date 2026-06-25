@@ -317,6 +317,8 @@ let traceState = {
     userPoints: [],
     segmentsCovered: new Set(),
     totalSegments: 0,
+    reconnectTimer: null,
+    lastPoint: null,
 };
 
 // ==========================================
@@ -500,7 +502,7 @@ function validateTrace() {
     traceState.totalSegments = segments.length;
     traceState.segmentsCovered = new Set();
     
-    const THRESHOLD = 22; // distance in px to consider segment covered
+    const THRESHOLD = 16; // distancia en px para considerar segmento cubierto
     
     for (let si = 0; si < segments.length; si++) {
         const seg = segments[si];
@@ -524,7 +526,7 @@ function calculateRealTimeProgress(mx, my) {
     for (let si = 0; si < segments.length; si++) {
         const seg = segments[si];
         const d = distPointToSegment(mx, my, seg.a.x, seg.a.y, seg.b.x, seg.b.y);
-        if (d < 22) {
+        if (d < 16) {
             traceState.segmentsCovered.add(si);
         }
     }
@@ -633,12 +635,36 @@ function getPos(e) {
 
 function handleStart(e) {
     e.preventDefault();
+    
+    // Cancelar cualquier validación pendiente (ventana de reconexión)
+    if (traceState.reconnectTimer) {
+        clearTimeout(traceState.reconnectTimer);
+        traceState.reconnectTimer = null;
+    }
+    
     stopGuide();
+    const pos = getPos(e);
+    
+    // Si hay puntos previos y el nuevo toque está cerca → RECONECTAR
+    if (traceState.userPoints.length > 0 && traceState.lastPoint) {
+        const dx = pos.x - traceState.lastPoint.x;
+        const dy = pos.y - traceState.lastPoint.y;
+        const dist = Math.sqrt(dx*dx + dy*dy);
+        if (dist < 50) {
+            // Reconexión exitosa: continuar el trazo
+            traceState.isDrawing = true;
+            traceState.userPoints.push(pos);
+            wrapper.classList.add('active');
+            return;
+        }
+    }
+    
+    // Nuevo trazo desde cero
     traceState.isDrawing = true;
     traceState.userPoints = [];
     traceState.segmentsCovered = new Set();
+    traceState.lastPoint = null;
     wrapper.classList.add('active');
-    const pos = getPos(e);
     traceState.userPoints.push(pos);
 }
 
@@ -647,6 +673,7 @@ function handleMove(e) {
     if (!traceState.isDrawing) return;
     const pos = getPos(e);
     traceState.userPoints.push(pos);
+    traceState.lastPoint = pos;
     traceState.pathProgress = calculateRealTimeProgress(pos.x, pos.y);
     updateProgressBar();
 }
@@ -657,15 +684,27 @@ function handleEnd(e) {
     traceState.isDrawing = false;
     wrapper.classList.remove('active');
     
-    const coverage = validateTrace();
-    traceState.pathProgress = coverage * 100;
-    updateProgressBar();
-    
-    if (coverage >= 0.65) {
-        onTraceSuccess();
-    } else {
-        onTraceFail();
-    }
+    // Ventana de reconexión: esperar 1.5s antes de validar
+    // Si el niño vuelve a tocar en ese tiempo, se cancela la validación
+    traceState.reconnectTimer = setTimeout(() => {
+        traceState.reconnectTimer = null;
+        
+        // Validar que el niño haya hecho al menos 8 puntos de trazo
+        if (traceState.userPoints.length < 8) {
+            onTraceFail();
+            return;
+        }
+        
+        const coverage = validateTrace();
+        traceState.pathProgress = coverage * 100;
+        updateProgressBar();
+        
+        if (coverage >= 0.75) {
+            onTraceSuccess();
+        } else {
+            onTraceFail();
+        }
+    }, 1500);
 }
 
 canvas.addEventListener('touchstart', handleStart, {passive:false});
