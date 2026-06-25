@@ -1,7 +1,7 @@
 // Service Worker — Edgy Benji
 // Cachea todos los archivos para juego offline
 
-const CACHE_NAME = 'edgy-benji-v1';
+const CACHE_NAME = 'edgy-benji-v2';
 
 const ARCHIVOS = [
   './',
