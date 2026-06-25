@@ -371,12 +371,10 @@
     </div>
 </div>
 
+<script src="../assets/music-player.js"></script>
 <script>
     // --- CONFIG ---
     const successSound = new Audio('../color-fun/floraphonic-woman-excited-cheers-and-phrases-says-yippee-2-186752.mp3');
-    const bgMusic = new Audio('../assets/bg_music.mp3');
-    bgMusic.loop = true;
-    let isMusicPlaying = false;
     const EMOJIS = ['🍎', '⭐', '🎈', '🍪', '🐸', '🦁', '🚗', '🍦'];
 
     let score = 0;
@@ -412,30 +410,8 @@
             }
         });
 
-        const musicBtn = document.getElementById('music-btn');
-        function startMusic() {
-            if (!isMusicPlaying) {
-                bgMusic.play().then(() => {
-                    isMusicPlaying = true;
-                    musicBtn.innerText = '🔊';
-                    musicBtn.classList.add('playing');
-                }).catch(e => console.log('Audio play failed:', e));
-            }
-        }
-
-        musicBtn.addEventListener('click', () => {
-            if(isMusicPlaying) {
-                musicBtn.innerText = '🔇';
-                musicBtn.classList.remove('playing');
-                bgMusic.pause();
-                isMusicPlaying = false;
-            } else {
-                startMusic();
-            }
-        });
-
-        document.addEventListener('click', startMusic, { once: true });
-        document.addEventListener('touchstart', startMusic, { once: true });
+        // 🎵 Music Player (cancion seleccionable, se guarda entre sesiones)
+        MusicPlayer.init('music-btn');
 
         generateProblem();
     });
@@ -520,7 +496,7 @@
             scoreDisplay.innerText = `Puntos: ${score}`;
             
             // Lower music volume while speaking
-            try { if (bgMusic && !bgMusic.paused) bgMusic.volume = 0.2; } catch(e) {}
+            try { const a = MusicPlayer.getAudio(); if (a && !a.paused) a.volume = 0.2; } catch(e) {}
             
             successSound.currentTime = 0;
             successSound.play().then(() => {
@@ -531,7 +507,7 @@
             }).catch(e => console.log("Audio play failed", e));
             
             setTimeout(() => {
-                try { if (bgMusic) bgMusic.volume = 1.0; } catch(e) {}
+                try { const a = MusicPlayer.getAudio(); if (a) a.volume = 1.0; } catch(e) {}
                 showWinModal();
             }, 2000); 
         } else {

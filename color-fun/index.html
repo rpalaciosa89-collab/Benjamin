@@ -329,11 +329,9 @@
     </div>
 </div>
 
+<script src="../assets/music-player.js"></script>
 <script>
     const successSound = new Audio('floraphonic-woman-excited-cheers-and-phrases-says-yippee-2-186752.mp3');
-    const bgMusic = new Audio('../assets/bg_music.mp3');
-    bgMusic.loop = true;
-    let isMusicPlaying = false;
 
     // --- DROPDOWN MENU ---
     document.addEventListener('DOMContentLoaded', () => {
@@ -353,30 +351,8 @@
             }
         });
 
-        const musicBtn = document.getElementById('music-btn');
-        function startMusic() {
-            if (!isMusicPlaying) {
-                bgMusic.play().then(() => {
-                    isMusicPlaying = true;
-                    musicBtn.innerText = '🔊';
-                    musicBtn.classList.add('playing');
-                }).catch(e => console.log('Audio play failed:', e));
-            }
-        }
-
-        musicBtn.addEventListener('click', () => {
-            if(isMusicPlaying) {
-                musicBtn.innerText = '🔇';
-                musicBtn.classList.remove('playing');
-                bgMusic.pause();
-                isMusicPlaying = false;
-            } else {
-                startMusic();
-            }
-        });
-
-        document.addEventListener('click', startMusic, { once: true });
-        document.addEventListener('touchstart', startMusic, { once: true });
+        // 🎵 Music Player (cancion seleccionable, se guarda entre sesiones)
+        MusicPlayer.init('music-btn');
     });
 
     // --- TTS SYSTEM ---
