@@ -17,8 +17,8 @@
 - [x] Music Player con selector de canciones
 - [x] CI/CD con GitHub Actions
 
-### En progreso
-- [ ] **MagicABC** — Trazado de letras y palabras (edad 2-5)
+### Completado
+- [x] **MagicABC** — Trazado de letras y palabras (edad 2-5)
 - [ ] Ampliar catálogo de juegos (Meta: 10 juegos)
 - [ ] Dashboard de progreso para padres (localStorage)
 - [ ] Sistema de logros unificado entre juegos

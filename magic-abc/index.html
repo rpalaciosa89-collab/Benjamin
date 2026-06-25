@@ -1,0 +1,912 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>MagicABC - ¡Traza Letras!</title>
+    <link rel="icon" type="image/svg+xml" href="../favicon.svg">
+    <link rel="manifest" href="../manifest.json">
+    <meta name="theme-color" content="#a8d8ea">
+    <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        :root {
+            --bg-1: #a8d8ea; --bg-2: #ffdab9;
+            --yellow: #FFD166; --orange: #FFB347; --green: #06D6A0;
+            --turquoise: #118AB2; --pink: #EF476F;
+            --trazado-bg: #FFFEF9; --text: #2D3436; --text-light: #636e72;
+        }
+        body {
+            font-family: 'Baloo 2', cursive, sans-serif;
+            background: linear-gradient(135deg, var(--bg-1) 0%, var(--bg-2) 100%);
+            min-height: 100vh; min-height: 100dvh;
+            display: flex; align-items: center; justify-content: center;
+            overflow: hidden; touch-action: none;
+            -webkit-user-select: none; user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .app {
+            width: 100%; max-width: 480px; height: 100vh; height: 100dvh;
+            max-height: 900px; background: #fff;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.15);
+            display: flex; flex-direction: column; position: relative;
+        }
+        @media (min-width: 480px) { .app { border-radius: 24px; height: 92vh; height: 92dvh; } }
+
+        header {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 14px 18px 8px; background: #fff; border-bottom: 2px solid #f1f5f9;
+            z-index: 10; flex-shrink: 0;
+        }
+        .hud-coins { font-size: 16px; font-weight: 700; color: var(--orange); }
+        .level-badge { font-size: 14px; font-weight: 700; color: var(--turquoise); background: #e0f2fe; padding: 4px 12px; border-radius: 50px; }
+        .music-btn, .help-btn {
+            width: 40px; height: 40px; border-radius: 50%; background: #eef2f5;
+            border: none; font-size: 20px; cursor: pointer; display: flex;
+            align-items: center; justify-content: center; transition: transform 0.15s;
+            flex-shrink: 0;
+        }
+        .music-btn:active, .help-btn:active { transform: scale(0.9); }
+        .help-btn { margin-right: 4px; }
+
+        .game-area {
+            flex: 1; display: flex; flex-direction: column; align-items: center;
+            padding: 12px 16px; overflow: hidden; position: relative;
+        }
+        .letter-display {
+            font-family: Arial, sans-serif; font-weight: bold;
+            font-size: 56px; color: var(--text); text-align: center;
+            margin-bottom: 4px; min-height: 64px; display: flex;
+            align-items: center; gap: 8px;
+        }
+        .letter-emoji { font-size: 40px; }
+        .guide-label {
+            font-size: 13px; color: var(--text-light); margin-bottom: 6px;
+            text-align: center; min-height: 20px;
+        }
+
+        .canvas-wrapper {
+            position: relative; width: 100%; max-width: 360px;
+            flex: 1; min-height: 220px;
+            background: var(--trazado-bg);
+            border-radius: 24px; border: 3px dashed #e5e7eb;
+            overflow: hidden; cursor: crosshair;
+        }
+        .canvas-wrapper.active { border-color: var(--pink); }
+        .canvas-wrapper.success { border-color: var(--green); animation: shake 0.5s ease; }
+        canvas {
+            position: absolute; inset: 0; width: 100%; height: 100%;
+            touch-action: none;
+        }
+
+        .progress-bar-wrap {
+            width: 100%; max-width: 360px; height: 10px;
+            background: #e5e7eb; border-radius: 5px; margin-top: 10px; overflow: hidden;
+        }
+        .progress-bar-fill {
+            height: 100%; border-radius: 5px;
+            background: linear-gradient(90deg, var(--green), var(--turquoise));
+            transition: width 0.15s ease; width: 0%;
+        }
+
+        .btn-row {
+            display: flex; gap: 10px; margin-top: 12px; flex-shrink: 0; padding-bottom: 8px;
+        }
+        .btn {
+            padding: 14px 24px; border-radius: 50px; border: none;
+            font-family: 'Baloo 2', cursive, sans-serif; font-size: 16px; font-weight: 800;
+            cursor: pointer; transition: transform 0.15s, box-shadow 0.15s;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1); color: #fff; min-height: 54px;
+        }
+        .btn:active { transform: scale(0.95); }
+        .btn-next { background: var(--yellow); color: #7c5e00; }
+        .btn-reset { background: var(--turquoise); }
+        .btn-guide { background: var(--green); color: #064e3b; }
+
+        .overlay {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(4px); z-index: 100;
+            display: none; align-items: center; justify-content: center; padding: 20px;
+        }
+        .overlay.show { display: flex; }
+        .modal {
+            background: #fff; border-radius: 28px; padding: 32px 24px;
+            max-width: 340px; width: 100%; text-align: center;
+            font-family: 'Baloo 2', cursive, sans-serif; color: var(--text);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        .modal .m-emoji { font-size: 64px; display: block; animation: bounce 1s ease-in-out infinite; }
+        @keyframes bounce {
+            0%,100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+        }
+        .modal h2 { font-size: 24px; font-weight: 800; margin: 10px 0 6px; }
+        .modal p { font-size: 15px; color: var(--text-light); margin-bottom: 16px; }
+        .modal .coins-earned { font-size: 20px; font-weight: 800; color: var(--orange); }
+        .modal .btn { width: 100%; }
+
+        #profile-badge {
+            display: flex; align-items: center; cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+<div class="app">
+    <header>
+        <div class="level-badge" id="level-badge">Nivel 1</div>
+        <div class="hud-coins" id="coins-display">⭐ 0</div>
+        <div id="profile-badge"></div>
+        <button class="help-btn" id="help-btn" title="Ayuda">✨</button>
+        <button class="music-btn" id="music-btn" title="Música">🔇</button>
+    </header>
+
+    <div class="game-area">
+        <div class="letter-display" id="letter-display"></div>
+        <div class="guide-label" id="guide-label">¡Sigue el camino punteado!</div>
+        <div class="canvas-wrapper" id="canvas-wrapper">
+            <canvas id="trace-canvas"></canvas>
+        </div>
+        <div class="progress-bar-wrap"><div class="progress-bar-fill" id="progress-bar"></div></div>
+        <div class="btn-row">
+            <button class="btn btn-guide" id="btn-guide" style="display:none;">✨ Ayuda</button>
+            <button class="btn btn-reset" id="btn-reset">🔄 Reiniciar</button>
+        </div>
+    </div>
+</div>
+
+<div class="overlay" id="overlay-success">
+    <div class="modal">
+        <span class="m-emoji" id="success-emoji">✨</span>
+        <h2 id="success-title">¡Perfecto!</h2>
+        <p id="success-desc">¡Trazo completado!</p>
+        <div class="coins-earned">+5 ⭐</div>
+        <button class="btn btn-next" id="btn-next">Siguiente ▶</button>
+    </div>
+</div>
+
+<div class="overlay" id="overlay-achievement">
+    <div class="modal">
+        <span class="m-emoji">🏆</span>
+        <h2 id="achievement-title">¡Logro!</h2>
+        <p id="achievement-desc"></p>
+        <button class="btn btn-next" id="btn-achievement-ok">¡Genial!</button>
+    </div>
+</div>
+
+<div class="overlay" id="overlay-reset">
+    <div class="modal">
+        <span class="m-emoji">🔄</span>
+        <h2>¿Reiniciar?</h2>
+        <p>Se borrará todo tu progreso y volverás al nivel 1.</p>
+        <button class="btn btn-reset" id="btn-reset-confirm" style="margin-bottom:8px;">Sí, reiniciar</button>
+        <button class="btn btn-next" id="btn-reset-cancel" style="background:#e5e7eb;color:var(--text);">Cancelar</button>
+    </div>
+</div>
+
+<script src="../assets/user-system.js"></script>
+<script src="../assets/music-player.js"></script>
+<script>
+// ==========================================
+//  MAGICABC — Juego de Trazado de Letras
+//  Agent 15 — Gameplay Engineer
+// ==========================================
+
+const GAME_ID = 'magicabc';
+
+// ==========================================
+//  LETTER PATHS (simplified for children)
+//  Each path is an array of {x,y} points
+//  Coordinate space: 200x250
+// ==========================================
+const LETTER_PATHS = {
+'A': [{x:20,y:230},{x:70,y:20},{x:130,y:230},{x:45,y:140},{x:110,y:140}],
+'B': [{x:30,y:20},{x:30,y:230},{x:130,y:230},{x:130,y:130},{x:30,y:130},{x:150,y:130},{x:150,y:230},{x:30,y:230}],
+'C': [{x:170,y:40},{x:80,y:20},{x:30,y:70},{x:20,y:140},{x:30,y:210},{x:80,y:230},{x:170,y:210}],
+'D': [{x:30,y:20},{x:30,y:230},{x:110,y:230},{x:170,y:180},{x:170,y:70},{x:110,y:20},{x:30,y:20}],
+'E': [{x:170,y:30},{x:30,y:30},{x:30,y:125},{x:120,y:125},{x:30,y:125},{x:30,y:220},{x:170,y:220}],
+'F': [{x:170,y:30},{x:30,y:30},{x:30,y:125},{x:120,y:125},{x:30,y:125},{x:30,y:220}],
+'G': [{x:170,y:40},{x:80,y:20},{x:25,y:70},{x:25,y:180},{x:50,y:225},{x:120,y:225},{x:170,y:180},{x:170,y:130},{x:100,y:130}],
+'H': [{x:30,y:20},{x:30,y:230},{x:30,y:130},{x:150,y:130},{x:150,y:20},{x:150,y:230}],
+'I': [{x:100,y:20},{x:100,y:230}],
+'J': [{x:160,y:30},{x:160,y:170},{x:130,y:225},{x:70,y:225},{x:30,y:190}],
+'K': [{x:30,y:20},{x:30,y:230},{x:30,y:130},{x:160,y:20},{x:30,y:130},{x:160,y:230}],
+'L': [{x:30,y:20},{x:30,y:230},{x:170,y:230}],
+'M': [{x:20,y:230},{x:20,y:20},{x:100,y:150},{x:180,y:20},{x:180,y:230}],
+'N': [{x:30,y:230},{x:30,y:20},{x:170,y:230},{x:170,y:20}],
+'Ñ': [{x:30,y:230},{x:30,y:20},{x:170,y:230},{x:170,y:20},{x:55,y:20},{x:130,y:20}],
+'O': [{x:100,y:20},{x:30,y:50},{x:30,y:200},{x:70,y:230},{x:130,y:230},{x:170,y:200},{x:170,y:50},{x:100,y:20}],
+'P': [{x:30,y:20},{x:30,y:230},{x:30,y:20},{x:140,y:20},{x:170,y:70},{x:170,y:110},{x:140,y:130},{x:30,y:130}],
+'Q': [{x:100,y:20},{x:30,y:50},{x:30,y:200},{x:70,y:230},{x:130,y:230},{x:170,y:200},{x:170,y:50},{x:100,y:20},{x:120,y:180},{x:180,y:240}],
+'R': [{x:30,y:20},{x:30,y:230},{x:30,y:20},{x:140,y:20},{x:170,y:70},{x:170,y:110},{x:140,y:130},{x:30,y:130},{x:130,y:130},{x:170,y:230}],
+'S': [{x:160,y:40},{x:80,y:20},{x:30,y:60},{x:30,y:100},{x:80,y:130},{x:140,y:160},{x:170,y:190},{x:140,y:220},{x:60,y:230}],
+'T': [{x:100,y:20},{x:100,y:230},{x:20,y:20},{x:180,y:20}],
+'U': [{x:30,y:20},{x:30,y:180},{x:60,y:225},{x:140,y:225},{x:170,y:180},{x:170,y:20}],
+'V': [{x:20,y:20},{x:100,y:230},{x:180,y:20}],
+'W': [{x:10,y:20},{x:50,y:230},{x:100,y:130},{x:150,y:230},{x:190,y:20}],
+'X': [{x:20,y:20},{x:180,y:230},{x:100,y:125},{x:180,y:20},{x:20,y:230}],
+'Y': [{x:20,y:20},{x:100,y:130},{x:180,y:20},{x:100,y:130},{x:100,y:230}],
+'Z': [{x:20,y:20},{x:180,y:20},{x:20,y:230},{x:180,y:230}]
+};
+
+// ==========================================
+//  LEVELS
+// ==========================================
+const LEVELS = [
+    { level:1, type:'letters', items:'ABCDEFG'.split(''), guideAuto:true, guideDelay:1500 },
+    { level:2, type:'letters', items:'HIJKLMNÑOPQRSTUVWXYZ'.split(''), guideAuto:true, guideDelay:1200 },
+    { level:3, type:'words', items:[
+        {word:'SOL',emoji:'☀️'},{word:'LUZ',emoji:'💡'},{word:'PAN',emoji:'🍞'},
+        {word:'MAR',emoji:'🌊'},{word:'PEZ',emoji:'🐟'},{word:'OSO',emoji:'🐻'},
+        {word:'GATO',emoji:'🐱'},{word:'CASA',emoji:'🏠'},{word:'MANO',emoji:'✋'},{word:'BOCA',emoji:'👄'}
+    ], guideAuto:true, guideDelay:1000 },
+    { level:4, type:'words', items:[
+        {word:'MAMÁ',emoji:'👩'},{word:'PAPÁ',emoji:'👨'},{word:'NIÑO',emoji:'👦'},
+        {word:'NIÑA',emoji:'👧'},{word:'BEBÉ',emoji:'👶'},{word:'ABRAZO',emoji:'🤗'},
+        {word:'BESITO',emoji:'😘'},{word:'AMIGO',emoji:'👫'},{word:'FELIZ',emoji:'😊'},{word:'GRANDE',emoji:'🌟'}
+    ], guideAuto:false, guideDelay:1000 },
+    { level:5, type:'words', items:[
+        {word:'NUBE',emoji:'☁️'},{word:'FLOR',emoji:'🌸'},{word:'ÁRBOL',emoji:'🌳'},
+        {word:'LLUVIA',emoji:'🌧️'},{word:'ESTRELLA',emoji:'⭐'},{word:'PLANETA',emoji:'🪐'},
+        {word:'MONTAÑA',emoji:'⛰️'},{word:'JARDÍN',emoji:'🌺'},{word:'RÍO',emoji:'🏞️'},{word:'PLAYA',emoji:'🏖️'}
+    ], guideAuto:false, guideDelay:1000 },
+    { level:6, type:'words', items:[
+        {word:'COLEGIO',emoji:'🏫'},{word:'MAESTRA',emoji:'👩‍🏫'},{word:'PINTURA',emoji:'🎨'},
+        {word:'MÚSICA',emoji:'🎵'},{word:'CUENTO',emoji:'📖'},{word:'LÁPIZ',emoji:'✏️'},
+        {word:'LIBRO',emoji:'📚'},{word:'NÚMERO',emoji:'🔢'},{word:'LETRA',emoji:'🔤'},{word:'JUEGO',emoji:'🎮'}
+    ], guideAuto:false, guideDelay:1000 }
+];
+
+// ==========================================
+//  GAME STATE
+// ==========================================
+const saved = UserSystem.getProgress(GAME_ID);
+let state = {
+    level: saved.level || 1,
+    coins: saved.coins || 0,
+    completedLetters: saved.completedLetters || [],
+    achievements: saved.achievements || [],
+    failedAttempts: 0,
+    currentItemIndex: saved.currentItemIndex || 0,
+};
+
+let traceState = {
+    isDrawing: false,
+    pathProgress: 0,
+    guideActive: false,
+    guideAnimId: null,
+    userPoints: [],
+    segmentsCovered: new Set(),
+    totalSegments: 0,
+};
+
+// ==========================================
+//  CANVAS SETUP
+// ==========================================
+const canvas = document.getElementById('trace-canvas');
+const ctx = canvas.getContext('2d');
+const wrapper = document.getElementById('canvas-wrapper');
+let dpr = window.devicePixelRatio || 1;
+
+function resizeCanvas() {
+    const rect = wrapper.getBoundingClientRect();
+    canvas.width = rect.width * dpr;
+    canvas.height = rect.height * dpr;
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.scale(dpr, dpr);
+}
+resizeCanvas();
+window.addEventListener('resize', () => { resizeCanvas(); renderPath(); });
+
+// ==========================================
+//  PATH CALCULATION
+// ==========================================
+function getCurrentItem() {
+    const lvl = LEVELS[state.level - 1];
+    const items = lvl.items;
+    const idx = state.currentItemIndex % items.length;
+    return items[idx];
+}
+
+function getItemType() {
+    return LEVELS[state.level - 1].type;
+}
+
+function getLetterPaths(letter) {
+    return LETTER_PATHS[letter.toUpperCase()] || LETTER_PATHS['I'];
+}
+
+function getCanvasPath(letterPath, scaleX, scaleY, offsetX, offsetY) {
+    return letterPath.map(p => ({
+        x: p.x * scaleX + offsetX,
+        y: p.y * scaleY + offsetY
+    }));
+}
+
+// Calculate path segments for validation
+function getPathSegments(path) {
+    const segments = [];
+    for (let i = 1; i < path.length; i++) {
+        segments.push({ a: path[i-1], b: path[i] });
+    }
+    return segments;
+}
+
+function distPointToSegment(px, py, ax, ay, bx, by) {
+    const dx = bx - ax, dy = by - ay;
+    const lenSq = dx*dx + dy*dy;
+    if (lenSq === 0) return Math.hypot(px - ax, py - ay);
+    let t = ((px - ax) * dx + (py - ay) * dy) / lenSq;
+    t = Math.max(0, Math.min(1, t));
+    return Math.hypot(px - (ax + t*dx), py - (ay + t*dy));
+}
+
+// ==========================================
+//  RENDER
+// ==========================================
+let currentPath = [];
+let wordLetterPaths = []; // For words: array of {path, x, y, width}
+
+function calculateRenderPath() {
+    const rect = wrapper.getBoundingClientRect();
+    const w = rect.width, h = rect.height;
+    const item = getCurrentItem();
+    const type = getItemType();
+    const LETTER_W = 200, LETTER_H = 250;
+
+    if (type === 'letters') {
+        const scale = Math.min(w / LETTER_W, h / LETTER_H) * 0.78;
+        const path = getLetterPaths(item);
+        const ox = (w - LETTER_W * scale) / 2;
+        const oy = (h - LETTER_H * scale) / 2;
+        currentPath = getCanvasPath(path, scale, scale, ox, oy);
+        wordLetterPaths = [];
+    } else {
+        // Word: render multiple letters side by side
+        const word = item.word;
+        const letterCount = word.length;
+        const totalWidth = Math.min(w * 0.88, letterCount * 90);
+        const letterW = totalWidth / letterCount;
+        const scale = letterW / LETTER_W * 0.82;
+        const startX = (w - totalWidth) / 2;
+        currentPath = [];
+        wordLetterPaths = [];
+
+        for (let i = 0; i < word.length; i++) {
+            const ch = word[i].toUpperCase();
+            const lp = getLetterPaths(ch);
+            const ox = startX + i * letterW;
+            const oy = (h - LETTER_H * scale) / 2;
+            const cp = getCanvasPath(lp, scale, scale, ox, oy);
+            wordLetterPaths.push({ letter: ch, path: cp, x: ox, y: oy, w: letterW, h: LETTER_H * scale });
+            currentPath.push(...cp);
+        }
+    }
+}
+
+function renderPath() {
+    const rect = wrapper.getBoundingClientRect();
+    const w = rect.width, h = rect.height;
+    ctx.clearRect(0, 0, w, h);
+
+    // Draw dotted path
+    if (currentPath.length < 2) return;
+    ctx.setLineDash([8, 10]);
+    ctx.strokeStyle = '#d1d5db';
+    ctx.lineWidth = 6;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    ctx.beginPath();
+    ctx.moveTo(currentPath[0].x, currentPath[0].y);
+    for (let i = 1; i < currentPath.length; i++) {
+        ctx.lineTo(currentPath[i].x, currentPath[i].y);
+    }
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    // Draw user trace
+    if (traceState.userPoints.length > 1) {
+        ctx.strokeStyle = '#EF476F';
+        ctx.lineWidth = 5;
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        ctx.shadowColor = 'rgba(239,71,111,0.5)';
+        ctx.shadowBlur = 8;
+        ctx.beginPath();
+        ctx.moveTo(traceState.userPoints[0].x, traceState.userPoints[0].y);
+        for (let i = 1; i < traceState.userPoints.length; i++) {
+            ctx.lineTo(traceState.userPoints[i].x, traceState.userPoints[i].y);
+        }
+        ctx.stroke();
+        ctx.shadowBlur = 0;
+    }
+
+    // Draw guide ball
+    if (traceState.guideActive && currentPath.length > 0) {
+        const t = (Date.now() % 3000) / 3000;
+        const idx = Math.floor(t * (currentPath.length - 1));
+        const p = currentPath[Math.min(idx, currentPath.length - 1)];
+        ctx.fillStyle = '#FFD166';
+        ctx.shadowColor = 'rgba(255,209,102,0.7)';
+        ctx.shadowBlur = 15;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, 10, 0, Math.PI*2);
+        ctx.fill();
+        ctx.shadowBlur = 0;
+    }
+
+    // Draw word letter labels
+    if (wordLetterPaths.length > 0) {
+        ctx.fillStyle = '#e5e7eb';
+        ctx.font = 'bold 14px Arial';
+        ctx.textAlign = 'center';
+        wordLetterPaths.forEach(wl => {
+            ctx.fillText(wl.letter, wl.x + wl.w/2, wl.y - 8);
+        });
+    }
+}
+
+function updateProgressBar() {
+    const bar = document.getElementById('progress-bar');
+    bar.style.width = Math.round(traceState.pathProgress) + '%';
+}
+
+// ==========================================
+//  VALIDATION
+// ==========================================
+function validateTrace() {
+    if (currentPath.length < 2) return 0;
+    
+    const segments = getPathSegments(currentPath);
+    traceState.totalSegments = segments.length;
+    traceState.segmentsCovered = new Set();
+    
+    const THRESHOLD = 22; // distance in px to consider segment covered
+    
+    for (let si = 0; si < segments.length; si++) {
+        const seg = segments[si];
+        for (const up of traceState.userPoints) {
+            const d = distPointToSegment(up.x, up.y, seg.a.x, seg.a.y, seg.b.x, seg.b.y);
+            if (d < THRESHOLD) {
+                traceState.segmentsCovered.add(si);
+                break;
+            }
+        }
+    }
+    
+    const coverage = traceState.segmentsCovered.size / Math.max(segments.length, 1);
+    return coverage;
+}
+
+function calculateRealTimeProgress(mx, my) {
+    if (currentPath.length < 2) return traceState.pathProgress;
+    
+    const segments = getPathSegments(currentPath);
+    for (let si = 0; si < segments.length; si++) {
+        const seg = segments[si];
+        const d = distPointToSegment(mx, my, seg.a.x, seg.a.y, seg.b.x, seg.b.y);
+        if (d < 22) {
+            traceState.segmentsCovered.add(si);
+        }
+    }
+    
+    const cov = traceState.segmentsCovered.size / Math.max(segments.length, 1);
+    return Math.min(cov, 1) * 100;
+}
+
+// ==========================================
+//  AUDIO (Web Audio API)
+// ==========================================
+const AudioFX = (() => {
+    let ctx = null;
+    function getCtx() {
+        if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)();
+        return ctx;
+    }
+    function tone(freq, dur, type='sine', vol=0.2, delay=0) {
+        try {
+            const c = getCtx();
+            const o = c.createOscillator();
+            const g = c.createGain();
+            o.connect(g); g.connect(c.destination);
+            o.type = type;
+            o.frequency.setValueAtTime(freq, c.currentTime + delay);
+            g.gain.setValueAtTime(0, c.currentTime + delay);
+            g.gain.linearRampToValueAtTime(vol, c.currentTime + delay + 0.01);
+            g.gain.exponentialRampToValueAtTime(0.001, c.currentTime + delay + dur);
+            o.start(c.currentTime + delay);
+            o.stop(c.currentTime + delay + dur);
+        } catch(e) {}
+    }
+    return {
+        guia() { tone(600, 0.05, 'sine', 0.1); },
+        trazoExito() { tone(523,0.1,'sine',0.2,0); tone(659,0.1,'sine',0.2,0.1); tone(784,0.15,'sine',0.25,0.2); },
+        trazoReintento() { tone(400,0.08,'sine',0.15,0); tone(300,0.12,'sine',0.15,0.08); },
+        moneda() { tone(1200,0.08,'triangle',0.25); },
+        logro() { tone(523,0.1,'square',0.2,0); tone(659,0.1,'square',0.2,0.12); tone(784,0.1,'square',0.2,0.24); tone(1047,0.2,'square',0.25,0.36); },
+        nivelCompleto() {
+            [523,659,784,1047].forEach((f,i) => tone(f,0.2,'square',0.2,i*0.12));
+            setTimeout(() => { tone(523,0.4,'sine',0.15); tone(659,0.4,'sine',0.15); tone(784,0.4,'sine',0.15); }, 600);
+        },
+        confetiPop() { tone(900,0.03,'sine',0.08); }
+    };
+})();
+
+// ==========================================
+//  PARTICLES (Stars + Confetti)
+// ==========================================
+let particles = [];
+function spawnStars(x, y, count) {
+    for (let i = 0; i < count; i++) {
+        particles.push({
+            x, y, vx: (Math.random()-0.5)*4, vy: (Math.random()-0.8)*4 - 1,
+            life: 1, decay: 0.015 + Math.random()*0.025, size: 3 + Math.random()*6,
+            emoji: '✨', type: 'star'
+        });
+    }
+}
+function spawnConfetti(count) {
+    const rect = wrapper.getBoundingClientRect();
+    for (let i = 0; i < count; i++) {
+        particles.push({
+            x: Math.random() * rect.width, y: -10,
+            vx: (Math.random()-0.5)*3, vy: 1.5 + Math.random()*3,
+            life: 1, decay: 0.008 + Math.random()*0.012, size: 8 + Math.random()*10,
+            color: ['#FFD166','#EF476F','#06D6A0','#118AB2','#FFB347'][Math.floor(Math.random()*5)],
+            type: 'confetti'
+        });
+    }
+}
+
+function updateParticles() {
+    particles = particles.filter(p => p.life > 0);
+    particles.forEach(p => {
+        p.x += p.vx; p.y += p.vy;
+        if (p.type === 'confetti') { p.vx += (Math.random()-0.5)*0.3; p.vy += 0.05; }
+        p.life -= p.decay;
+    });
+}
+
+function renderParticles() {
+    const rect = wrapper.getBoundingClientRect();
+    particles.forEach(p => {
+        ctx.globalAlpha = p.life;
+        if (p.type === 'star') {
+            ctx.font = `${p.size*3}px serif`;
+            ctx.fillText('✨', p.x - p.size*1.5, p.y + p.size);
+        } else {
+            ctx.fillStyle = p.color;
+            ctx.fillRect(p.x, p.y, p.size*0.6, p.size);
+        }
+    });
+    ctx.globalAlpha = 1;
+}
+
+// ==========================================
+//  TOUCH / MOUSE HANDLERS
+// ==========================================
+function getPos(e) {
+    const rect = canvas.getBoundingClientRect();
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+    return { x: clientX - rect.left, y: clientY - rect.top };
+}
+
+function handleStart(e) {
+    e.preventDefault();
+    stopGuide();
+    traceState.isDrawing = true;
+    traceState.userPoints = [];
+    traceState.segmentsCovered = new Set();
+    wrapper.classList.add('active');
+    const pos = getPos(e);
+    traceState.userPoints.push(pos);
+}
+
+function handleMove(e) {
+    e.preventDefault();
+    if (!traceState.isDrawing) return;
+    const pos = getPos(e);
+    traceState.userPoints.push(pos);
+    traceState.pathProgress = calculateRealTimeProgress(pos.x, pos.y);
+    updateProgressBar();
+}
+
+function handleEnd(e) {
+    e.preventDefault();
+    if (!traceState.isDrawing) return;
+    traceState.isDrawing = false;
+    wrapper.classList.remove('active');
+    
+    const coverage = validateTrace();
+    traceState.pathProgress = coverage * 100;
+    updateProgressBar();
+    
+    if (coverage >= 0.65) {
+        onTraceSuccess();
+    } else {
+        onTraceFail();
+    }
+}
+
+canvas.addEventListener('touchstart', handleStart, {passive:false});
+canvas.addEventListener('touchmove', handleMove, {passive:false});
+canvas.addEventListener('touchend', handleEnd, {passive:false});
+canvas.addEventListener('mousedown', handleStart);
+canvas.addEventListener('mousemove', (e) => { if (traceState.isDrawing) handleMove(e); });
+canvas.addEventListener('mouseup', handleEnd);
+canvas.addEventListener('mouseleave', handleEnd);
+
+// ==========================================
+//  GUIDE BALL
+// ==========================================
+function startGuide() {
+    const lvl = LEVELS[state.level - 1];
+    const shouldAuto = lvl.guideAuto;
+    if (!shouldAuto) return;
+    
+    traceState.guideActive = true;
+    setTimeout(() => {
+        if (traceState.isDrawing) return; // user already drawing
+        traceState.guideAnimId = setInterval(() => {
+            renderPath();
+        }, 50);
+    }, lvl.guideDelay);
+}
+
+function stopGuide() {
+    traceState.guideActive = false;
+    if (traceState.guideAnimId) {
+        clearInterval(traceState.guideAnimId);
+        traceState.guideAnimId = null;
+    }
+}
+
+function showManualGuide() {
+    if (traceState.isDrawing || traceState.userPoints.length > 0) return;
+    traceState.guideActive = true;
+    traceState.guideAnimId = setInterval(() => {
+        renderPath();
+    }, 50);
+    setTimeout(() => stopGuide(), 2500);
+}
+
+// ==========================================
+//  GAME LOGIC
+// ==========================================
+function onTraceSuccess() {
+    wrapper.classList.add('success');
+    setTimeout(() => wrapper.classList.remove('success'), 600);
+    AudioFX.trazoExito();
+    spawnStars(canvas.width/2, canvas.height/2, 15);
+    spawnConfetti(30);
+    
+    state.coins += 5;
+    const item = getCurrentItem();
+    const itemKey = getItemType() === 'letters' ? item : item.word;
+    if (!state.completedLetters.includes(itemKey)) {
+        state.completedLetters.push(itemKey);
+    }
+    state.failedAttempts = 0;
+    
+    // Check achievements
+    checkAchievements();
+    
+    saveProgress();
+    updateHUD();
+    
+    // Show success overlay
+    document.getElementById('success-emoji').textContent = getItemType()==='letters' ? item : getCurrentItem().emoji;
+    document.getElementById('success-desc').textContent = getItemType()==='letters' 
+        ? `¡Letra ${item} completada!` 
+        : `¡Palabra "${getCurrentItem().word}" completada!`;
+    document.getElementById('overlay-success').classList.add('show');
+}
+
+function onTraceFail() {
+    AudioFX.trazoReintento();
+    traceState.userPoints = [];
+    traceState.segmentsCovered = new Set();
+    traceState.pathProgress = 0;
+    updateProgressBar();
+    
+    state.failedAttempts++;
+    saveProgress();
+    
+    // Degradation check
+    if (state.level > 1 && state.failedAttempts >= 15) {
+        state.level--;
+        state.failedAttempts = 0;
+        state.currentItemIndex = 0;
+        state.completedLetters = [];
+        saveProgress();
+        document.getElementById('guide-label').textContent = '😅 Bajamos un nivel. ¡Tú puedes!';
+        setTimeout(resetItem, 1500);
+    } else {
+        document.getElementById('guide-label').textContent = '¡Casi! Intenta de nuevo ✨';
+        setTimeout(() => {
+            document.getElementById('guide-label').textContent = '¡Sigue el camino punteado!';
+        }, 2000);
+        if (LEVELS[state.level-1].guideAuto) startGuide();
+        renderPath();
+    }
+}
+
+function checkAchievements() {
+    const ach = state.achievements;
+    let newAch = null;
+    
+    if (state.completedLetters.length >= 1 && !ach.includes('primer_trazo')) {
+        newAch = { id: 'primer_trazo', title: '✨ Primer trazo', desc: '¡Completaste tu primera letra!' };
+    } else if (state.completedLetters.filter(l => l.length===1 && l>='A' && l<='Z' || l==='Ñ').length >= 27 && !ach.includes('abecedario')) {
+        newAch = { id: 'abecedario', title: '🏆 Abecedario completo', desc: '¡Trazaste todas las letras!' };
+    } else if (state.coins >= 50 && !ach.includes('coleccionista')) {
+        newAch = { id: 'coleccionista', title: '💰 Coleccionista', desc: '¡Juntaste 50 monedas!' };
+    } else if (state.coins >= 100 && !ach.includes('maestro')) {
+        newAch = { id: 'maestro', title: '🌟 Maestro de letras', desc: '¡100 monedas! ¡Eres increíble!' };
+    }
+    
+    if (newAch && !ach.includes(newAch.id)) {
+        state.achievements.push(newAch.id);
+        AudioFX.logro();
+        document.getElementById('achievement-title').textContent = newAch.title;
+        document.getElementById('achievement-desc').textContent = newAch.desc;
+        setTimeout(() => document.getElementById('overlay-achievement').classList.add('show'), 800);
+    }
+}
+
+function nextItem() {
+    document.getElementById('overlay-success').classList.remove('show');
+    
+    const lvl = LEVELS[state.level - 1];
+    state.currentItemIndex++;
+    
+    // Check if level complete
+    if (state.currentItemIndex >= lvl.items.length) {
+        state.currentItemIndex = 0;
+        if (state.level < LEVELS.length) {
+            state.level++;
+            AudioFX.nivelCompleto();
+            spawnConfetti(50);
+            document.getElementById('guide-label').textContent = '🎉 ¡Nivel completado!';
+        } else {
+            // Game complete!
+            document.getElementById('guide-label').textContent = '🏆 ¡Juego completado! ¡Eres un genio!';
+        }
+    }
+    
+    state.completedLetters = [];
+    saveProgress();
+    updateHUD();
+    resetItem();
+}
+
+function resetItem() {
+    stopGuide();
+    traceState = {
+        isDrawing: false, pathProgress: 0, guideActive: false,
+        guideAnimId: null, userPoints: [], segmentsCovered: new Set(), totalSegments: 0
+    };
+    updateProgressBar();
+    calculateRenderPath();
+    renderPath();
+    updateLetterDisplay();
+    
+    // Guide
+    const lvl = LEVELS[state.level - 1];
+    const guideBtn = document.getElementById('btn-guide');
+    guideBtn.style.display = lvl.guideAuto ? 'none' : 'inline-block';
+    
+    if (lvl.guideAuto) {
+        startGuide();
+    }
+    
+    // Speak
+    speakItem();
+}
+
+// ==========================================
+//  TTS
+// ==========================================
+function speakItem() {
+    if (!('speechSynthesis' in window)) return;
+    window.speechSynthesis.cancel();
+    const item = getCurrentItem();
+    const text = getItemType() === 'letters' ? item : item.word;
+    const msg = new SpeechSynthesisUtterance(text);
+    msg.lang = 'es-ES';
+    msg.rate = 0.9;
+    msg.pitch = 1.2;
+    setTimeout(() => window.speechSynthesis.speak(msg), 300);
+}
+
+// ==========================================
+//  UI UPDATES
+// ==========================================
+function updateLetterDisplay() {
+    const display = document.getElementById('letter-display');
+    const item = getCurrentItem();
+    if (getItemType() === 'letters') {
+        display.innerHTML = `<span style="font-family:Arial,sans-serif;font-weight:bold;font-size:56px;">${item}</span>`;
+    } else {
+        display.innerHTML = `<span style="font-family:Arial,sans-serif;font-weight:bold;font-size:36px;">${item.word}</span> <span class="letter-emoji">${item.emoji}</span>`;
+    }
+    document.getElementById('guide-label').textContent = '¡Sigue el camino punteado!';
+}
+
+function updateHUD() {
+    document.getElementById('level-badge').textContent = 'Nivel ' + state.level;
+    document.getElementById('coins-display').textContent = '⭐ ' + state.coins;
+}
+
+function saveProgress() {
+    UserSystem.saveProgress(GAME_ID, {
+        level: state.level,
+        coins: state.coins,
+        completedLetters: state.completedLetters,
+        achievements: state.achievements,
+        failedAttempts: state.failedAttempts,
+        currentItemIndex: state.currentItemIndex,
+    });
+}
+
+// ==========================================
+//  BUTTONS
+// ==========================================
+document.getElementById('btn-next').addEventListener('click', nextItem);
+document.getElementById('btn-achievement-ok').addEventListener('click', () => {
+    document.getElementById('overlay-achievement').classList.remove('show');
+});
+document.getElementById('btn-guide').addEventListener('click', showManualGuide);
+document.getElementById('btn-reset').addEventListener('click', () => {
+    document.getElementById('overlay-reset').classList.add('show');
+});
+document.getElementById('btn-reset-confirm').addEventListener('click', () => {
+    state = {
+        level: 1, coins: 0, completedLetters: [], achievements: [],
+        failedAttempts: 0, currentItemIndex: 0
+    };
+    saveProgress();
+    updateHUD();
+    document.getElementById('overlay-reset').classList.remove('show');
+    resetItem();
+});
+document.getElementById('btn-reset-cancel').addEventListener('click', () => {
+    document.getElementById('overlay-reset').classList.remove('show');
+});
+
+// ==========================================
+//  INIT
+// ==========================================
+document.addEventListener('DOMContentLoaded', () => {
+    UserSystem.renderProfileBadge('profile-badge');
+    MusicPlayer.init('music-btn');
+    
+    updateHUD();
+    calculateRenderPath();
+    renderPath();
+    updateLetterDisplay();
+    
+    const lvl = LEVELS[state.level - 1];
+    const guideBtn = document.getElementById('btn-guide');
+    guideBtn.style.display = lvl.guideAuto ? 'none' : 'inline-block';
+    
+    if (lvl.guideAuto) startGuide();
+    setTimeout(speakItem, 500);
+});
+
+// ==========================================
+//  ANIMATION LOOP
+// ==========================================
+function gameLoop() {
+    updateParticles();
+    if (traceState.guideActive) {
+        // Guide animation handled by interval in startGuide
+    }
+    renderPath();
+    if (particles.length > 0) renderParticles();
+    requestAnimationFrame(gameLoop);
+}
+gameLoop();
+</script>
+</body>
+</html>

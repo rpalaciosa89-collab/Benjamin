@@ -16,6 +16,7 @@ const PRECACHE = [
   './aritmi/index.html',
   './benji-al-rescate/index.html',
   './color-fun/index.html',
+  './magic-abc/index.html',
 ];
 
 // Instalar: precachear solo esenciales (sin MP3s)
