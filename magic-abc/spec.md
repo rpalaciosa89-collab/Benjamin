@@ -322,7 +322,7 @@ UserSystem.saveProgress(GAME_ID, { currentLevel, completedLetters, totalCoins, a
 
 | Cambio | Motivo | Agente |
 |--------|--------|--------|
-| **Ventana de reconexión de 1.5s**: al levantar el dedo, el juego espera 1.5s antes de validar. Si el niño vuelve a tocar (<50px del último punto), el trazo continúa sin reiniciarse | Niños de 2-3 años levantan el dedo involuntariamente por motricidad fina en desarrollo. Sin esto, se frustran o pasan sin aprender | Agent 02 + 06 |
+| **Ventana de reconexión de 3s**: al levantar el dedo, el juego espera 3s antes de validar. Si el niño vuelve a tocar (<50px del último punto), el trazo continúa sin reiniciarse | Niños de 2-3 años levantan el dedo involuntariamente por motricidad fina en desarrollo. Sin esto, se frustran o pasan sin aprender. Ajustado de 1.5s → 3s tras prueba real | Agent 02 + 06 |
 | **Cobertura mínima sube de 65% → 75%** | Un niño que solo cubre 2/3 del camino no está aprendiendo el trazo completo | Agent 02 |
 | **Mínimo 8 puntos de trazo** para validar | Evita que un toque breve o garabato pase como trazo completo | Agent 21 |
 | **Tolerancia de segmento baja de 22px → 16px** | El dedo debe estar más cerca de la línea para contar como "cubierto" | Agent 21 |
@@ -332,7 +332,7 @@ UserSystem.saveProgress(GAME_ID, { currentLevel, completedLetters, totalCoins, a
 | Cobertura mínima | 65% | **75%** |
 | Tolerancia de segmento | 22px | **16px** |
 | Puntos mínimos | Sin límite | **8 puntos** |
-| Ventana de reconexión | No existía | **1.5 segundos** |
+| Ventana de reconexión | No existía | **3 segundos** |
 
 ### v1.3 — 2026-06-25 — Estandarización de navegación
 
