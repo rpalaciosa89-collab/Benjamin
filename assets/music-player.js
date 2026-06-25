@@ -22,10 +22,16 @@ const MusicPlayer = (() => {
       emoji: '🎵'
     },
     { 
-      id: 'michael', 
-      name: '🕺 Michael Jackson', 
-      src: '../assets/greatest-michael-jackson.mp3',
-      emoji: '🕺'
+      id: 'beatit', 
+      name: '🕺 Beat It', 
+      src: '../assets/Beat_It.mp3',
+      emoji: '🎸'
+    },
+    { 
+      id: 'billiejean', 
+      name: '🕺 Billie Jean', 
+      src: '../assets/Billie_Jean.mp3',
+      emoji: '🪩'
     },
     // Para agregar más canciones:
     // { id: 'otra', name: '🎸 Rock Divertido', src: '../assets/rock-song.mp3', emoji: '🎸' },
