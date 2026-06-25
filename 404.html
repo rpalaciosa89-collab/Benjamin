@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>¡Ups! - Edgy Benji</title>
+    <link rel="icon" type="image/svg+xml" href="./favicon.svg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Baloo 2', cursive, sans-serif;
+            min-height: 100vh;
+            background: linear-gradient(145deg, #1e0a3c 0%, #2d1060 40%, #1a1060 70%, #0f172a 100%);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 20px;
+        }
+        .card {
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 28px;
+            padding: 48px 36px;
+            max-width: 420px;
+            width: 100%;
+            backdrop-filter: blur(16px);
+        }
+        .emoji { font-size: 80px; display: block; animation: bounce 2s ease-in-out infinite; }
+        @keyframes bounce {
+            0%,100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+        h1 { font-size: 38px; font-weight: 800; margin-top: 16px; }
+        p { font-size: 18px; color: rgba(255,255,255,0.65); margin-top: 8px; line-height: 1.5; }
+        a {
+            display: inline-block;
+            margin-top: 24px;
+            padding: 14px 32px;
+            font-size: 18px;
+            font-weight: 700;
+            color: #fff;
+            background: linear-gradient(135deg, #7c3aed, #3b82f6);
+            border-radius: 50px;
+            text-decoration: none;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 6px 20px rgba(124,58,237,0.4);
+        }
+        a:hover { transform: translateY(-3px); box-shadow: 0 10px 30px rgba(124,58,237,0.5); }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <span class="emoji">🐶</span>
+        <h1>¡Ups! Página no encontrada</h1>
+        <p>Benji olfateó por todas partes pero no encontró esta página. ¡Volvamos a jugar!</p>
+        <a href="./">🏠 Volver al inicio</a>
+    </div>
+</body>
+</html>

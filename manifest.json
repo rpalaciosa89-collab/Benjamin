@@ -1,0 +1,20 @@
+{
+  "name": "Edgy Benji - Juegos para Niños",
+  "short_name": "Edgy Benji",
+  "description": "Juegos educativos divertidos para niños. ¡Aprende matemáticas, colores y más con Benji!",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#1e0a3c",
+  "theme_color": "#7c3aed",
+  "icons": [
+    {
+      "src": "favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ],
+  "categories": ["education", "games", "kids"]
+}
