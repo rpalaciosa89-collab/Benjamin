@@ -306,6 +306,7 @@
             <h1 id="level-title">Nivel 1</h1>
             <div class="hearts" id="moves-display" style="font-weight: 700;">Movimientos: 0</div>
         </div>
+        <div id="profile-badge"></div>
         <div class="music-btn" id="music-btn" title="Música">🔇</div>
     </header>
     
@@ -324,8 +325,10 @@
     </div>
 </div>
 
+<script src="../assets/user-system.js"></script>
 <script src="../assets/music-player.js"></script>
 <script>
+    const GAME_ID = 'benji';
     const successSound = new Audio('../color-fun/floraphonic-woman-excited-cheers-and-phrases-says-yippee-2-186752.mp3');
 
     // --- DROPDOWN MENU ---
@@ -347,11 +350,15 @@
         });
     });
 
+    // 👤 Profile badge
+    UserSystem.renderProfileBadge('profile-badge');
+
     // 🎵 Music Player (cancion seleccionable, se guarda entre sesiones)
     MusicPlayer.init('music-btn');
 
-    let currentLevel = 1;
-    let consecutiveWins = 0;
+    const savedProgress = UserSystem.getProgress(GAME_ID);
+    let currentLevel = savedProgress.currentLevel || 1;
+    let consecutiveWins = savedProgress.consecutiveWins || 0;
     let gridSize = 3;
     let grid = [];
     let startPos = null;
@@ -381,6 +388,7 @@
                 currentLevel--;
             }
         }
+        UserSystem.saveProgress(GAME_ID, { currentLevel, consecutiveWins });
         initLevel();
     });
 

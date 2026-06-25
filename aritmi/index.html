@@ -341,6 +341,7 @@
             <h1 id="level-title">Nivel 1</h1>
             <div class="score" id="score-display">Puntos: 0</div>
         </div>
+        <div id="profile-badge"></div>
         <div class="music-btn" id="music-btn" title="Música">🔇</div>
     </header>
     
@@ -371,15 +372,19 @@
     </div>
 </div>
 
+<script src="../assets/user-system.js"></script>
 <script src="../assets/music-player.js"></script>
 <script>
     // --- CONFIG ---
+    const GAME_ID = 'aritmi';
     const successSound = new Audio('../color-fun/floraphonic-woman-excited-cheers-and-phrases-says-yippee-2-186752.mp3');
     const EMOJIS = ['🍎', '⭐', '🎈', '🍪', '🐸', '🦁', '🚗', '🍦'];
 
-    let score = 0;
-    let currentLevel = 1;
-    let consecutiveWins = 0;
+    // Cargar progreso guardado
+    const savedProgress = UserSystem.getProgress(GAME_ID);
+    let score = savedProgress.score || 0;
+    let currentLevel = savedProgress.currentLevel || 1;
+    let consecutiveWins = savedProgress.consecutiveWins || 0;
     let currentProblem = {};
     let isLocked = false;
     let isWin = true;
@@ -409,6 +414,9 @@
                 menuBtn.classList.remove('active');
             }
         });
+
+        // 👤 Profile badge
+        UserSystem.renderProfileBadge('profile-badge');
 
         // 🎵 Music Player (cancion seleccionable, se guarda entre sesiones)
         MusicPlayer.init('music-btn');
@@ -494,6 +502,7 @@
             btn.classList.add('correct');
             score += 10;
             scoreDisplay.innerText = `Puntos: ${score}`;
+            UserSystem.saveProgress(GAME_ID, { score, currentLevel, consecutiveWins });
             
             // Lower music volume while speaking
             try { const a = MusicPlayer.getAudio(); if (a && !a.paused) a.volume = 0.2; } catch(e) {}

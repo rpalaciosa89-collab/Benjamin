@@ -99,6 +99,155 @@
             margin-top: 10px;
         }
 
+        /* ── Profile Section ── */
+        .profile-section {
+            width: 100%;
+            max-width: 900px;
+            margin-bottom: 36px;
+        }
+        .profile-bar {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .profile-chip {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 18px;
+            background: rgba(255,255,255,0.08);
+            border: 2px solid rgba(255,255,255,0.15);
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: 'Baloo 2', cursive, sans-serif;
+            color: #fff;
+            font-size: 16px;
+            font-weight: 600;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+        }
+        .profile-chip:hover {
+            background: rgba(255,255,255,0.16);
+            border-color: rgba(255,255,255,0.4);
+            transform: translateY(-2px);
+        }
+        .profile-chip.active {
+            background: rgba(124,58,237,0.35);
+            border-color: #a78bfa;
+            box-shadow: 0 0 20px rgba(124,58,237,0.3);
+        }
+        .profile-chip .chip-avatar { font-size: 28px; line-height: 1; }
+        .profile-chip .chip-name { max-width: 100px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .profile-chip.add-chip {
+            border-style: dashed;
+            opacity: 0.7;
+        }
+        .profile-chip.guest-chip {
+            opacity: 0.6;
+        }
+
+        /* ── Profile Modal ── */
+        .profile-modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(4px);
+            z-index: 10000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .profile-modal-overlay.show { display: flex; }
+        .profile-modal {
+            background: #1e1040;
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 28px;
+            padding: 32px 24px;
+            max-width: 380px;
+            width: 100%;
+            text-align: center;
+            color: #fff;
+            font-family: 'Baloo 2', cursive, sans-serif;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+        }
+        .profile-modal h2 {
+            font-size: 24px;
+            font-weight: 800;
+            margin-bottom: 20px;
+        }
+        .profile-modal input {
+            width: 100%;
+            padding: 14px 18px;
+            border-radius: 50px;
+            border: 2px solid rgba(255,255,255,0.2);
+            background: rgba(255,255,255,0.08);
+            color: #fff;
+            font-family: 'Baloo 2', cursive, sans-serif;
+            font-size: 18px;
+            font-weight: 600;
+            text-align: center;
+            margin-bottom: 16px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .profile-modal input:focus { border-color: #a78bfa; }
+        .profile-modal input::placeholder { color: rgba(255,255,255,0.3); }
+        .avatar-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        .avatar-option {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            border: 3px solid rgba(255,255,255,0.15);
+            background: rgba(255,255,255,0.06);
+            font-size: 30px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.15s ease;
+        }
+        .avatar-option:hover { border-color: rgba(255,255,255,0.5); transform: scale(1.1); }
+        .avatar-option.selected { border-color: #a78bfa; background: rgba(124,58,237,0.3); transform: scale(1.15); }
+        .profile-modal .btn-create {
+            width: 100%;
+            padding: 14px;
+            border-radius: 50px;
+            border: none;
+            background: linear-gradient(135deg, #7c3aed, #a78bfa);
+            color: #fff;
+            font-family: 'Baloo 2', cursive, sans-serif;
+            font-size: 18px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: transform 0.15s, box-shadow 0.15s;
+        }
+        .profile-modal .btn-create:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(124,58,237,0.4); }
+        .profile-modal .btn-cancel {
+            margin-top: 10px;
+            background: none;
+            border: none;
+            color: rgba(255,255,255,0.5);
+            font-family: 'Baloo 2', cursive, sans-serif;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        .profile-error {
+            color: #f87171;
+            font-size: 14px;
+            margin-bottom: 10px;
+            display: none;
+        }
+
         /* ── Cards grid ── */
         .games-grid {
             display: grid;
@@ -262,6 +411,11 @@
         <p>¡Elige tu juego y empieza a aprender!</p>
     </header>
 
+    <!-- Profile Section -->
+    <div class="profile-section" id="profile-section">
+        <div class="profile-bar" id="profile-bar"></div>
+    </div>
+
     <main>
         <div class="games-grid">
 
@@ -300,8 +454,23 @@
     </footer>
 </div>
 
+<!-- Create Profile Modal -->
+<div class="profile-modal-overlay" id="profile-modal">
+    <div class="profile-modal">
+        <h2>🆕 Nuevo Perfil</h2>
+        <div class="profile-error" id="profile-error"></div>
+        <input type="text" id="profile-name" placeholder="Nombre del niño" maxlength="12" autocomplete="off">
+        <div class="avatar-grid" id="avatar-grid"></div>
+        <button class="btn-create" id="btn-create-profile">✨ Crear Perfil</button>
+        <button class="btn-cancel" id="btn-cancel-modal">Cancelar</button>
+    </div>
+</div>
+
+<script src="./assets/user-system.js"></script>
 <script>
-    // Generate random twinkling stars
+    // ==========================================
+    //  STARS BACKGROUND
+    // ==========================================
     const starsContainer = document.getElementById('stars-container');
     for (let i = 0; i < 120; i++) {
         const star = document.createElement('div');
@@ -318,10 +487,116 @@
         `;
         starsContainer.appendChild(star);
     }
-</script>
-    <script>
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('./sw.js');
+
+    // ==========================================
+    //  PROFILE SYSTEM
+    // ==========================================
+    const profileBar = document.getElementById('profile-bar');
+    const profileModal = document.getElementById('profile-modal');
+    const profileError = document.getElementById('profile-error');
+    const profileNameInput = document.getElementById('profile-name');
+    const avatarGrid = document.getElementById('avatar-grid');
+    const btnCreateProfile = document.getElementById('btn-create-profile');
+    const btnCancelModal = document.getElementById('btn-cancel-modal');
+
+    let selectedAvatar = UserSystem.AVATARS[0];
+
+    // Render avatar options in modal
+    UserSystem.AVATARS.forEach((av) => {
+        const btn = document.createElement('button');
+        btn.className = 'avatar-option' + (av === selectedAvatar ? ' selected' : '');
+        btn.textContent = av;
+        btn.addEventListener('click', () => {
+            selectedAvatar = av;
+            document.querySelectorAll('.avatar-option').forEach(b => b.classList.remove('selected'));
+            btn.classList.add('selected');
+        });
+        avatarGrid.appendChild(btn);
+    });
+
+    // Render profile chips
+    function renderProfiles() {
+        const profiles = UserSystem.getProfiles();
+        const activeId = UserSystem.getActiveUserId();
+        profileBar.innerHTML = '';
+
+        // Existing profiles
+        profiles.forEach(p => {
+            const chip = document.createElement('button');
+            chip.className = 'profile-chip' + (p.id === activeId ? ' active' : '');
+            chip.innerHTML = `<span class="chip-avatar">${p.avatar}</span><span class="chip-name">${p.nombre}</span>`;
+            chip.addEventListener('click', () => {
+                UserSystem.setActiveUser(p.id);
+                renderProfiles();
+            });
+            profileBar.appendChild(chip);
+        });
+
+        // Add profile button (if under limit)
+        if (profiles.length < UserSystem.MAX_PROFILES) {
+            const addChip = document.createElement('button');
+            addChip.className = 'profile-chip add-chip';
+            addChip.innerHTML = '<span class="chip-avatar">➕</span><span class="chip-name">Nuevo</span>';
+            addChip.addEventListener('click', openCreateModal);
+            profileBar.appendChild(addChip);
         }
-    </script>
+
+        // Guest mode
+        const guestChip = document.createElement('button');
+        guestChip.className = 'profile-chip guest-chip' + (!activeId ? ' active' : '');
+        guestChip.innerHTML = '<span class="chip-avatar">👤</span><span class="chip-name">Invitado</span>';
+        guestChip.addEventListener('click', () => {
+            UserSystem.clearActiveUser();
+            renderProfiles();
+        });
+        profileBar.appendChild(guestChip);
+    }
+
+    function openCreateModal() {
+        profileNameInput.value = '';
+        selectedAvatar = UserSystem.AVATARS[0];
+        document.querySelectorAll('.avatar-option').forEach((b, i) => {
+            b.classList.toggle('selected', i === 0);
+        });
+        profileError.style.display = 'none';
+        profileModal.classList.add('show');
+        setTimeout(() => profileNameInput.focus(), 100);
+    }
+
+    function closeCreateModal() {
+        profileModal.classList.remove('show');
+    }
+
+    btnCreateProfile.addEventListener('click', () => {
+        const nombre = profileNameInput.value.trim();
+        const result = UserSystem.createProfile(nombre, selectedAvatar);
+        if (result.error) {
+            profileError.textContent = result.error;
+            profileError.style.display = 'block';
+        } else {
+            closeCreateModal();
+            renderProfiles();
+        }
+    });
+
+    btnCancelModal.addEventListener('click', closeCreateModal);
+    profileModal.addEventListener('click', (e) => {
+        if (e.target === profileModal) closeCreateModal();
+    });
+
+    // Enter key to create
+    profileNameInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') btnCreateProfile.click();
+    });
+
+    // Init
+    renderProfiles();
+
+    // ==========================================
+    //  SERVICE WORKER
+    // ==========================================
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('./sw.js');
+    }
+</script>
 </html>

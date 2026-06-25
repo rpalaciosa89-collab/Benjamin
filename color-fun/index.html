@@ -311,6 +311,7 @@
             <div class="hearts" id="pairs-display" style="font-weight: 700;">Pares: 0/2</div>
             <div id="moves-display" style="color: #ef4444; font-weight: 700; font-size: 14px; margin-top: 2px;">Intentos: 0</div>
         </div>
+        <div id="profile-badge"></div>
         <div class="music-btn" id="music-btn" title="Música">🔇</div>
     </header>
     
@@ -329,8 +330,10 @@
     </div>
 </div>
 
+<script src="../assets/user-system.js"></script>
 <script src="../assets/music-player.js"></script>
 <script>
+    const GAME_ID = 'colorfun';
     const successSound = new Audio('floraphonic-woman-excited-cheers-and-phrases-says-yippee-2-186752.mp3');
 
     // --- DROPDOWN MENU ---
@@ -350,6 +353,9 @@
                 menuBtn.classList.remove('active');
             }
         });
+
+        // 👤 Profile badge
+        UserSystem.renderProfileBadge('profile-badge');
 
         // 🎵 Music Player (cancion seleccionable, se guarda entre sesiones)
         MusicPlayer.init('music-btn');
@@ -380,8 +386,9 @@
         { name: 'Celeste', hex: '#06b6d4' }
     ];
 
-    let currentLevel = 1;
-    let consecutiveWins = 0;
+    const savedProgress = UserSystem.getProgress(GAME_ID);
+    let currentLevel = savedProgress.currentLevel || 1;
+    let consecutiveWins = savedProgress.consecutiveWins || 0;
     let cards = [];
     let flippedCards = [];
     let matchedPairs = 0;
@@ -415,6 +422,7 @@
                 currentLevel--;
             }
         }
+        UserSystem.saveProgress(GAME_ID, { currentLevel, consecutiveWins });
         initLevel();
     });
 
