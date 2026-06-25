@@ -3,7 +3,7 @@
 > **Agent 11 — Specification Engineer**  
 > **Agente responsable**: Agent 06 (Game Designer) → Agent 07 (UX Children) → Agent 15 (Gameplay Engineer)  
 > **Fecha**: 2026-06-25  
-> **Versión**: 1.4 — ✅ LIVING SPEC (refleja el juego construido)
+> **Versión**: 1.5 — ✅ LIVING SPEC (refleja el juego construido)
 
 ---
 
@@ -317,6 +317,14 @@ UserSystem.saveProgress(GAME_ID, { currentLevel, completedLetters, totalCoins, a
 
 > **Regla**: Todo cambio post-implementación se registra aquí.  
 > La spec refleja el juego TAL COMO ESTÁ CONSTRUIDO, no como se planeó originalmente.
+
+### v1.5 — 2026-06-25 — Persistencia visual del trazo
+
+| Cambio | Motivo | Agente |
+|--------|--------|--------|
+| Trazo fallido se mantiene visible 1s antes de borrarse | El niño necesita ver lo que dibujó para corregir | Agent 06 |
+| Mensaje "👆 ¡Sigue trazando! Tienes 3 segundos..." durante ventana de reconexión | Feedback visual de que puede continuar | Agent 07 |
+| Al reconectar, el mensaje vuelve a "¡Sigue el camino punteado!" | Claridad para el niño | Agent 07 |
 
 ### v1.4 — 2026-06-25 — Ajuste de validación de trazo para niños pequeños (2-3 años)
 

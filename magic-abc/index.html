@@ -655,6 +655,7 @@ function handleStart(e) {
             traceState.isDrawing = true;
             traceState.userPoints.push(pos);
             wrapper.classList.add('active');
+            document.getElementById('guide-label').textContent = '¡Sigue el camino punteado!';
             return;
         }
     }
@@ -684,10 +685,14 @@ function handleEnd(e) {
     traceState.isDrawing = false;
     wrapper.classList.remove('active');
     
-    // Ventana de reconexión: esperar 1.5s antes de validar
-    // Si el niño vuelve a tocar en ese tiempo, se cancela la validación
+    // Mostrar mensaje de reconexión
+    const prevLabel = document.getElementById('guide-label').textContent;
+    document.getElementById('guide-label').textContent = '👆 ¡Sigue trazando! Tienes 3 segundos...';
+    
+    // Ventana de reconexión: esperar 3s antes de validar
     traceState.reconnectTimer = setTimeout(() => {
         traceState.reconnectTimer = null;
+        document.getElementById('guide-label').textContent = prevLabel;
         
         // Validar que el niño haya hecho al menos 8 puntos de trazo
         if (traceState.userPoints.length < 8) {
@@ -783,10 +788,16 @@ function onTraceSuccess() {
 
 function onTraceFail() {
     AudioFX.trazoReintento();
-    traceState.userPoints = [];
-    traceState.segmentsCovered = new Set();
-    traceState.pathProgress = 0;
-    updateProgressBar();
+    
+    // Dejar el trazo visible 1 segundo para que el niño vea lo que dibujó
+    // Luego se desvanece y se limpia
+    setTimeout(() => {
+        traceState.userPoints = [];
+        traceState.segmentsCovered = new Set();
+        traceState.pathProgress = 0;
+        updateProgressBar();
+        renderPath();
+    }, 1000);
     
     state.failedAttempts++;
     saveProgress();
