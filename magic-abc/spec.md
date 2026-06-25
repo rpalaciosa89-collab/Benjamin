@@ -3,7 +3,7 @@
 > **Agent 11 — Specification Engineer**  
 > **Agente responsable**: Agent 06 (Game Designer) → Agent 07 (UX Children) → Agent 15 (Gameplay Engineer)  
 > **Fecha**: 2026-06-25  
-> **Versión**: 1.5 — ✅ LIVING SPEC (refleja el juego construido)
+> **Versión**: 1.6 — ✅ LIVING SPEC (refleja el juego construido)
 
 ---
 
@@ -317,6 +317,13 @@ UserSystem.saveProgress(GAME_ID, { currentLevel, completedLetters, totalCoins, a
 
 > **Regla**: Todo cambio post-implementación se registra aquí.  
 > La spec refleja el juego TAL COMO ESTÁ CONSTRUIDO, no como se planeó originalmente.
+
+### v1.6 — 2026-06-25 — Suavizado de curvas en paths B y D
+
+| Cambio | Motivo | Agente |
+|--------|--------|--------|
+| Path de B: 8 puntos rectos → 17 puntos con curvas suaves (jorobas redondeadas) | El path anterior se veía como un rectángulo con barra horizontal, no como la letra B real | Agent 21 (QA) |
+| Path de D: 7 puntos rectos → 10 puntos con curva suave en el lado derecho | Mismo problema: D se veía rectangular en vez de curva | Agent 21 |
 
 ### v1.5 — 2026-06-25 — Persistencia visual del trazo
 
