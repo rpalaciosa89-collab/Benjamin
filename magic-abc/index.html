@@ -396,7 +396,7 @@ function getItemType() {
 }
 
 function getLetterPaths(letter) {
-    return LETTER_PATHS[letter.toUpperCase()] || LETTER_PATHS['I'];
+    return LETTER_PATHS[letter] || LETTER_PATHS[letter.toUpperCase()] || LETTER_PATHS['I'];
 }
 
 function getCanvasPath(letterPath, scaleX, scaleY, offsetX, offsetY) {
