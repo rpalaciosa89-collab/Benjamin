@@ -279,6 +279,7 @@ let state = {
     achievements: saved.achievements || [],
     failedAttempts: 0,
     currentItemIndex: saved.currentItemIndex || 0,
+    wordLetterIndex: saved.wordLetterIndex || 0,
 };
 
 let traceState = {
@@ -383,27 +384,29 @@ function calculateRenderPath() {
         currentPath = getCanvasPath(path, scale, scale, ox, oy);
         wordLetterPaths = [];
     } else {
-        // Word: render multiple letters side by side
+        // Word: trazar UNA letra a la vez, sin ligaduras
         const word = item.word;
         const letterCount = word.length;
         const totalWidth = Math.min(w * 0.88, letterCount * 90);
         const letterW = totalWidth / letterCount;
-        const scale = letterW / LETTER_W * 0.82;
+        const scale = letterW / LETTER_W * 0.8;
         const startX = (w - totalWidth) / 2;
-        currentPath = [];
+        
+        // Mostrar todas las letras como referencia tenue
         wordLetterPaths = [];
-
         for (let i = 0; i < word.length; i++) {
             const ch = word[i];
-            // Primera letra mayúscula, resto minúsculas (como en la vida real)
             const letterKey = i === 0 ? ch.toUpperCase() : ch.toLowerCase();
             const lp = getLetterPaths(letterKey);
             const ox = startX + i * letterW;
             const oy = (h - LETTER_H * scale) / 2;
             const cp = getCanvasPath(lp, scale, scale, ox, oy);
-            wordLetterPaths.push({ letter: ch, path: cp, x: ox, y: oy, w: letterW, h: LETTER_H * scale });
-            currentPath.push(...cp);
+            wordLetterPaths.push({ letter: ch, path: cp, x: ox, y: oy, w: letterW, h: LETTER_H * scale, completed: i < state.wordLetterIndex });
         }
+        
+        // Solo la letra actual tiene el path activo para trazar
+        const idx = Math.min(state.wordLetterIndex, wordLetterPaths.length - 1);
+        currentPath = wordLetterPaths[idx].path;
     }
 }
 
@@ -460,13 +463,20 @@ function renderPath() {
         ctx.shadowBlur = 0;
     }
 
-    // Draw word letter labels
+    // Draw word letter labels and completed letters
     if (wordLetterPaths.length > 0) {
-        ctx.fillStyle = '#e5e7eb';
-        ctx.font = 'bold 14px Arial';
-        ctx.textAlign = 'center';
-        wordLetterPaths.forEach(wl => {
-            ctx.fillText(wl.letter, wl.x + wl.w/2, wl.y - 8);
+        wordLetterPaths.forEach((wl, i) => {
+            ctx.setLineDash([4, 6]);
+            ctx.strokeStyle = i < state.wordLetterIndex ? '#d1fae5' : // completada: verde claro
+                              i === state.wordLetterIndex ? '#d1d5db' : '#f3f4f6'; // actual / futura
+            ctx.lineWidth = i === state.wordLetterIndex ? 6 : 4;
+            ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+            ctx.beginPath();
+            const p = wl.path;
+            ctx.moveTo(p[0].x, p[0].y);
+            for (let k = 1; k < p.length; k++) ctx.lineTo(p[k].x, p[k].y);
+            ctx.stroke();
+            ctx.setLineDash([]);
         });
     }
 }
@@ -788,28 +798,49 @@ function onTraceSuccess() {
     setTimeout(() => wrapper.classList.remove('success'), 600);
     AudioFX.trazoExito();
     spawnStars(canvas.width/2, canvas.height/2, 15);
-    spawnConfetti(30);
+    spawnConfetti(20);
     
     state.coins += 5;
-    const item = getCurrentItem();
-    const itemKey = getItemType() === 'letters' ? item : item.word;
-    if (!state.completedLetters.includes(itemKey)) {
-        state.completedLetters.push(itemKey);
-    }
     state.failedAttempts = 0;
     
-    // Check achievements
-    checkAchievements();
+    const type = getItemType();
+    const item = getCurrentItem();
     
-    saveProgress();
-    updateHUD();
-    
-    // Show success overlay
-    document.getElementById('success-emoji').textContent = getItemType()==='letters' ? item : getCurrentItem().emoji;
-    document.getElementById('success-desc').textContent = getItemType()==='letters' 
-        ? `¡Letra ${item} completada!` 
-        : `¡Palabra "${getCurrentItem().word}" completada!`;
-    document.getElementById('overlay-success').classList.add('show');
+    if (type === 'words') {
+        // Palabra: avanzar a la siguiente letra
+        state.wordLetterIndex++;
+        const wordLen = item.word.length;
+        if (state.wordLetterIndex >= wordLen) {
+            // ¡Palabra completa!
+            const itemKey = item.word;
+            if (!state.completedLetters.includes(itemKey)) {
+                state.completedLetters.push(itemKey);
+            }
+            checkAchievements();
+            saveProgress();
+            updateHUD();
+            document.getElementById('success-emoji').textContent = item.emoji;
+            document.getElementById('success-desc').textContent = `¡Palabra "${item.word}" completada!`;
+            document.getElementById('overlay-success').classList.add('show');
+        } else {
+            // Siguiente letra de la palabra
+            saveProgress();
+            updateHUD();
+            resetItem();
+        }
+    } else {
+        // Letra individual
+        const itemKey = item;
+        if (!state.completedLetters.includes(itemKey)) {
+            state.completedLetters.push(itemKey);
+        }
+        checkAchievements();
+        saveProgress();
+        updateHUD();
+        document.getElementById('success-emoji').textContent = item;
+        document.getElementById('success-desc').textContent = `¡Letra ${item} completada!`;
+        document.getElementById('overlay-success').classList.add('show');
+    }
 }
 
 function onTraceFail() {
@@ -833,6 +864,7 @@ function onTraceFail() {
         state.level--;
         state.failedAttempts = 0;
         state.currentItemIndex = 0;
+        state.wordLetterIndex = 0;
         state.completedLetters = [];
         saveProgress();
         document.getElementById('guide-label').textContent = '😅 Bajamos un nivel. ¡Tú puedes!';
@@ -898,6 +930,7 @@ function nextItem() {
 
 function resetItem() {
     stopGuide();
+    state.wordLetterIndex = 0;
     traceState = {
         isDrawing: false, pathProgress: 0, guideActive: false,
         guideAnimId: null, userPoints: [], segmentsCovered: new Set(), totalSegments: 0
@@ -948,8 +981,14 @@ function updateLetterDisplay() {
         const letter = isMinusculas ? item : item.toUpperCase();
         display.innerHTML = `<span style="font-family:Arial,sans-serif;font-weight:bold;font-size:56px;">${letter}</span>`;
     } else {
-        // Palabras en formato real: primera mayúscula, resto minúsculas
-        display.innerHTML = `<span style="font-family:Arial,sans-serif;font-weight:bold;font-size:36px;">${item.word}</span> <span class="letter-emoji">${item.emoji}</span>`;
+        // Palabras: resaltar letra actual
+        const chars = item.word.split('').map((ch, i) => {
+            const isCurrent = i === state.wordLetterIndex;
+            const isDone = i < state.wordLetterIndex;
+            const color = isCurrent ? '#EF476F' : isDone ? '#10b981' : '#d1d5db';
+            return `<span style="color:${color};font-weight:${isCurrent?'900':'600'};">${ch}</span>`;
+        }).join('');
+        display.innerHTML = `<span style="font-family:Arial,sans-serif;font-weight:bold;font-size:36px;">${chars}</span> <span class="letter-emoji">${item.emoji}</span>`;
     }
     document.getElementById('guide-label').textContent = '¡Sigue el camino punteado!';
 }
@@ -979,6 +1018,7 @@ function jumpToLevel(lvl) {
     if (traceState.reconnectTimer) clearTimeout(traceState.reconnectTimer);
     state.level = lvl;
     state.currentItemIndex = 0;
+    state.wordLetterIndex = 0;
     state.completedLetters = [];
     state.failedAttempts = 0;
     saveProgress();
@@ -994,6 +1034,7 @@ function saveProgress() {
         achievements: state.achievements,
         failedAttempts: state.failedAttempts,
         currentItemIndex: state.currentItemIndex,
+        wordLetterIndex: state.wordLetterIndex,
     });
 }
 
@@ -1011,7 +1052,7 @@ document.getElementById('btn-reset').addEventListener('click', () => {
 document.getElementById('btn-reset-confirm').addEventListener('click', () => {
     state = {
         level: 1, coins: 0, completedLetters: [], achievements: [],
-        failedAttempts: 0, currentItemIndex: 0
+        failedAttempts: 0, currentItemIndex: 0, wordLetterIndex: 0
     };
     saveProgress();
     updateHUD();

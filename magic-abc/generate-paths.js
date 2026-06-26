@@ -129,9 +129,9 @@ const fontBuffer = fs.readFileSync(FONT_PATH).buffer;
 const font = opentype.parse(fontBuffer);
 
 const FONT_SIZE = 200;
-const BEZIER_TOLERANCE = 5.0;  // Mucho más suave que 0.8
-const RDP_EPSILON = 3.0;       // Simplificación agresiva
-const MIN_POINT_DIST = 7;      // Separación mínima entre puntos (dedo infantil)
+const BEZIER_TOLERANCE = 8.0;  // Máxima suavidad
+const RDP_EPSILON = 6.0;       // Simplificación muy agresiva
+const MIN_POINT_DIST = 12;     // Separación amplia para dedo infantil
 
 const letters = 'ABCDEFGHIJKLMNÑOPQRSTUVWXYZabcdefghijklmnñopqrstuvwxyz';
 const letterPaths = {};
