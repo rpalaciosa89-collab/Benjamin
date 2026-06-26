@@ -339,7 +339,15 @@ function getItemType() {
 }
 
 function getLetterPaths(letter) {
-    return LETTER_PATHS[letter] || LETTER_PATHS[letter.toUpperCase()] || LETTER_PATHS['I'];
+    // Intentar la letra tal cual ('ñ', 'Ñ', 'a', 'A', etc.)
+    if (LETTER_PATHS[letter]) return LETTER_PATHS[letter];
+    if (LETTER_PATHS[letter.toUpperCase()]) return LETTER_PATHS[letter.toUpperCase()];
+    // Normalizar acentos: á→a, é→e, í→i, ó→o, ú→u, ü→u, Á→A, etc.
+    const normalized = letter.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    if (LETTER_PATHS[normalized]) return LETTER_PATHS[normalized];
+    if (LETTER_PATHS[normalized.toUpperCase()]) return LETTER_PATHS[normalized.toUpperCase()];
+    // Fallback: letra I
+    return LETTER_PATHS['I'];
 }
 
 function getCanvasPath(letterPath, scaleX, scaleY, offsetX, offsetY) {
