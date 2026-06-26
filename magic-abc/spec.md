@@ -3,7 +3,7 @@
 > **Agent 11 — Specification Engineer**  
 > **Agente responsable**: Agent 06 (Game Designer) → Agent 07 (UX Children) → Agent 15 (Gameplay Engineer)  
 > **Fecha**: 2026-06-25  
-> **Versión**: 1.9 — ✅ LIVING SPEC
+> **Versión**: 2.0 — ✅ LIVING SPEC (paths generados desde fuente real)
 
 ---
 
@@ -301,7 +301,14 @@ const traceState = {
 ## 12. Notas Técnicas
 
 ### Canvas vs DOM
-Se usará `<canvas>` para el área de trazado (mejor rendimiento en trazado libre y partículas). El resto de la UI será DOM estándar.
+Se usará `<canvas>` para el área de trazado. Los paths de letras se generan desde Baloo 2 Bold usando opentype.js (script offline, 1 ejecución). Sin dependencias en runtime.
+
+### Generación de paths (v2.0)
+```bash
+npm install opentype.js
+node magic-abc/generate-paths.js
+```
+Carga la fuente → extrae glifos → aplana Bézier → `letter-paths.json` (54 letras, espacio 200×250).
 
 ### Touch Events
 Se deben manejar `touchstart`, `touchmove`, `touchend` con `{ passive: false }` y `preventDefault()` para evitar scroll en móvil durante el trazado.
@@ -341,6 +348,14 @@ UserSystem.saveProgress(GAME_ID, { currentLevel, completedLetters, totalCoins, a
 |--------|--------|--------|
 | Palabras en formato real: "Sol" en vez de "SOL", "Mamá" en vez de "MAMÁ" | Así se escribe en la vida real. Prepara al niño para lectura y escritura auténtica | Agent 05 + 06 |
 | Trazado mixto: primera letra usa path mayúscula, resto usan paths minúsculas | Cada letra de la palabra se traza con su caso correcto | Agent 15 |
+
+### v2.0 — 2026-06-26 — Paths generados desde fuente real (opentype.js)
+
+| Cambio | Motivo | Agente |
+|--------|--------|--------|
+| `LETTER_PATHS` manuales (~2000 coordenadas) reemplazados por paths extraídos de Baloo 2 Bold via opentype.js | Los paths manuales eran imprecisos y no se parecían a letras reales. Ahora cada letra tiene la forma exacta de la fuente | Agent 15 |
+| Script `generate-paths.js` offline — corre 1 vez, genera JSON con 54 letras | Cero dependencias en runtime. El juego sigue siendo un solo HTML | Agent 15 |
+| 27 mayúsculas + 27 minúsculas generadas automáticamente | Cobertura completa con precisión tipográfica profesional | Agent 15 |
 
 ### v1.9 — 2026-06-25 — Minúsculas (Nivel 3)
 
