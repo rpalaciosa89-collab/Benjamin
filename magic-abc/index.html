@@ -588,14 +588,28 @@ function spawnStars(x, y, count) {
 }
 function spawnTraceParticle(x, y) {
     const colors = ['#FFD166','#EF476F','#118AB2','#06D6A0','#FFB347'];
-    particles.push({
-        x, y,
-        vx: (Math.random()-0.5)*1.5, vy: (Math.random()-0.8)*1.5 - 0.5,
-        life: 1, decay: 0.03 + Math.random()*0.04,
-        size: 3 + Math.random()*4,
-        color: colors[Math.floor(Math.random()*colors.length)],
-        type: 'trace'
-    });
+    // 2-3 destellos por punto de trazo
+    const count = 2 + Math.floor(Math.random() * 2);
+    for (let i = 0; i < count; i++) {
+        particles.push({
+            x: x + (Math.random()-0.5)*8, y: y + (Math.random()-0.5)*8,
+            vx: (Math.random()-0.5)*2.5, vy: (Math.random()-1.5)*2 - 1,
+            life: 1, decay: 0.025 + Math.random()*0.035,
+            size: 4 + Math.random()*6,
+            color: colors[Math.floor(Math.random()*colors.length)],
+            type: 'trace'
+        });
+    }
+    // También un emoji estrella ocasional
+    if (Math.random() < 0.3) {
+        particles.push({
+            x: x + (Math.random()-0.5)*10, y: y + (Math.random()-0.5)*10,
+            vx: (Math.random()-0.5)*1, vy: -1.5 - Math.random()*1.5,
+            life: 1, decay: 0.02 + Math.random()*0.03,
+            size: 6 + Math.random()*5,
+            emoji: '✨', type: 'star'
+        });
+    }
 }
 function spawnConfetti(count) {
     const rect = wrapper.getBoundingClientRect();
@@ -696,8 +710,8 @@ function handleMove(e) {
     traceState.lastPoint = pos;
     traceState.pathProgress = calculateRealTimeProgress(pos.x, pos.y);
     updateProgressBar();
-    // Partículas mágicas siguiendo el dedo ✨
-    if (Math.random() < 0.6) spawnTraceParticle(pos.x, pos.y);
+    // Destellos mágicos siguiendo el dedo ✨🩷🟡🔵🟢🟠
+    spawnTraceParticle(pos.x, pos.y);
 }
 
 function handleEnd(e) {
