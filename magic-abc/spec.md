@@ -88,10 +88,13 @@ a b c d e f g h i j k l m n ñ o p q r s t u v w x y z
 ### Pool de Palabras (Niveles 4–7)
 | Nivel | Palabras | Emojis |
 |-------|----------|--------|
-| 4 | SOL, LUZ, PAN, MAR, PEZ, OSO, GATO, CASA, MANO, BOCA | ☀️💡🍞🌊🐟🐻🐱🏠✋👄 |
-| 5 | MAMÁ, PAPÁ, NIÑO, NIÑA, BEBÉ, ABRAZO, BESITO, AMIGO, FELIZ, GRANDE | 👩👨👦👧👶🤗😘👫😊🌟 |
-| 6 | NUBE, FLOR, ÁRBOL, LLUVIA, ESTRELLA, PLANETA, MONTAÑA, JARDÍN, RÍO, PLAYA | ☁️🌸🌳🌧️⭐🪐⛰️🌺🏞️🏖️ |
-| 7 | COLEGIO, MAESTRA, PINTURA, MÚSICA, CUENTO, LÁPIZ, LIBRO, NÚMERO, LETRA, JUEGO | 🏫👩‍🏫🎨🎵📖✏️📚🔢🔤🎮 |
+| 4 | Sol, Luz, Pan, Mar, Pez, Oso, Gato, Casa, Mano, Boca | ☀️💡🍞🌊🐟🐻🐱🏠✋👄 |
+| 5 | Mamá, Papá, Niño, Niña, Bebé, Abrazo, Besito, Amigo, Feliz, Grande | 👩👨👦👧👶🤗😘👫😊🌟 |
+| 6 | Nube, Flor, Árbol, Lluvia, Estrella, Planeta, Montaña, Jardín, Río, Playa | ☁️🌸🌳🌧️⭐🪐⛰️🌺🏞️🏖️ |
+| 7 | Colegio, Maestra, Pintura, Música, Cuento, Lápiz, Libro, Número, Letra, Juego | 🏫👩‍🏫🎨🎵📖✏️📚🔢🔤🎮 |
+
+**Formato**: Primera letra mayúscula, resto minúsculas (escritura real).  
+**Selección**: Secuencial por nivel.
 
 ---
 
@@ -331,6 +334,13 @@ UserSystem.saveProgress(GAME_ID, { currentLevel, completedLetters, totalCoins, a
 
 > **Regla**: Todo cambio post-implementación se registra aquí.  
 > La spec refleja el juego TAL COMO ESTÁ CONSTRUIDO, no como se planeó originalmente.
+
+### v1.10 — 2026-06-25 — Formato real de palabras (1era mayúscula + minúsculas)
+
+| Cambio | Motivo | Agente |
+|--------|--------|--------|
+| Palabras en formato real: "Sol" en vez de "SOL", "Mamá" en vez de "MAMÁ" | Así se escribe en la vida real. Prepara al niño para lectura y escritura auténtica | Agent 05 + 06 |
+| Trazado mixto: primera letra usa path mayúscula, resto usan paths minúsculas | Cada letra de la palabra se traza con su caso correcto | Agent 15 |
 
 ### v1.9 — 2026-06-25 — Minúsculas (Nivel 3)
 

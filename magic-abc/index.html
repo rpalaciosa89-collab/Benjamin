@@ -305,16 +305,16 @@ const LEVELS = [
     { level:2, type:'letters', items:'HIJKLMNÑOPQRSTUVWXYZ'.split(''), guideAuto:true, guideDelay:1200 },
     { level:3, type:'letters', items:'abcdefghijklmnñopqrstuvwxyz'.split(''), guideAuto:true, guideDelay:1200 },
     { level:4, type:'words', items:[
-        {word:'SOL',emoji:'☀️'},{word:'LUZ',emoji:'💡'},{word:'PAN',emoji:'🍞'},{word:'MAR',emoji:'🌊'},{word:'PEZ',emoji:'🐟'},{word:'OSO',emoji:'🐻'},{word:'GATO',emoji:'🐱'},{word:'CASA',emoji:'🏠'},{word:'MANO',emoji:'✋'},{word:'BOCA',emoji:'👄'}
+        {word:'Sol',emoji:'☀️'},{word:'Luz',emoji:'💡'},{word:'Pan',emoji:'🍞'},{word:'Mar',emoji:'🌊'},{word:'Pez',emoji:'🐟'},{word:'Oso',emoji:'🐻'},{word:'Gato',emoji:'🐱'},{word:'Casa',emoji:'🏠'},{word:'Mano',emoji:'✋'},{word:'Boca',emoji:'👄'}
     ], guideAuto:true, guideDelay:1000 },
     { level:5, type:'words', items:[
-        {word:'MAMÁ',emoji:'👩'},{word:'PAPÁ',emoji:'👨'},{word:'NIÑO',emoji:'👦'},{word:'NIÑA',emoji:'👧'},{word:'BEBÉ',emoji:'👶'},{word:'ABRAZO',emoji:'🤗'},{word:'BESITO',emoji:'😘'},{word:'AMIGO',emoji:'👫'},{word:'FELIZ',emoji:'😊'},{word:'GRANDE',emoji:'🌟'}
+        {word:'Mamá',emoji:'👩'},{word:'Papá',emoji:'👨'},{word:'Niño',emoji:'👦'},{word:'Niña',emoji:'👧'},{word:'Bebé',emoji:'👶'},{word:'Abrazo',emoji:'🤗'},{word:'Besito',emoji:'😘'},{word:'Amigo',emoji:'👫'},{word:'Feliz',emoji:'😊'},{word:'Grande',emoji:'🌟'}
     ], guideAuto:false, guideDelay:1000 },
     { level:6, type:'words', items:[
-        {word:'NUBE',emoji:'☁️'},{word:'FLOR',emoji:'🌸'},{word:'ÁRBOL',emoji:'🌳'},{word:'LLUVIA',emoji:'🌧️'},{word:'ESTRELLA',emoji:'⭐'},{word:'PLANETA',emoji:'🪐'},{word:'MONTAÑA',emoji:'⛰️'},{word:'JARDÍN',emoji:'🌺'},{word:'RÍO',emoji:'🏞️'},{word:'PLAYA',emoji:'🏖️'}
+        {word:'Nube',emoji:'☁️'},{word:'Flor',emoji:'🌸'},{word:'Árbol',emoji:'🌳'},{word:'Lluvia',emoji:'🌧️'},{word:'Estrella',emoji:'⭐'},{word:'Planeta',emoji:'🪐'},{word:'Montaña',emoji:'⛰️'},{word:'Jardín',emoji:'🌺'},{word:'Río',emoji:'🏞️'},{word:'Playa',emoji:'🏖️'}
     ], guideAuto:false, guideDelay:1000 },
     { level:7, type:'words', items:[
-        {word:'COLEGIO',emoji:'🏫'},{word:'MAESTRA',emoji:'👩‍🏫'},{word:'PINTURA',emoji:'🎨'},{word:'MÚSICA',emoji:'🎵'},{word:'CUENTO',emoji:'📖'},{word:'LÁPIZ',emoji:'✏️'},{word:'LIBRO',emoji:'📚'},{word:'NÚMERO',emoji:'🔢'},{word:'LETRA',emoji:'🔤'},{word:'JUEGO',emoji:'🎮'}
+        {word:'Colegio',emoji:'🏫'},{word:'Maestra',emoji:'👩‍🏫'},{word:'Pintura',emoji:'🎨'},{word:'Música',emoji:'🎵'},{word:'Cuento',emoji:'📖'},{word:'Lápiz',emoji:'✏️'},{word:'Libro',emoji:'📚'},{word:'Número',emoji:'🔢'},{word:'Letra',emoji:'🔤'},{word:'Juego',emoji:'🎮'}
     ], guideAuto:false, guideDelay:1000 }
 ];
 
@@ -444,8 +444,10 @@ function calculateRenderPath() {
         wordLetterPaths = [];
 
         for (let i = 0; i < word.length; i++) {
-            const ch = word[i].toUpperCase();
-            const lp = getLetterPaths(ch);
+            const ch = word[i];
+            // Primera letra mayúscula, resto minúsculas (como en la vida real)
+            const letterKey = i === 0 ? ch.toUpperCase() : ch.toLowerCase();
+            const lp = getLetterPaths(letterKey);
             const ox = startX + i * letterW;
             const oy = (h - LETTER_H * scale) / 2;
             const cp = getCanvasPath(lp, scale, scale, ox, oy);
