@@ -586,6 +586,17 @@ function spawnStars(x, y, count) {
         });
     }
 }
+function spawnTraceParticle(x, y) {
+    const colors = ['#FFD166','#EF476F','#118AB2','#06D6A0','#FFB347'];
+    particles.push({
+        x, y,
+        vx: (Math.random()-0.5)*1.5, vy: (Math.random()-0.8)*1.5 - 0.5,
+        life: 1, decay: 0.03 + Math.random()*0.04,
+        size: 3 + Math.random()*4,
+        color: colors[Math.floor(Math.random()*colors.length)],
+        type: 'trace'
+    });
+}
 function spawnConfetti(count) {
     const rect = wrapper.getBoundingClientRect();
     for (let i = 0; i < count; i++) {
@@ -615,6 +626,14 @@ function renderParticles() {
         if (p.type === 'star') {
             ctx.font = `${p.size*3}px serif`;
             ctx.fillText('✨', p.x - p.size*1.5, p.y + p.size);
+        } else if (p.type === 'trace') {
+            ctx.fillStyle = p.color;
+            ctx.shadowColor = p.color;
+            ctx.shadowBlur = 6;
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.size, 0, Math.PI*2);
+            ctx.fill();
+            ctx.shadowBlur = 0;
         } else {
             ctx.fillStyle = p.color;
             ctx.fillRect(p.x, p.y, p.size*0.6, p.size);
@@ -677,6 +696,8 @@ function handleMove(e) {
     traceState.lastPoint = pos;
     traceState.pathProgress = calculateRealTimeProgress(pos.x, pos.y);
     updateProgressBar();
+    // Partículas mágicas siguiendo el dedo ✨
+    if (Math.random() < 0.6) spawnTraceParticle(pos.x, pos.y);
 }
 
 function handleEnd(e) {

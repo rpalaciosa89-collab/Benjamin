@@ -3,7 +3,7 @@
 > **Agent 11 — Specification Engineer**  
 > **Agente responsable**: Agent 06 (Game Designer) → Agent 07 (UX Children) → Agent 15 (Gameplay Engineer)  
 > **Fecha**: 2026-06-25  
-> **Versión**: 1.6 — ✅ LIVING SPEC (refleja el juego construido)
+> **Versión**: 1.7 — ✅ LIVING SPEC
 
 ---
 
@@ -317,6 +317,13 @@ UserSystem.saveProgress(GAME_ID, { currentLevel, completedLetters, totalCoins, a
 
 > **Regla**: Todo cambio post-implementación se registra aquí.  
 > La spec refleja el juego TAL COMO ESTÁ CONSTRUIDO, no como se planeó originalmente.
+
+### v1.7 — 2026-06-25 — Partículas durante el trazo
+
+| Cambio | Motivo | Agente |
+|--------|--------|--------|
+| Partículas de colores (🟡🩷🔵🟢🟠) aparecen siguiendo el dedo mientras se traza | La spec v1.0 ya lo requería (sección 3 y User Story 1). Estaba implementado solo al final | Agent 21 (QA) |
+| Las partículas son círculos pequeños con brillo, 60% de probabilidad por punto de trazo | Feedback visual constante que hace el juego más "mágico" | Agent 08 |
 
 ### v1.6 — 2026-06-25 — Suavizado de curvas en paths B y D
 
