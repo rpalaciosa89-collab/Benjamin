@@ -3,7 +3,7 @@
 > **Agent 11 — Specification Engineer**  
 > **Agente responsable**: Agent 06 (Game Designer) → Agent 07 (UX Children) → Agent 15 (Gameplay Engineer)  
 > **Fecha**: 2026-06-25  
-> **Versión**: 1.7 — ✅ LIVING SPEC
+> **Versión**: 1.8 — ✅ LIVING SPEC
 
 ---
 
@@ -317,6 +317,16 @@ UserSystem.saveProgress(GAME_ID, { currentLevel, completedLetters, totalCoins, a
 
 > **Regla**: Todo cambio post-implementación se registra aquí.  
 > La spec refleja el juego TAL COMO ESTÁ CONSTRUIDO, no como se planeó originalmente.
+
+### v1.8 — 2026-06-25 — Fix iOS Safari (iPhone 15 Pro Max)
+
+| Cambio | Motivo | Agente |
+|--------|--------|--------|
+| Canvas usa `clientWidth/clientHeight` en vez de `getBoundingClientRect()` | `getBoundingClientRect()` en iOS Safari devuelve valores inconsistentes por safe areas, causando offset en el trazo | Agent 21 (QA) |
+| Coordenadas touch corregidas con factor `canvas.width/dpr/rect.width` | Compensa discrepancia entre CSS pixels y canvas pixels en pantallas DPR×3 | Agent 15 |
+| Partículas eliminadas al salir del canvas (límite +20px) | Se acumulaban fuera del área visible creando una "mancha" de colores abajo | Agent 21 |
+| Agregado listener `orientationchange` con 200ms delay | iOS Safari no dispara `resize` al rotar; el path no se recalculaba | Agent 15 |
+| Trazo más grueso (6px → 7px al reconectar, color morado), radio de reconexión 80px | Mejor visibilidad y tolerancia para niños pequeños | Agent 06 + 07 |
 
 ### v1.7 — 2026-06-25 — Partículas durante el trazo
 
