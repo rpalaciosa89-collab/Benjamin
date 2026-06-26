@@ -32,7 +32,7 @@
 | Elemento | Descripción |
 |----------|-------------|
 | **Acción del jugador** | Tocar y arrastrar el dedo (o ratón) sobre la línea de puntos que forma la letra/palabra. |
-| **Respuesta del sistema** | Al tocar la línea punteada, esta se ilumina con un color de acento (rosa pastel). Partículas de estrellas ✨ siguen el trazo. Una barra de progreso muestra el % completado del camino. Al levantar el dedo, se valida si el trazo cubrió ≥ 65% del camino. |
+| **Respuesta del sistema** | Al tocar la línea punteada, esta se ilumina en rosa (#EF476F, 6px con brillo). Destellos multicolor (🟡🩷🔵🟢🟠) y estrellas ✨ siguen el dedo. Barra de progreso en tiempo real. Al levantar el dedo, ventana de reconexión de 3s (trazo se vuelve morado, radio 80px). Si no reconecta, valida: ≥75% cobertura, ≥8 puntos, tolerancia 16px. |
 | **Condición de victoria** | Completar todas las letras/palabras del nivel actual. |
 | **Condición de derrota** | No hay derrota tradicional. Si en un nivel superior no consigue superar en **15 intentos** consecutivos, se regresa al nivel anterior (degradación graceful). El juego siempre guía para reintentar. |
 
@@ -54,8 +54,8 @@
 │     Niño sigue el camino con el dedo            │
 │     Barra de progreso se actualiza              │
 ├─────────────────────────────────────────────────┤
-│  4. VALIDACIÓN                                  │
-│     Al levantar el dedo: ¿cubrió ≥ 65%?         │
+│  4. VALIDACIÓN (tras 3s sin reconectar)         │
+│     ¿Cubrió ≥ 75% y ≥ 8 puntos?                 │
 ├─────────────────────────────────────────────────┤
 │  5a. ÉXITO                   5b. REINTENTO      │
 │     Confeti + sonido +       Se borra el trazo  │
@@ -223,7 +223,7 @@ Opcional: selector de 2–3 paletas (Arcoíris, Naturaleza, Mar) para padres.
 
 - [ ] Dado que estoy en el nivel 1, cuando veo la letra "A", entonces aparece en grande y con un camino punteado.
 - [ ] Dado que empiezo a trazar, cuando muevo el dedo sobre la línea, entonces se colorea de rosa y aparecen estrellas.
-- [ ] Dado que completo ≥ 65% del camino, cuando levanto el dedo, entonces la letra se da por completada y suena un sonido de éxito.
+- [ ] Dado que completo ≥ 75% del camino con ≥8 puntos, cuando pasan 3s sin reconectar, entonces la letra se completa y suena éxito.
 - [ ] Dado que he completado todas las letras del nivel 1, entonces desbloqueo el nivel 2 automáticamente.
 
 ### Historia 2: Aprendizaje de palabras con emojis
@@ -283,7 +283,13 @@ const traceState = {
   isDrawing: false,
   pathProgress: 0,            // 0–100% del camino completado
   guideActive: false,
-  guidePosition: { x: 0, y: 0 },
+  guideAnimId: null,
+  userPoints: [],             // Puntos del trazo del usuario
+  segmentsCovered: new Set(), // Segmentos cubiertos del path
+  totalSegments: 0,
+  reconnectTimer: null,       // Timer de 3s para reconexión
+  lastPoint: null,            // Último punto (radio reconexión 80px)
+  reconnectCount: 0,          // Reconexiones usadas en este trazo
 };
 ```
 
