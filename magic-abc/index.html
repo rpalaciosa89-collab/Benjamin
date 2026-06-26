@@ -330,14 +330,22 @@ const wrapper = document.getElementById('canvas-wrapper');
 let dpr = window.devicePixelRatio || 1;
 
 function resizeCanvas() {
-    const rect = wrapper.getBoundingClientRect();
-    canvas.width = rect.width * dpr;
-    canvas.height = rect.height * dpr;
+    const w = wrapper.clientWidth;
+    const h = wrapper.clientHeight;
+    if (w === 0 || h === 0) return;
+    canvas.width = w * dpr;
+    canvas.height = h * dpr;
+    canvas.style.width = w + 'px';
+    canvas.style.height = h + 'px';
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.scale(dpr, dpr);
 }
 resizeCanvas();
-window.addEventListener('resize', () => { resizeCanvas(); renderPath(); });
+window.addEventListener('resize', () => { resizeCanvas(); calculateRenderPath(); renderPath(); });
+// iOS Safari: recalcular al cambiar orientación
+window.addEventListener('orientationchange', () => {
+    setTimeout(() => { resizeCanvas(); calculateRenderPath(); renderPath(); }, 200);
+});
 
 // ==========================================
 //  PATH CALCULATION
@@ -389,8 +397,8 @@ let currentPath = [];
 let wordLetterPaths = []; // For words: array of {path, x, y, width}
 
 function calculateRenderPath() {
-    const rect = wrapper.getBoundingClientRect();
-    const w = rect.width, h = rect.height;
+    const w = wrapper.clientWidth, h = wrapper.clientHeight;
+    if (w === 0 || h === 0) return;
     const item = getCurrentItem();
     const type = getItemType();
     const LETTER_W = 200, LETTER_H = 250;
@@ -426,8 +434,8 @@ function calculateRenderPath() {
 }
 
 function renderPath() {
-    const rect = wrapper.getBoundingClientRect();
-    const w = rect.width, h = rect.height;
+    const w = wrapper.clientWidth, h = wrapper.clientHeight;
+    if (w === 0 || h === 0) return;
     ctx.clearRect(0, 0, w, h);
 
     // Draw dotted path
@@ -614,10 +622,10 @@ function spawnTraceParticle(x, y) {
     }
 }
 function spawnConfetti(count) {
-    const rect = wrapper.getBoundingClientRect();
+    const w = wrapper.clientWidth;
     for (let i = 0; i < count; i++) {
         particles.push({
-            x: Math.random() * rect.width, y: -10,
+            x: Math.random() * w, y: -10,
             vx: (Math.random()-0.5)*3, vy: 1.5 + Math.random()*3,
             life: 1, decay: 0.008 + Math.random()*0.012, size: 8 + Math.random()*10,
             color: ['#FFD166','#EF476F','#06D6A0','#118AB2','#FFB347'][Math.floor(Math.random()*5)],
@@ -627,16 +635,18 @@ function spawnConfetti(count) {
 }
 
 function updateParticles() {
-    particles = particles.filter(p => p.life > 0);
-    particles.forEach(p => {
+    const w = wrapper.clientWidth;
+    const h = wrapper.clientHeight;
+    particles = particles.filter(p => {
         p.x += p.vx; p.y += p.vy;
         if (p.type === 'confetti') { p.vx += (Math.random()-0.5)*0.3; p.vy += 0.05; }
         p.life -= p.decay;
+        // Eliminar partículas fuera del canvas o sin vida
+        return p.life > 0 && p.x > -20 && p.x < w + 20 && p.y > -20 && p.y < h + 20;
     });
 }
 
 function renderParticles() {
-    const rect = wrapper.getBoundingClientRect();
     particles.forEach(p => {
         ctx.globalAlpha = p.life;
         if (p.type === 'star') {
@@ -665,7 +675,12 @@ function getPos(e) {
     const rect = canvas.getBoundingClientRect();
     const clientX = e.touches ? e.touches[0].clientX : e.clientX;
     const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-    return { x: clientX - rect.left, y: clientY - rect.top };
+    const scaleX = canvas.width / dpr / (rect.width || 1);
+    const scaleY = canvas.height / dpr / (rect.height || 1);
+    return {
+        x: (clientX - rect.left) * scaleX,
+        y: (clientY - rect.top) * scaleY
+    };
 }
 
 function handleStart(e) {
