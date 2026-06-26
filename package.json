@@ -1,24 +1,9 @@
 {
   "name": "benjamin",
   "version": "1.0.0",
-  "description": "",
-  "main": "sw.js",
+  "description": "Edgy Benji - Juegos educativos para niños en edgybenji.app",
+  "private": true,
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/rpalaciosa89-collab/Benjamin.git"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "type": "commonjs",
-  "bugs": {
-    "url": "https://github.com/rpalaciosa89-collab/Benjamin/issues"
-  },
-  "homepage": "https://github.com/rpalaciosa89-collab/Benjamin#readme",
-  "dependencies": {
-    "opentype.js": "^2.0.0"
+    "generate": "node magic-abc/generate-strokes.js"
   }
 }
