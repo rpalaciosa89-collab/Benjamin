@@ -3,7 +3,7 @@
 > **Agent 11 — Specification Engineer**  
 > **Agente responsable**: Agent 06 (Game Designer) → Agent 07 (UX Children) → Agent 15 (Gameplay Engineer)  
 > **Fecha**: 2026-06-25  
-> **Versión**: 1.8 — ✅ LIVING SPEC
+> **Versión**: 1.9 — ✅ LIVING SPEC
 
 ---
 
@@ -76,15 +76,22 @@
 A B C D E F G H I J K L M N Ñ O P Q R S T U V W X Y Z
 ```
 **Total**: 27 letras mayúsculas.  
-**Selección**: Secuencial (A→Z) para garantizar progresión. En futuras versiones se puede añadir modo aleatorio.
+**Selección**: Secuencial (A→Z) para garantizar progresión.
 
-### Pool de Palabras (Niveles 3–6)
+### Pool de Minúsculas (Nivel 3)
+```
+a b c d e f g h i j k l m n ñ o p q r s t u v w x y z
+```
+**Total**: 27 letras minúsculas.  
+**Selección**: Secuencial (a→z). Nivel completo de práctica de minúsculas.
+
+### Pool de Palabras (Niveles 4–7)
 | Nivel | Palabras | Emojis |
 |-------|----------|--------|
-| 3 | SOL, LUZ, PAN, MAR, PEZ, OSO, GATO, CASA, MANO, BOCA | ☀️💡🍞🌊🐟🐻🐱🏠✋👄 |
-| 4 | MAMÁ, PAPÁ, NIÑO, NIÑA, BEBÉ, ABRAZO, BESITO, AMIGO, FELIZ, GRANDE | 👩👨👦👧👶🤗😘👫😊🌟 |
-| 5 | NUBE, FLOR, ÁRBOL, LLUVIA, ESTRELLA, PLANETA, MONTAÑA, JARDÍN, RÍO, PLAYA | ☁️🌸🌳🌧️⭐🪐⛰️🌺🏞️🏖️ |
-| 6 | COLEGIO, MAESTRA, PINTURA, MÚSICA, CUENTO, LÁPIZ, LIBRO, NÚMERO, LETRA, JUEGO | 🏫👩‍🏫🎨🎵📖✏️📚🔢🔤🎮 |
+| 4 | SOL, LUZ, PAN, MAR, PEZ, OSO, GATO, CASA, MANO, BOCA | ☀️💡🍞🌊🐟🐻🐱🏠✋👄 |
+| 5 | MAMÁ, PAPÁ, NIÑO, NIÑA, BEBÉ, ABRAZO, BESITO, AMIGO, FELIZ, GRANDE | 👩👨👦👧👶🤗😘👫😊🌟 |
+| 6 | NUBE, FLOR, ÁRBOL, LLUVIA, ESTRELLA, PLANETA, MONTAÑA, JARDÍN, RÍO, PLAYA | ☁️🌸🌳🌧️⭐🪐⛰️🌺🏞️🏖️ |
+| 7 | COLEGIO, MAESTRA, PINTURA, MÚSICA, CUENTO, LÁPIZ, LIBRO, NÚMERO, LETRA, JUEGO | 🏫👩‍🏫🎨🎵📖✏️📚🔢🔤🎮 |
 
 ---
 
@@ -92,12 +99,13 @@ A B C D E F G H I J K L M N Ñ O P Q R S T U V W X Y Z
 
 | Nivel | Contenido | Letras/Palabras | ¿Guía automática? | Intentos máx. antes de degradar |
 |-------|-----------|-----------------|-------------------|--------------------------------|
-| 1 | Letras A–G (7) | 7 | ✅ Sí (1.5s) | N/A (nivel inicial) |
-| 2 | Letras H–Z + Ñ (20) | 20 | ✅ Sí (1.2s) | 15 intentos → vuelve a N1 |
-| 3 | Palabras 3 letras (10) | 10 | ✅ Sí (1.0s) | 15 intentos → vuelve a N2 |
-| 4 | Palabras 4–5 letras (10) | 10 | Botón "Ayuda ✨" | 15 intentos → vuelve a N3 |
-| 5 | Palabras temáticas (10) | 10 | Botón "Ayuda ✨" | 15 intentos → vuelve a N4 |
-| 6 | Palabras compuestas (10) | 10 | Botón "Ayuda ✨" | 15 intentos → vuelve a N5 |
+| 1 | Mayúsculas A–G (7) | 7 | ✅ Sí (1.5s) | N/A (nivel inicial) |
+| 2 | Mayúsculas H–Z + Ñ (20) | 20 | ✅ Sí (1.2s) | 15 intentos → vuelve a N1 |
+| 3 | **Minúsculas a–z + ñ (27)** 🆕 | 27 | ✅ Sí (1.2s) | 15 intentos → vuelve a N2 |
+| 4 | Palabras 3 letras (10) | 10 | ✅ Sí (1.0s) | 15 intentos → vuelve a N3 |
+| 5 | Palabras 4–5 letras (10) | 10 | Botón "Ayuda ✨" | 15 intentos → vuelve a N4 |
+| 6 | Palabras temáticas (10) | 10 | Botón "Ayuda ✨" | 15 intentos → vuelve a N5 |
+| 7 | Palabras compuestas (10) | 10 | Botón "Ayuda ✨" | 15 intentos → vuelve a N6 |
 
 ### Sistema de Recompensas
 
@@ -317,6 +325,14 @@ UserSystem.saveProgress(GAME_ID, { currentLevel, completedLetters, totalCoins, a
 
 > **Regla**: Todo cambio post-implementación se registra aquí.  
 > La spec refleja el juego TAL COMO ESTÁ CONSTRUIDO, no como se planeó originalmente.
+
+### v1.9 — 2026-06-25 — Minúsculas (Nivel 3)
+
+| Cambio | Motivo | Agente |
+|--------|--------|--------|
+| Nuevo Nivel 3: 27 letras minúsculas (a-z + ñ) con guía automática | Los bebés también aprenden a escribir minúsculas. Progresión natural: mayúsculas → minúsculas → palabras | Agent 03 + 06 |
+| 27 paths de minúsculas agregados a `LETTER_PATHS` | Cada letra minúscula tiene su propio camino de trazo | Agent 15 |
+| Niveles de palabras renumerados: 3-6 → 4-7 (total: 7 niveles) | Shift para acomodar el nuevo nivel de minúsculas | Agent 15 |
 
 ### v1.8 — 2026-06-25 — Fix iOS Safari (iPhone 15 Pro Max)
 
