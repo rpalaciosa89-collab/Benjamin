@@ -240,6 +240,28 @@ const strokes = {
 ],
 };
 
+// ===== INTERPOLAR PUNTOS EXTRA EN CURVAS =====
+// Para cada trazo con más de 4 puntos (curvas), añadir puntos intermedios
+function interpolateStroke(pts) {
+  if (pts.length <= 4) return pts; // líneas rectas: no interpolar
+  const result = [pts[0]];
+  for (let i = 1; i < pts.length; i++) {
+    const a = pts[i-1], b = pts[i];
+    const dist = Math.hypot(b.x - a.x, b.y - a.y);
+    if (dist > 25) {
+      // Añadir punto(s) intermedio(s) para suavizar
+      const mid = {x: Math.round((a.x + b.x) / 2), y: Math.round((a.y + b.y) / 2)};
+      result.push(mid);
+    }
+    result.push(b);
+  }
+  return result;
+}
+
+for (const [char, strokeList] of Object.entries(strokes)) {
+  strokes[char] = strokeList.map(interpolateStroke);
+}
+
 // ===== GENERAR letter-paths.js =====
 // Formato: array de arrays (cada stroke es independiente)
 const js = 'const LETTER_PATHS = ' + JSON.stringify(strokes) + ';';
