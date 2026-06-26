@@ -155,6 +155,18 @@
         #profile-badge {
             display: flex; align-items: center; cursor: pointer;
         }
+        .debug-levels {
+            display: flex; gap: 4px; justify-content: center; flex-wrap: wrap;
+            margin-top: 6px; opacity: 0.7;
+        }
+        .debug-lvl-btn {
+            padding: 3px 8px; border-radius: 10px; border: 1px solid #d1d5db;
+            background: #f9fafb; font-size: 11px; font-weight: 700;
+            cursor: pointer; font-family: 'Baloo 2', cursive;
+            color: #6b7280; transition: all 0.15s;
+        }
+        .debug-lvl-btn.active { background: #7c3aed; color: #fff; border-color: #7c3aed; }
+        .debug-lvl-btn.minus { background: #fef3c7; border-color: #f59e0b; color: #92400e; }
     </style>
 </head>
 <body>
@@ -186,6 +198,7 @@
             <canvas id="trace-canvas"></canvas>
         </div>
         <div class="progress-bar-wrap"><div class="progress-bar-fill" id="progress-bar"></div></div>
+        <div class="debug-levels" id="debug-levels"></div>
         <div class="btn-row">
             <button class="btn btn-guide" id="btn-guide" style="display:none;">✨ Ayuda</button>
             <button class="btn btn-reset" id="btn-reset">🔄 Reiniciar</button>
@@ -1006,6 +1019,33 @@ function updateLetterDisplay() {
 function updateHUD() {
     document.getElementById('level-badge').textContent = 'Nivel ' + state.level;
     document.getElementById('coins-display').textContent = '⭐ ' + state.coins;
+    renderDebugLevels();
+}
+
+// Selector rapido de niveles (para QA)
+function renderDebugLevels() {
+    const container = document.getElementById('debug-levels');
+    container.innerHTML = '';
+    LEVELS.forEach(lvl => {
+        const btn = document.createElement('button');
+        btn.className = 'debug-lvl-btn' + (lvl.level === state.level ? ' active' : '') + (lvl.level === 3 ? ' minus' : '');
+        btn.textContent = lvl.level === 3 ? 'N3 abc' : 'N' + lvl.level;
+        btn.title = lvl.level === 3 ? 'Minusculas' : (lvl.level <= 2 ? 'Mayusculas' : 'Palabras');
+        btn.addEventListener('click', () => jumpToLevel(lvl.level));
+        container.appendChild(btn);
+    });
+}
+
+function jumpToLevel(lvl) {
+    stopGuide();
+    if (traceState.reconnectTimer) clearTimeout(traceState.reconnectTimer);
+    state.level = lvl;
+    state.currentItemIndex = 0;
+    state.completedLetters = [];
+    state.failedAttempts = 0;
+    saveProgress();
+    updateHUD();
+    resetItem();
 }
 
 function saveProgress() {
