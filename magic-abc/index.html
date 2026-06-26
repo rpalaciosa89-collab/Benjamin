@@ -85,7 +85,6 @@
             font-size: 56px; color: var(--text); text-align: center;
             margin-bottom: 4px; min-height: 64px; display: flex;
             align-items: center; gap: 8px;
-            text-transform: uppercase;
         }
         .letter-emoji { font-size: 40px; }
         .guide-label {
@@ -991,10 +990,15 @@ function speakItem() {
 function updateLetterDisplay() {
     const display = document.getElementById('letter-display');
     const item = getCurrentItem();
+    const isMinusculas = state.level === 3;
+    
     if (getItemType() === 'letters') {
-        display.innerHTML = `<span style="font-family:Arial,sans-serif;font-weight:bold;font-size:56px;text-transform:uppercase;">${item.toUpperCase()}</span>`;
+        // Niveles 1-2: MAYÚSCULAS. Nivel 3: minúsculas.
+        const letter = isMinusculas ? item : item.toUpperCase();
+        display.innerHTML = `<span style="font-family:Arial,sans-serif;font-weight:bold;font-size:56px;">${letter}</span>`;
     } else {
-        display.innerHTML = `<span style="font-family:Arial,sans-serif;font-weight:bold;font-size:36px;text-transform:uppercase;">${item.word.toUpperCase()}</span> <span class="letter-emoji">${item.emoji}</span>`;
+        // Palabras en formato real: primera mayúscula, resto minúsculas
+        display.innerHTML = `<span style="font-family:Arial,sans-serif;font-weight:bold;font-size:36px;">${item.word}</span> <span class="letter-emoji">${item.emoji}</span>`;
     }
     document.getElementById('guide-label').textContent = '¡Sigue el camino punteado!';
 }
