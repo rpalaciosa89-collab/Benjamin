@@ -1024,7 +1024,10 @@ function updateLetterDisplay() {
         // Palabras en formato real: primera mayúscula, resto minúsculas
         display.innerHTML = `<span style="font-family:Arial,sans-serif;font-weight:bold;font-size:36px;">${item.word}</span> <span class="letter-emoji">${item.emoji}</span>`;
     }
-    document.getElementById('guide-label').textContent = '¡Sigue el camino punteado!';
+    document.getElementById('guide-label').textContent =
+        getItemType() === 'letters'
+            ? `Trazo 1 de ${currentStrokes.length} ✏️`
+            : `Palabra "${getCurrentItem().word}" — Trazo 1 de ${currentStrokes.length}`;
 }
 
 function updateHUD() {
