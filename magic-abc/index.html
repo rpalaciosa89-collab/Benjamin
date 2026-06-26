@@ -816,9 +816,11 @@ function onStrokeRetry(msg) {
     traceState.pathProgress = (currentStrokeIdx / currentStrokes.length) * 100;
     updateProgressBar();
     document.getElementById('guide-label').textContent = msg;
-    \n    state.failedAttempts++;
+    
+    state.failedAttempts++;
     saveProgress();
-    \n    // Degradación: si falla mucho, bajar de nivel
+    
+    // Degradación: si falla mucho, bajar de nivel
     if (state.level > 1 && state.failedAttempts >= 20) {
         state.level--;
         state.failedAttempts = 0;
@@ -829,7 +831,7 @@ function onStrokeRetry(msg) {
         setTimeout(resetItem, 1500);
         return;
     }
-    \n    setTimeout(() => {
+    setTimeout(() => {
         renderPath();
         document.getElementById('guide-label').textContent =
             `Trazo ${currentStrokeIdx+1} de ${currentStrokes.length}`;
