@@ -6,7 +6,7 @@ const opentype = require('opentype.js');
 const fs = require('fs');
 const path = require('path');
 
-const FONT_PATH = '/System/Library/Fonts/Supplemental/Arial Bold.ttf';
+const FONT_PATH = '/System/Library/Fonts/Supplemental/Comic Sans MS.ttf';
 const OUTPUT = path.join(__dirname, 'letter-paths.js');
 
 // ==========================================
@@ -129,9 +129,9 @@ const fontBuffer = fs.readFileSync(FONT_PATH).buffer;
 const font = opentype.parse(fontBuffer);
 
 const FONT_SIZE = 200;
-const BEZIER_TOLERANCE = 8.0;  // Máxima suavidad
-const RDP_EPSILON = 6.0;       // Simplificación muy agresiva
-const MIN_POINT_DIST = 12;     // Separación amplia para dedo infantil
+const BEZIER_TOLERANCE = 4.0;  // Comic Sans ya es simple
+const RDP_EPSILON = 3.0;       // Simplificación moderada
+const MIN_POINT_DIST = 8;      // Buena separación
 
 const letters = 'ABCDEFGHIJKLMNÑOPQRSTUVWXYZabcdefghijklmnñopqrstuvwxyz';
 const letterPaths = {};
