@@ -1,15 +1,61 @@
-// generate-paths.js — Extrae paths de letras desde Baloo 2 Bold
+// generate-paths.js — Extrae paths SIMPLIFICADOS para trazo infantil
 // Uso: node magic-abc/generate-paths.js
-// Genera: magic-abc/letter-paths.json
+// Genera: magic-abc/letter-paths.js
 
 const opentype = require('opentype.js');
 const fs = require('fs');
 const path = require('path');
 
 const FONT_PATH = '/System/Library/Fonts/Supplemental/Arial Bold.ttf';
-const OUTPUT = path.join(__dirname, 'letter-paths.json');
+const OUTPUT = path.join(__dirname, 'letter-paths.js');
 
-// Aplanar curva de Bézier cúbica a segmentos de línea
+// ==========================================
+//  Ramer-Douglas-Peucker simplification
+// ==========================================
+function rdpSimplify(points, epsilon) {
+    if (points.length < 3) return points;
+    let maxDist = 0, maxIdx = 0;
+    const first = points[0], last = points[points.length - 1];
+    for (let i = 1; i < points.length - 1; i++) {
+        const d = perpendicularDist(points[i], first, last);
+        if (d > maxDist) { maxDist = d; maxIdx = i; }
+    }
+    if (maxDist > epsilon) {
+        const left = rdpSimplify(points.slice(0, maxIdx + 1), epsilon);
+        const right = rdpSimplify(points.slice(maxIdx), epsilon);
+        return left.slice(0, -1).concat(right);
+    }
+    return [first, last];
+}
+
+function perpendicularDist(p, a, b) {
+    const dx = b.x - a.x, dy = b.y - a.y;
+    const lenSq = dx*dx + dy*dy;
+    if (lenSq === 0) return Math.hypot(p.x - a.x, p.y - a.y);
+    const t = ((p.x - a.x)*dx + (p.y - a.y)*dy) / lenSq;
+    if (t < 0) return Math.hypot(p.x - a.x, p.y - a.y);
+    if (t > 1) return Math.hypot(p.x - b.x, p.y - b.y);
+    const projX = a.x + t*dx, projY = a.y + t*dy;
+    return Math.hypot(p.x - projX, p.y - projY);
+}
+
+// ==========================================
+//  Minimum distance filter
+// ==========================================
+function minDistFilter(points, minDist) {
+    if (points.length < 2) return points;
+    const result = [points[0]];
+    for (let i = 1; i < points.length; i++) {
+        const last = result[result.length - 1];
+        const d = Math.hypot(points[i].x - last.x, points[i].y - last.y);
+        if (d >= minDist) result.push(points[i]);
+    }
+    return result;
+}
+
+// ==========================================
+//  Flatten beziers (CHILD-FRIENDLY tolerance)
+// ==========================================
 function flattenCubic(x0, y0, x1, y1, x2, y2, x3, y3, tol, out) {
     const ux = 3*x1 - 2*x0 - x3, uy = 3*y1 - 2*y0 - y3;
     const vx = 3*x2 - 2*x3 - x0, vy = 3*y2 - 2*y3 - y0;
@@ -33,17 +79,14 @@ function flattenQuad(x0, y0, x1, y1, x2, y2, tol, out) {
     flattenCubic(x0, y0, cx1, cy1, cx2, cy2, x2, y2, tol, out);
 }
 
-function flattenPath(pathData, tolerance = 0.8) {
+function flattenPath(pathData, tolerance = 4.0) {
     const points = [];
-    let cx = 0, cy = 0, startX = 0, startY = 0;
-    
+    let cx = 0, cy = 0;
     for (const cmd of pathData.commands) {
         switch (cmd.type) {
             case 'M':
-                if (points.length > 0) points.push(null); // stroke break
                 points.push({ x: Math.round(cmd.x), y: Math.round(cmd.y) });
                 cx = cmd.x; cy = cmd.y;
-                startX = cmd.x; startY = cmd.y;
                 break;
             case 'L':
                 points.push({ x: Math.round(cmd.x), y: Math.round(cmd.y) });
@@ -57,21 +100,12 @@ function flattenPath(pathData, tolerance = 0.8) {
                 flattenQuad(cx, cy, cmd.x1, cmd.y1, cmd.x, cmd.y, tolerance, points);
                 cx = cmd.x; cy = cmd.y;
                 break;
-            case 'Z':
-                if (Math.abs(cx - startX) > 1 || Math.abs(cy - startY) > 1) {
-                    points.push({ x: Math.round(startX), y: Math.round(startY) });
-                }
-                cx = startX; cy = startY;
-                break;
+            case 'Z': break;
         }
     }
-    
-    // Filter out null separators and keep as single continuous path
-    // (for kids' tracing, we want ONE path per letter)
-    return points.filter(p => p !== null);
+    return points;
 }
 
-// Normalize points to 200×250 space
 function normalize(points) {
     if (points.length === 0) return [];
     const xs = points.map(p => p.x), ys = points.map(p => p.y);
@@ -81,42 +115,53 @@ function normalize(points) {
     const scale = Math.min(180 / rangeX, 230 / rangeY);
     const offsetX = (200 - rangeX * scale) / 2 - minX * scale;
     const offsetY = 10 - minY * scale;
-    
     return points.map(p => ({
         x: Math.round(p.x * scale + offsetX),
         y: Math.round(p.y * scale + offsetY)
     }));
 }
 
-// Main
-console.log('Cargando fuente...');
+// ==========================================
+//  MAIN — Child-friendly path generation
+// ==========================================
+console.log('Generando paths infantiles...');
 const fontBuffer = fs.readFileSync(FONT_PATH).buffer;
 const font = opentype.parse(fontBuffer);
-console.log(`Fuente cargada: ${font.names?.fontFamily?.en || 'OK'}`);
 
 const FONT_SIZE = 200;
+const BEZIER_TOLERANCE = 5.0;  // Mucho más suave que 0.8
+const RDP_EPSILON = 3.0;       // Simplificación agresiva
+const MIN_POINT_DIST = 7;      // Separación mínima entre puntos (dedo infantil)
+
 const letters = 'ABCDEFGHIJKLMNÑOPQRSTUVWXYZabcdefghijklmnñopqrstuvwxyz';
 const letterPaths = {};
-let generated = 0;
+let totalOrig = 0, totalSimple = 0;
 
 for (const char of letters) {
     try {
         const glyphPath = font.getPath(char, 0, 0, FONT_SIZE);
-        const points = flattenPath(glyphPath, 0.8);
-        const normalized = normalize(points);
-        if (normalized.length >= 3) {
-            letterPaths[char] = normalized;
-            generated++;
+        let points = flattenPath(glyphPath, BEZIER_TOLERANCE);
+        totalOrig += points.length;
+        
+        // Simplificar con RDP
+        points = rdpSimplify(points, RDP_EPSILON);
+        // Filtrar puntos muy cercanos
+        points = minDistFilter(points, MIN_POINT_DIST);
+        // Normalizar
+        points = normalize(points);
+        
+        if (points.length >= 3) {
+            letterPaths[char] = points;
+            totalSimple += points.length;
         }
     } catch(e) {
         console.warn(`  ⚠️ ${char}: ${e.message}`);
     }
 }
 
-// Ensure ñ and Ñ exist
-if (!letterPaths['ñ']) letterPaths['ñ'] = letterPaths['n'] || [];
-if (!letterPaths['Ñ']) letterPaths['Ñ'] = letterPaths['N'] || [];
+const js = 'const LETTER_PATHS = ' + JSON.stringify(letterPaths) + ';';
+fs.writeFileSync(OUTPUT, js);
 
-fs.writeFileSync(OUTPUT, JSON.stringify(letterPaths, null, 2));
-console.log(`✅ ${generated} letras generadas → ${OUTPUT}`);
-console.log(`   Tamaño: ${(fs.statSync(OUTPUT).size / 1024).toFixed(1)} KB`);
+console.log(`✅ ${Object.keys(letterPaths).length} letras generadas`);
+console.log(`   Puntos originales: ${totalOrig} → Simplificados: ${totalSimple} (${Math.round(totalSimple/totalOrig*100)}%)`);
+console.log(`   Tamaño: ${(fs.statSync(OUTPUT).size/1024).toFixed(1)} KB`);
