@@ -445,14 +445,16 @@ function renderPath() {
     ctx.stroke();
     ctx.setLineDash([]);
 
-    // Draw user trace
+    // Draw user trace — SIEMPRE visible hasta validación
     if (traceState.userPoints.length > 1) {
-        ctx.strokeStyle = '#EF476F';
-        ctx.lineWidth = 5;
+        // Más grueso al reconectar (morado) para mostrar que se puede continuar
+        const isReconnecting = !traceState.isDrawing && traceState.userPoints.length > 0;
+        ctx.strokeStyle = isReconnecting ? '#c026d3' : '#EF476F';
+        ctx.lineWidth = isReconnecting ? 7 : 6;
         ctx.lineCap = 'round';
         ctx.lineJoin = 'round';
-        ctx.shadowColor = 'rgba(239,71,111,0.5)';
-        ctx.shadowBlur = 8;
+        ctx.shadowColor = isReconnecting ? 'rgba(192,38,211,0.6)' : 'rgba(239,71,111,0.6)';
+        ctx.shadowBlur = 10;
         ctx.beginPath();
         ctx.moveTo(traceState.userPoints[0].x, traceState.userPoints[0].y);
         for (let i = 1; i < traceState.userPoints.length; i++) {
@@ -683,7 +685,7 @@ function handleStart(e) {
         const dx = pos.x - traceState.lastPoint.x;
         const dy = pos.y - traceState.lastPoint.y;
         const dist = Math.sqrt(dx*dx + dy*dy);
-        if (dist < 50) {
+        if (dist < 80) {
             // Reconexión exitosa: continuar el trazo
             traceState.isDrawing = true;
             traceState.userPoints.push(pos);
