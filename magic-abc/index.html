@@ -281,15 +281,20 @@ let state = {
     currentItemIndex: saved.currentItemIndex || 0,
 };
 
+// STROKE-BY-STROKE: cada letra = array de trazos independientes
+// El niño levanta el dedo entre cada trazo
+let currentStrokes = [];     // Array de paths (cada path = array de {x,y})
+let currentStrokeIdx = 0;   // Cuál trazo estamos dibujando (0-based)
+let strokesCompleted = 0;   // Cuántos trazos ya se completaron
+
 let traceState = {
     isDrawing: false,
     pathProgress: 0,
     guideActive: false,
     guideAnimId: null,
-    userPoints: [],
+    userPoints: [],           // Puntos del trazo ACTUAL solamente
     segmentsCovered: new Set(),
     totalSegments: 0,
-    reconnectTimer: null,
     lastPoint: null,
 };
 
@@ -365,8 +370,7 @@ function distPointToSegment(px, py, ax, ay, bx, by) {
 // ==========================================
 //  RENDER
 // ==========================================
-let currentPath = [];
-let wordLetterPaths = []; // For words: array of {path, x, y, width}
+let wordLetterPaths = []; // For words: array of {letter, strokes, x, y, w, h}
 
 function calculateRenderPath() {
     const w = wrapper.clientWidth, h = wrapper.clientHeight;
@@ -377,32 +381,32 @@ function calculateRenderPath() {
 
     if (type === 'letters') {
         const scale = Math.min(w / LETTER_W, h / LETTER_H) * 0.78;
-        const path = getLetterPaths(item);
+        const strokes = getLetterPaths(item); // Array de arrays: [[pts],[pts],...]
         const ox = (w - LETTER_W * scale) / 2;
         const oy = (h - LETTER_H * scale) / 2;
-        currentPath = getCanvasPath(path, scale, scale, ox, oy);
+        currentStrokes = strokes.map(s => getCanvasPath(s, scale, scale, ox, oy));
         wordLetterPaths = [];
     } else {
-        // Word: render multiple letters side by side
+        // Word: render each letter's strokes side by side
         const word = item.word;
         const letterCount = word.length;
         const totalWidth = Math.min(w * 0.88, letterCount * 90);
         const letterW = totalWidth / letterCount;
         const scale = letterW / LETTER_W * 0.82;
         const startX = (w - totalWidth) / 2;
-        currentPath = [];
+        currentStrokes = [];
         wordLetterPaths = [];
 
         for (let i = 0; i < word.length; i++) {
             const ch = word[i];
-            // Primera letra mayúscula, resto minúsculas (como en la vida real)
             const letterKey = i === 0 ? ch.toUpperCase() : ch.toLowerCase();
-            const lp = getLetterPaths(letterKey);
+            const strokes = getLetterPaths(letterKey);
             const ox = startX + i * letterW;
             const oy = (h - LETTER_H * scale) / 2;
-            const cp = getCanvasPath(lp, scale, scale, ox, oy);
-            wordLetterPaths.push({ letter: ch, path: cp, x: ox, y: oy, w: letterW, h: LETTER_H * scale });
-            currentPath.push(...cp);
+            const cpStrokes = strokes.map(s => getCanvasPath(s, scale, scale, ox, oy));
+            // Guardar info de cada letra para labels
+            wordLetterPaths.push({ letter: ch, strokes: cpStrokes, x: ox, y: oy, w: letterW, h: LETTER_H * scale });
+            currentStrokes.push(...cpStrokes);
         }
     }
 }
@@ -411,31 +415,74 @@ function renderPath() {
     const w = wrapper.clientWidth, h = wrapper.clientHeight;
     if (w === 0 || h === 0) return;
     ctx.clearRect(0, 0, w, h);
+    if (currentStrokes.length === 0) return;
 
-    // Draw dotted path
-    if (currentPath.length < 2) return;
-    ctx.setLineDash([8, 10]);
-    ctx.strokeStyle = '#d1d5db';
-    ctx.lineWidth = 6;
-    ctx.lineCap = 'round';
-    ctx.lineJoin = 'round';
-    ctx.beginPath();
-    ctx.moveTo(currentPath[0].x, currentPath[0].y);
-    for (let i = 1; i < currentPath.length; i++) {
-        ctx.lineTo(currentPath[i].x, currentPath[i].y);
+    // Dibujar cada trazo por separado
+    for (let si = 0; si < currentStrokes.length; si++) {
+        const stroke = currentStrokes[si];
+        if (stroke.length < 2) continue;
+
+        if (si < currentStrokeIdx) {
+            // ✅ Trazo completado: línea verde sólida
+            ctx.setLineDash([]);
+            ctx.strokeStyle = '#06D6A0';
+            ctx.lineWidth = 5;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            drawStrokePath(stroke);
+            ctx.stroke();
+        } else if (si === currentStrokeIdx) {
+            // 🎯 Trazo actual: punteado gris (el que toca ahora)
+            ctx.setLineDash([8, 10]);
+            ctx.strokeStyle = '#94a3b8';
+            ctx.lineWidth = 7;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            drawStrokePath(stroke);
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            // Punto de INICIO (verde)
+            const start = stroke[0];
+            ctx.fillStyle = '#06D6A0';
+            ctx.shadowColor = 'rgba(6,214,160,0.6)';
+            ctx.shadowBlur = 8;
+            ctx.beginPath();
+            ctx.arc(start.x, start.y, 7, 0, Math.PI*2);
+            ctx.fill();
+            ctx.shadowBlur = 0;
+
+            // Punto FINAL (naranja)
+            const end = stroke[stroke.length - 1];
+            ctx.fillStyle = '#FFB347';
+            ctx.shadowColor = 'rgba(255,179,71,0.6)';
+            ctx.shadowBlur = 8;
+            ctx.beginPath();
+            ctx.arc(end.x, end.y, 6, 0, Math.PI*2);
+            ctx.fill();
+            ctx.shadowBlur = 0;
+        } else {
+            // ⏳ Trazo pendiente: muy tenue
+            ctx.setLineDash([4, 12]);
+            ctx.strokeStyle = '#e2e8f0';
+            ctx.lineWidth = 4;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            ctx.globalAlpha = 0.4;
+            drawStrokePath(stroke);
+            ctx.stroke();
+            ctx.setLineDash([]);
+            ctx.globalAlpha = 1;
+        }
     }
-    ctx.stroke();
-    ctx.setLineDash([]);
 
-    // Draw user trace — SIEMPRE visible hasta validación
+    // Trazo del usuario (en el trazo actual)
     if (traceState.userPoints.length > 1) {
-        // Más grueso al reconectar (morado) para mostrar que se puede continuar
-        const isReconnecting = !traceState.isDrawing && traceState.userPoints.length > 0;
-        ctx.strokeStyle = isReconnecting ? '#c026d3' : '#EF476F';
-        ctx.lineWidth = isReconnecting ? 7 : 6;
+        ctx.strokeStyle = '#EF476F';
+        ctx.lineWidth = 6;
         ctx.lineCap = 'round';
         ctx.lineJoin = 'round';
-        ctx.shadowColor = isReconnecting ? 'rgba(192,38,211,0.6)' : 'rgba(239,71,111,0.6)';
+        ctx.shadowColor = 'rgba(239,71,111,0.6)';
         ctx.shadowBlur = 10;
         ctx.beginPath();
         ctx.moveTo(traceState.userPoints[0].x, traceState.userPoints[0].y);
@@ -446,28 +493,47 @@ function renderPath() {
         ctx.shadowBlur = 0;
     }
 
-    // Draw guide ball
-    if (traceState.guideActive && currentPath.length > 0) {
-        const t = (Date.now() % 3000) / 3000;
-        const idx = Math.floor(t * (currentPath.length - 1));
-        const p = currentPath[Math.min(idx, currentPath.length - 1)];
-        ctx.fillStyle = '#FFD166';
-        ctx.shadowColor = 'rgba(255,209,102,0.7)';
-        ctx.shadowBlur = 15;
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, 10, 0, Math.PI*2);
-        ctx.fill();
-        ctx.shadowBlur = 0;
+    // Guía (bola amarilla) en el trazo actual
+    if (traceState.guideActive && currentStrokeIdx < currentStrokes.length) {
+        const stroke = currentStrokes[currentStrokeIdx];
+        if (stroke.length > 0) {
+            const t = (Date.now() % 3000) / 3000;
+            const idx = Math.floor(t * (stroke.length - 1));
+            const p = stroke[Math.min(idx, stroke.length - 1)];
+            ctx.fillStyle = '#FFD166';
+            ctx.shadowColor = 'rgba(255,209,102,0.7)';
+            ctx.shadowBlur = 15;
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, 10, 0, Math.PI*2);
+            ctx.fill();
+            ctx.shadowBlur = 0;
+        }
     }
 
-    // Draw word letter labels
+    // Labels de palabra
     if (wordLetterPaths.length > 0) {
-        ctx.fillStyle = '#e5e7eb';
-        ctx.font = 'bold 14px Arial';
+        ctx.fillStyle = '#94a3b8';
+        ctx.font = 'bold 12px Arial';
         ctx.textAlign = 'center';
         wordLetterPaths.forEach(wl => {
             ctx.fillText(wl.letter, wl.x + wl.w/2, wl.y - 8);
         });
+    }
+
+    // Número de trazo actual
+    if (currentStrokeIdx < currentStrokes.length) {
+        ctx.fillStyle = '#64748b';
+        ctx.font = 'bold 13px "Baloo 2", cursive';
+        ctx.textAlign = 'right';
+        ctx.fillText(`Trazo ${currentStrokeIdx+1}/${currentStrokes.length}`, w - 12, h - 10);
+    }
+}
+
+function drawStrokePath(stroke) {
+    ctx.beginPath();
+    ctx.moveTo(stroke[0].x, stroke[0].y);
+    for (let i = 1; i < stroke.length; i++) {
+        ctx.lineTo(stroke[i].x, stroke[i].y);
     }
 }
 
@@ -479,14 +545,16 @@ function updateProgressBar() {
 // ==========================================
 //  VALIDATION
 // ==========================================
-function validateTrace() {
-    if (currentPath.length < 2) return 0;
+function validateCurrentStroke() {
+    if (currentStrokeIdx >= currentStrokes.length) return 0;
+    const stroke = currentStrokes[currentStrokeIdx];
+    if (stroke.length < 2) return 1; // trazo de 1 punto (dot) = automático
     
-    const segments = getPathSegments(currentPath);
+    const segments = getPathSegments(stroke);
     traceState.totalSegments = segments.length;
     traceState.segmentsCovered = new Set();
     
-    const THRESHOLD = 16; // distancia en px para considerar segmento cubierto
+    const THRESHOLD = 18;
     
     for (let si = 0; si < segments.length; si++) {
         const seg = segments[si];
@@ -499,24 +567,27 @@ function validateTrace() {
         }
     }
     
-    const coverage = traceState.segmentsCovered.size / Math.max(segments.length, 1);
-    return coverage;
+    return traceState.segmentsCovered.size / Math.max(segments.length, 1);
 }
 
 function calculateRealTimeProgress(mx, my) {
-    if (currentPath.length < 2) return traceState.pathProgress;
+    if (currentStrokeIdx >= currentStrokes.length) return traceState.pathProgress;
+    const stroke = currentStrokes[currentStrokeIdx];
+    if (stroke.length < 2) return 0;
     
-    const segments = getPathSegments(currentPath);
+    const segments = getPathSegments(stroke);
     for (let si = 0; si < segments.length; si++) {
         const seg = segments[si];
         const d = distPointToSegment(mx, my, seg.a.x, seg.a.y, seg.b.x, seg.b.y);
-        if (d < 16) {
+        if (d < 18) {
             traceState.segmentsCovered.add(si);
         }
     }
     
     const cov = traceState.segmentsCovered.size / Math.max(segments.length, 1);
-    return Math.min(cov, 1) * 100;
+    // Combinar progreso de trazos completados + progreso del trazo actual
+    const overall = (currentStrokeIdx + cov) / currentStrokes.length;
+    return Math.min(overall, 1) * 100;
 }
 
 // ==========================================
@@ -659,38 +730,24 @@ function getPos(e) {
 
 function handleStart(e) {
     e.preventDefault();
-    
-    // Cancelar cualquier validación pendiente (ventana de reconexión)
-    if (traceState.reconnectTimer) {
-        clearTimeout(traceState.reconnectTimer);
-        traceState.reconnectTimer = null;
-    }
-    
     stopGuide();
     const pos = getPos(e);
     
-    // Si hay puntos previos y el nuevo toque está cerca → RECONECTAR
-    if (traceState.userPoints.length > 0 && traceState.lastPoint) {
-        const dx = pos.x - traceState.lastPoint.x;
-        const dy = pos.y - traceState.lastPoint.y;
-        const dist = Math.sqrt(dx*dx + dy*dy);
-        if (dist < 80) {
-            // Reconexión exitosa: continuar el trazo
-            traceState.isDrawing = true;
-            traceState.userPoints.push(pos);
-            wrapper.classList.add('active');
-            document.getElementById('guide-label').textContent = '¡Sigue el camino punteado!';
-            return;
-        }
+    // Si no estamos dibujando: empezar un nuevo intento en el trazo actual
+    if (!traceState.isDrawing) {
+        traceState.isDrawing = true;
+        traceState.userPoints = [pos];
+        traceState.segmentsCovered = new Set();
+        traceState.lastPoint = pos;
+        wrapper.classList.add('active');
+        document.getElementById('guide-label').textContent =
+            `Trazo ${currentStrokeIdx+1} de ${currentStrokes.length}`;
+        return;
     }
     
-    // Nuevo trazo desde cero
-    traceState.isDrawing = true;
-    traceState.userPoints = [];
-    traceState.segmentsCovered = new Set();
-    traceState.lastPoint = null;
-    wrapper.classList.add('active');
+    // Ya estamos dibujando, añadir punto
     traceState.userPoints.push(pos);
+    traceState.lastPoint = pos;
 }
 
 function handleMove(e) {
@@ -701,7 +758,6 @@ function handleMove(e) {
     traceState.lastPoint = pos;
     traceState.pathProgress = calculateRealTimeProgress(pos.x, pos.y);
     updateProgressBar();
-    // Destellos mágicos siguiendo el dedo ✨🩷🟡🔵🟢🟠
     spawnTraceParticle(pos.x, pos.y);
 }
 
@@ -711,31 +767,61 @@ function handleEnd(e) {
     traceState.isDrawing = false;
     wrapper.classList.remove('active');
     
-    // Mostrar mensaje de reconexión
-    const prevLabel = document.getElementById('guide-label').textContent;
-    document.getElementById('guide-label').textContent = '👆 ¡Sigue trazando! Tienes 3 segundos...';
+    // Validar que hizo suficientes puntos
+    if (traceState.userPoints.length < 4) {
+        onStrokeRetry('¡Desliza el dedo! Intenta de nuevo ✨');
+        return;
+    }
     
-    // Ventana de reconexión: esperar 3s antes de validar
-    traceState.reconnectTimer = setTimeout(() => {
-        traceState.reconnectTimer = null;
-        document.getElementById('guide-label').textContent = prevLabel;
-        
-        // Validar que el niño haya hecho al menos 8 puntos de trazo
-        if (traceState.userPoints.length < 8) {
-            onTraceFail();
-            return;
+    // Validar SOLO el trazo actual
+    const coverage = validateCurrentStroke();
+    traceState.pathProgress = ((currentStrokeIdx + coverage) / currentStrokes.length) * 100;
+    updateProgressBar();
+    
+    if (coverage >= 0.70) {
+        // ¡Trazo completado! Avanzar al siguiente
+        onStrokeComplete();
+    } else {
+        onStrokeRetry('¡Casi! Vuelve a trazar esta línea ✨');
+    }
+}
+
+function onStrokeComplete() {
+    currentStrokeIdx++;
+    traceState.userPoints = [];
+    traceState.segmentsCovered = new Set();
+    traceState.pathProgress = (currentStrokeIdx / currentStrokes.length) * 100;
+    updateProgressBar();
+    AudioFX.trazoExito();
+    spawnStars(canvas.width/2, canvas.height/2, 5);
+    
+    if (currentStrokeIdx >= currentStrokes.length) {
+        // ¡Todos los trazos completados!
+        onTraceSuccess();
+    } else {
+        // Siguiente trazo
+        document.getElementById('guide-label').textContent =
+            `¡Bien! Trazo ${currentStrokeIdx+1} de ${currentStrokes.length} 👆`;
+        renderPath();
+        if (LEVELS[state.level-1].guideAuto) {
+            setTimeout(startGuide, 600);
         }
-        
-        const coverage = validateTrace();
-        traceState.pathProgress = coverage * 100;
-        updateProgressBar();
-        
-        if (coverage >= 0.75) {
-            onTraceSuccess();
-        } else {
-            onTraceFail();
-        }
-    }, 3000);
+    }
+}
+
+function onStrokeRetry(msg) {
+    AudioFX.trazoReintento();
+    traceState.userPoints = [];
+    traceState.segmentsCovered = new Set();
+    traceState.pathProgress = (currentStrokeIdx / currentStrokes.length) * 100;
+    updateProgressBar();
+    document.getElementById('guide-label').textContent = msg;
+    setTimeout(() => {
+        renderPath();
+        document.getElementById('guide-label').textContent =
+            `Trazo ${currentStrokeIdx+1} de ${currentStrokes.length}`;
+    }, 1200);
+    if (LEVELS[state.level-1].guideAuto) startGuide();
 }
 
 canvas.addEventListener('touchstart', handleStart, {passive:false});
@@ -798,13 +884,10 @@ function onTraceSuccess() {
     }
     state.failedAttempts = 0;
     
-    // Check achievements
     checkAchievements();
-    
     saveProgress();
     updateHUD();
     
-    // Show success overlay
     document.getElementById('success-emoji').textContent = getItemType()==='letters' ? item : getCurrentItem().emoji;
     document.getElementById('success-desc').textContent = getItemType()==='letters' 
         ? `¡Letra ${item} completada!` 
@@ -813,38 +896,8 @@ function onTraceSuccess() {
 }
 
 function onTraceFail() {
-    AudioFX.trazoReintento();
-    
-    // Dejar el trazo visible 1 segundo para que el niño vea lo que dibujó
-    // Luego se desvanece y se limpia
-    setTimeout(() => {
-        traceState.userPoints = [];
-        traceState.segmentsCovered = new Set();
-        traceState.pathProgress = 0;
-        updateProgressBar();
-        renderPath();
-    }, 1000);
-    
-    state.failedAttempts++;
-    saveProgress();
-    
-    // Degradation check
-    if (state.level > 1 && state.failedAttempts >= 15) {
-        state.level--;
-        state.failedAttempts = 0;
-        state.currentItemIndex = 0;
-        state.completedLetters = [];
-        saveProgress();
-        document.getElementById('guide-label').textContent = '😅 Bajamos un nivel. ¡Tú puedes!';
-        setTimeout(resetItem, 1500);
-    } else {
-        document.getElementById('guide-label').textContent = '¡Casi! Intenta de nuevo ✨';
-        setTimeout(() => {
-            document.getElementById('guide-label').textContent = '¡Sigue el camino punteado!';
-        }, 2000);
-        if (LEVELS[state.level-1].guideAuto) startGuide();
-        renderPath();
-    }
+    // Ya no se usa con trazo-por-trazo (cada trazo se valida individualmente)
+    // Pero se mantiene para compatibilidad
 }
 
 function checkAchievements() {
@@ -898,16 +951,18 @@ function nextItem() {
 
 function resetItem() {
     stopGuide();
+    currentStrokeIdx = 0;
+    strokesCompleted = 0;
     traceState = {
         isDrawing: false, pathProgress: 0, guideActive: false,
-        guideAnimId: null, userPoints: [], segmentsCovered: new Set(), totalSegments: 0
+        guideAnimId: null, userPoints: [], segmentsCovered: new Set(), totalSegments: 0,
+        lastPoint: null
     };
     updateProgressBar();
     calculateRenderPath();
     renderPath();
     updateLetterDisplay();
     
-    // Guide
     const lvl = LEVELS[state.level - 1];
     const guideBtn = document.getElementById('btn-guide');
     guideBtn.style.display = lvl.guideAuto ? 'none' : 'inline-block';
@@ -916,8 +971,11 @@ function resetItem() {
         startGuide();
     }
     
-    // Speak
     speakItem();
+    document.getElementById('guide-label').textContent =
+        getItemType() === 'letters'
+            ? `Trazo 1 de ${currentStrokes.length} ✏️`
+            : `Palabra "${getCurrentItem().word}" — Trazo 1 de ${currentStrokes.length}`;
 }
 
 // ==========================================
