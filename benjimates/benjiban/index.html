@@ -270,10 +270,10 @@ function getPos(e) {
     return {x:(cx-rect.left)*(W/rect.width), y:(cy-rect.top)*(H/rect.height)};
 }
 
-canvas.addEventListener('touchstart', e => { e.preventDefault(); const p=getPos(e); const b=findBead(p.x,p.y); if(b)dragging=b; });
+canvas.addEventListener('touchstart', e => { e.preventDefault(); AudioFX.init(); const p=getPos(e); const b=findBead(p.x,p.y); if(b)dragging=b; });
 canvas.addEventListener('touchmove', e => { e.preventDefault(); if(!dragging)return; const p=getPos(e); handleDrag(p); });
 canvas.addEventListener('touchend', e => { e.preventDefault(); if(dragging){snapBead();dragging=null;checkAnswer();} });
-canvas.addEventListener('mousedown', e => { const p=getPos(e); const b=findBead(p.x,p.y); if(b)dragging=b; });
+canvas.addEventListener('mousedown', e => { AudioFX.init(); const p=getPos(e); const b=findBead(p.x,p.y); if(b)dragging=b; });
 canvas.addEventListener('mousemove', e => { if(!dragging)return; const p=getPos(e); handleDrag(p); });
 canvas.addEventListener('mouseup', e => { if(dragging){snapBead();dragging=null;checkAnswer();} });
 canvas.addEventListener('mouseleave', e => { if(dragging){snapBead();dragging=null;checkAnswer();} });
