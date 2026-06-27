@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>BenjiMates 🧮 — Matemáticas para Niños</title>
+    <meta name="description" content="Juegos de matemáticas inspirados en el método japonés. Ábaco, ritmo, cálculo mental y más con Benji.">
+    <link rel="icon" type="image/svg+xml" href="../favicon.svg">
+    <link rel="manifest" href="../manifest.json">
+    <meta name="theme-color" content="#fbbf24">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+        :root{
+            --red:#ef4444;--orange:#f97316;--gold:#fbbf24;--green:#22c55e;
+            --blue:#3b82f6;--purple:#a855f7;--pink:#f472b6;--white:#f8fafc;--dark:#1e293b;
+            --bg1:#fef3c7;--bg2:#fce7f3;
+        }
+        body{
+            font-family:'Baloo 2',cursive,sans-serif;min-height:100vh;min-height:100dvh;
+            background:linear-gradient(160deg,var(--bg1) 0%,var(--bg2) 50%,#e0e7ff 100%);
+            color:var(--dark);overflow-x:hidden;display:flex;align-items:center;justify-content:center;
+        }
+        .app{
+            width:100%;max-width:520px;min-height:100vh;min-height:100dvh;
+            display:flex;flex-direction:column;position:relative;
+        }
+        @media(min-width:520px){.app{min-height:auto;border-radius:28px;margin:20px;box-shadow:0 20px 60px rgba(0,0,0,0.1)}}
+        
+        header{
+            display:flex;justify-content:space-between;align-items:center;
+            padding:14px 16px 8px;flex-shrink:0;
+        }
+        .back-btn{
+            width:44px;height:44px;background:rgba(255,255,255,0.7);border-radius:50%;
+            display:flex;align-items:center;justify-content:center;font-size:22px;
+            cursor:pointer;border:none;transition:transform 0.15s;text-decoration:none;
+            backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+        }
+        .back-btn:active{transform:scale(0.9)}
+        .music-btn{width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,0.7);border:none;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+        .music-btn:active{transform:scale(0.9)}
+        #profile-badge{display:flex;align-items:center;cursor:pointer}
+
+        .hero{text-align:center;padding:20px 16px 32px;flex-shrink:0}
+        .hero-icon{font-size:72px;display:block;animation:bounce 2.5s ease-in-out infinite;filter:drop-shadow(0 0 20px rgba(251,191,36,0.4))}
+        @keyframes bounce{0%,100%{transform:translateY(0)rotate(-3deg)}50%{transform:translateY(-14px)rotate(3deg)}}
+        .hero h1{font-size:clamp(36px,8vw,56px);font-weight:900;letter-spacing:-1px;background:linear-gradient(135deg,var(--purple),var(--pink),var(--orange));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1.1;margin-top:8px}
+        .hero p{font-size:clamp(15px,3vw,18px);color:#64748b;font-weight:600;margin-top:6px}
+
+        main{flex:1;padding:0 16px 40px}
+        .games-grid{display:flex;flex-direction:column;gap:16px}
+        @media(min-width:600px){.games-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:20px}}
+
+        .game-card{
+            position:relative;background:#fff;border-radius:24px;padding:24px 20px;
+            text-decoration:none;color:var(--dark);display:flex;align-items:center;
+            gap:16px;box-shadow:0 4px 16px rgba(0,0,0,0.06);border:2px solid transparent;
+            transition:transform 0.3s cubic-bezier(0.34,1.56,0.64,1),box-shadow 0.3s,border-color 0.3s;
+            cursor:pointer;overflow:hidden;
+        }
+        .game-card::after{content:'';position:absolute;inset:0;border-radius:22px;opacity:0;transition:opacity 0.3s}
+        .game-card:hover{transform:translateY(-6px);box-shadow:0 16px 40px rgba(0,0,0,0.12)}
+        .game-card:active{transform:scale(0.97)}
+        .card-emoji{font-size:52px;line-height:1;flex-shrink:0;transition:transform 0.3s cubic-bezier(0.34,1.56,0.64,1)}
+        .game-card:hover .card-emoji{transform:scale(1.2)rotate(8deg)}
+        .card-info{flex:1;min-width:0}
+        .card-badge{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:2px 10px;border-radius:50px;display:inline-block;margin-bottom:4px}
+        .card-title{font-size:20px;font-weight:800;line-height:1.2}
+        .card-desc{font-size:13px;color:#64748b;font-weight:500;margin-top:2px;line-height:1.4}
+        .card-arrow{font-size:20px;flex-shrink:0;color:#94a3b8}
+
+        .card-benjiban .card-badge{background:#fef3c7;color:#92400e}
+        .card-benjiban:hover{border-color:var(--gold)}
+        .card-benjiban::after{background:linear-gradient(135deg,rgba(251,191,36,0.08),rgba(249,115,22,0.05))}
+        .card-benjiban:hover::after{opacity:1}
+        
+        .card-multibeat .card-badge{background:#ede9fe;color:#6d28d9}
+        .card-multibeat:hover{border-color:var(--purple)}
+        .card-multibeat::after{background:linear-gradient(135deg,rgba(168,85,247,0.08),rgba(244,114,182,0.05))}
+        .card-multibeat:hover::after{opacity:1}
+        
+        .card-braindash .card-badge{background:#fef2f2;color:#b91c1c}
+        .card-braindash:hover{border-color:var(--red)}
+        .card-braindash::after{background:linear-gradient(135deg,rgba(239,68,68,0.08),rgba(59,130,246,0.05))}
+        .card-braindash:hover::after{opacity:1}
+        
+        .card-shapejoy .card-badge{background:#dbeafe;color:#1e40af}
+        .card-shapejoy:hover{border-color:var(--blue)}
+        .card-shapejoy::after{background:linear-gradient(135deg,rgba(59,130,246,0.08),rgba(34,197,94,0.05))}
+        .card-shapejoy:hover::after{opacity:1}
+        
+        .card-measureup .card-badge{background:#dcfce7;color:#166534}
+        .card-measureup:hover{border-color:var(--green)}
+        .card-measureup::after{background:linear-gradient(135deg,rgba(34,197,94,0.08),rgba(168,85,247,0.05))}
+        .card-measureup:hover::after{opacity:1}
+
+        footer{text-align:center;padding:16px 16px 24px;color:#94a3b8;font-size:13px;font-weight:500;flex-shrink:0}
+
+        .bubble{position:fixed;border-radius:50%;filter:blur(60px);pointer-events:none;z-index:0;opacity:0.12}
+    </style>
+</head>
+<body>
+<div class="app">
+    <header>
+        <a href="../index.html" class="back-btn" title="Volver">←</a>
+        <div id="profile-badge"></div>
+        <button class="music-btn" id="music-btn" title="Música">🔇</button>
+    </header>
+
+    <div class="hero">
+        <span class="hero-icon">🧮</span>
+        <h1>BenjiMates</h1>
+        <p>Aritmética Modelo Japonés · ¡Tus dedos piensan!</p>
+    </div>
+
+    <main>
+        <div class="games-grid">
+            <a href="benjiban/index.html" class="game-card card-benjiban">
+                <span class="card-emoji">🧮</span>
+                <div class="card-info">
+                    <span class="card-badge">Ábaco</span>
+                    <div class="card-title">Benjiban</div>
+                    <div class="card-desc">Mueve cuentas, forma números, ¡suma y resta como en Japón!</div>
+                </div>
+                <span class="card-arrow">▶</span>
+            </a>
+            <a href="multibeat/index.html" class="game-card card-multibeat">
+                <span class="card-emoji">🎵</span>
+                <div class="card-info">
+                    <span class="card-badge">Ritmo</span>
+                    <div class="card-title">MultiBeat</div>
+                    <div class="card-desc">Tablas de multiplicar con música. ¡Canta, baila y aprende!</div>
+                </div>
+                <span class="card-arrow">▶</span>
+            </a>
+            <a href="braindash/index.html" class="game-card card-braindash">
+                <span class="card-emoji">⚡</span>
+                <div class="card-info">
+                    <span class="card-badge">Mental</span>
+                    <div class="card-title">BrainDash</div>
+                    <div class="card-desc">Cálculo mental rapidísimo. Visualiza el ábaco en tu mente.</div>
+                </div>
+                <span class="card-arrow">▶</span>
+            </a>
+            <a href="shapejoy/index.html" class="game-card card-shapejoy">
+                <span class="card-emoji">🔷</span>
+                <div class="card-info">
+                    <span class="card-badge">Formas</span>
+                    <div class="card-title">ShapeJoy</div>
+                    <div class="card-desc">Círculos, triángulos, estrellas. Traza y descubre la geometría.</div>
+                </div>
+                <span class="card-arrow">▶</span>
+            </a>
+            <a href="measureup/index.html" class="game-card card-measureup">
+                <span class="card-emoji">📏</span>
+                <div class="card-info">
+                    <span class="card-badge">Medir</span>
+                    <div class="card-title">MeasureUp</div>
+                    <div class="card-desc">¿Cuántos lápices mide la mesa? Aprende a medir jugando.</div>
+                </div>
+                <span class="card-arrow">▶</span>
+            </a>
+        </div>
+    </main>
+
+    <footer>
+        Hecho con 🧮 y ❤️ para Benjamín · edgybenji.app
+    </footer>
+</div>
+
+<!-- Burbujas decorativas -->
+<div class="bubble" style="width:200px;height:200px;background:var(--gold);top:10%;left:-10%;animation:drift 20s ease-in-out infinite alternate"></div>
+<div class="bubble" style="width:180px;height:180px;background:var(--pink);bottom:20%;right:-10%;animation:drift 18s ease-in-out 2s infinite alternate"></div>
+<style>
+    @keyframes drift{from{transform:translate(0,0)scale(1)}to{transform:translate(30px,-40px)scale(1.1)}}
+</style>
+
+<script src="../assets/user-system.js"></script>
+<script src="../assets/music-player.js"></script>
+<script src="../assets/audio-fx.js"></script>
+<script src="../assets/motivational-voices.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        UserSystem.renderProfileBadge('profile-badge');
+        MusicPlayer.init('music-btn');
+        AudioFX.init();
+        MotiVoice.init();
+        setTimeout(() => MotiVoice.welcome(), 700);
+
+        // Tap sounds on cards
+        document.querySelectorAll('.game-card').forEach(card => {
+            card.addEventListener('click', () => AudioFX.tap());
+        });
+    });
+</script>
+</body>
+</html>
