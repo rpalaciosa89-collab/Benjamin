@@ -18,73 +18,73 @@ const MusicPlayer = (() => {
     { 
       id: 'alegre', 
       name: '🎵 Música Alegre', 
-      src: '../assets/bg_music.mp3',
+      src: '/assets/bg_music.mp3',
       emoji: '🎵'
     },
     { 
       id: 'beatit', 
       name: '🕺 Beat It', 
-      src: '../assets/Beat_It.mp3',
+      src: '/assets/Beat_It.mp3',
       emoji: '🎸'
     },
     { 
       id: 'billiejean', 
       name: '🕺 Billie Jean', 
-      src: '../assets/Billie_Jean.mp3',
+      src: '/assets/Billie_Jean.mp3',
       emoji: '🪩'
     },
     { 
       id: 'happykids', 
       name: '😊 Kids Happy', 
-      src: '../assets/kids-happy-loop.mp3',
+      src: '/assets/kids-happy-loop.mp3',
       emoji: '😊'
     },
     { 
       id: 'fungame', 
       name: '🎮 Fun Game', 
-      src: '../assets/kids-fun-game.mp3',
+      src: '/assets/kids-fun-game.mp3',
       emoji: '🎮'
     },
     { 
       id: 'calmpiano', 
       name: '🎹 Calm Piano', 
-      src: '../assets/kids-calm-piano.mp3',
+      src: '/assets/kids-calm-piano.mp3',
       emoji: '🎹'
     },
     { 
       id: 'rockenergy', 
       name: '🎸 Rock Energy', 
-      src: '../assets/rock-energy.mp3',
+      src: '/assets/rock-energy.mp3',
       emoji: '⚡'
     },
     { 
       id: 'rockpower', 
       name: '🥁 Rock Power', 
-      src: '../assets/rock-power.mp3',
+      src: '/assets/rock-power.mp3',
       emoji: '🥁'
     },
     { 
       id: 'upbeatrock', 
       name: '🔥 Upbeat Rock', 
-      src: '../assets/upbeat-rock.mp3',
+      src: '/assets/upbeat-rock.mp3',
       emoji: '🔥'
     },
     { 
       id: 'gameon', 
       name: '🎯 Game On!', 
-      src: '../assets/game-on.mp3',
+      src: '/assets/game-on.mp3',
       emoji: '🎯'
     },
     { 
       id: 'fastrock', 
       name: '💨 Fast Rock', 
-      src: '../assets/fast-rock.mp3',
+      src: '/assets/fast-rock.mp3',
       emoji: '💨'
     },
     { 
       id: 'funrock', 
       name: '🤘 Fun Rock', 
-      src: '../assets/fun-rock.mp3',
+      src: '/assets/fun-rock.mp3',
       emoji: '🤘'
     },
   ];

@@ -11,13 +11,13 @@ const MotiVoice = (() => {
 
   // ===== SFX ENERGETICOS (Mixkit - libres de derechos) =====
   const sfx = {
-    yippee:  new Audio('../assets/yippee.mp3'),
-    cheer1:  new Audio('../assets/sfx-cheer-1.mp3'),
-    cheer2:  new Audio('../assets/sfx-cheer-2.mp3'),
-    cheer3:  new Audio('../assets/sfx-cheer-3.mp3'),
-    kidsYay: new Audio('../assets/sfx-kids-yay.mp3'),
-    wow:     new Audio('../assets/sfx-wow.mp3'),
-    cartoon: new Audio('../assets/sfx-cartoon-cheer.mp3'),
+    yippee:  new Audio('/assets/yippee.mp3'),
+    cheer1:  new Audio('/assets/sfx-cheer-1.mp3'),
+    cheer2:  new Audio('/assets/sfx-cheer-2.mp3'),
+    cheer3:  new Audio('/assets/sfx-cheer-3.mp3'),
+    kidsYay: new Audio('/assets/sfx-kids-yay.mp3'),
+    wow:     new Audio('/assets/sfx-wow.mp3'),
+    cartoon: new Audio('/assets/sfx-cartoon-cheer.mp3'),
   };
   Object.values(sfx).forEach(a => { a.volume = 0.50; a.preload = 'auto'; });
 
