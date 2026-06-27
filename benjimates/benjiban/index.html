@@ -226,7 +226,7 @@ function renderAbacus() {
         
         for (let i=0;i<4;i++) {
             const onY = barY + 8 + i * spacing;
-            const offY = H - 6 - (3-i) * spacing;
+            const offY = H - BEAD_R - 2 - (3-i) * spacing;
             const lowerY = beads[ci].lower[i] ? onY : offY;
             drawBead(cx, lowerY, beads[ci].lower[i]?'#60a5fa':'#d4a574', beads[ci].lower[i]);
         }
