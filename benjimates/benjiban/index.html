@@ -49,9 +49,9 @@
         .guide-label{font-size:13px;color:#64748b;margin-bottom:4px;text-align:center;min-height:18px}
 
         .abacus-wrapper{
-            position:relative;width:100%;max-width:380px;flex:1;min-height:300px;
+            position:relative;width:100%;max-width:380px;flex:1;min-height:280px;
             background:linear-gradient(180deg,var(--wood-light) 0%,var(--wood) 100%);
-            border-radius:24px;border:4px solid var(--wood-dark);
+            border-radius:20px;border:3px solid var(--wood-dark);
             box-shadow:inset 0 4px 12px rgba(0,0,0,0.1),0 8px 24px rgba(0,0,0,0.15);
             overflow:hidden;touch-action:none;
         }
@@ -146,7 +146,7 @@ const saved = UserSystem.getProgress(GAME_ID);
 let state = { level: saved.level||1, stars: saved.stars||0, completed:saved.completed||[] };
 
 // ===== ÁBACO ENGINE =====
-const BEAD_R = 14, COL_W = 80, PADDING_X = 35, BAR_Y_RATIO = 0.28;
+const BEAD_R = 12, COL_W = 80, PADDING_X = 35, BAR_Y_RATIO = 0.25;
 let columns = 3; // Número de columnas
 let beads = [];  // [{upper:0|1, lower:[0|1,0|1,0|1,0|1]}, ...]
 let targetNumber = 0;
@@ -219,13 +219,13 @@ function renderAbacus() {
     // Cuentas
     colXs.forEach((cx, ci) => {
         // Cuenta superior (valor 5)
-        const upperY = beads[ci].upper ? barY-16 : 28;
+        const upperY = beads[ci].upper ? barY-14 : 22;
         drawBead(cx, upperY, beads[ci].upper?'#fbbf24':'#d4a574', beads[ci].upper);
         
         // Cuentas inferiores (valor 1 cada una)
         for (let i=0;i<4;i++) {
-            const spacing = (H-barY-30)/4;
-            const lowerY = beads[ci].lower[i] ? barY+14+i*spacing : H-18-(3-i)*spacing;
+            const spacing = (H-barY-24)/5;
+            const lowerY = beads[ci].lower[i] ? barY+12+i*spacing : H-16-(3-i)*spacing;
             drawBead(cx, lowerY, beads[ci].lower[i]?'#60a5fa':'#d4a574', beads[ci].lower[i]);
         }
     });
@@ -255,12 +255,12 @@ function findBead(ex, ey) {
     for (let ci=0;ci<columns;ci++) {
         const cx = colXs[ci];
         // Cuenta superior
-        const upperY = beads[ci].upper ? barY-16 : 28;
+        const upperY = beads[ci].upper ? barY-14 : 22;
         if (Math.hypot(ex-cx, ey-upperY) < BEAD_R+8) return {col:ci, type:'upper'};
         // Cuentas inferiores
-        const spacing = (H-barY-30)/4;
+        const spacing = (H-barY-24)/5;
         for (let i=0;i<4;i++) {
-            const lowerY = beads[ci].lower[i] ? barY+14+i*spacing : H-18-(3-i)*spacing;
+            const lowerY = beads[ci].lower[i] ? barY+12+i*spacing : H-16-(3-i)*spacing;
             if (Math.hypot(ex-cx, ey-lowerY) < BEAD_R+8) return {col:ci, type:'lower', idx:i};
         }
     }
@@ -291,8 +291,8 @@ function handleDrag(p) {
         beads[ci].upper = p.y > barY ? 1 : 0;
     } else {
         // Cuenta inferior: index 0 (más cercana a barra) a 3 (más lejana)
-        const spacing = (H-barY-30)/4;
-        const idx = Math.round((p.y - barY - 14) / spacing);
+        const spacing = (H-barY-24)/5;
+        const idx = Math.round((p.y - barY - 12) / spacing);
         const newIdx = Math.max(0, Math.min(3, idx));
         // Activar cuentas hasta newIdx
         for (let i=0;i<4;i++) beads[ci].lower[i] = (i <= newIdx) ? 1 : 0;
