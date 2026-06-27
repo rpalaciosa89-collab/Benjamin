@@ -495,14 +495,11 @@
             UserSystem.saveProgress(GAME_ID, { score, currentLevel, consecutiveWins });
             
             AudioFX.correct();
-            MotiVoice.celebrate();
-            setTimeout(() => {
-                speakText(`${currentProblem.a} más ${currentProblem.b} es ${currentProblem.result}`);
-            }, 100);
-            setTimeout(() => showWinModal(), 2000); 
+            speakText(`${currentProblem.a} más ${currentProblem.b} es igual a ${currentProblem.result}`);
+            setTimeout(() => MotiVoice.celebrate(), 400);
+            setTimeout(() => showWinModal(), 2500); 
         } else {
             AudioFX.wrong();
-            MotiVoice.almost();
             btn.classList.add('wrong');
             speakText('Ese no');
             setTimeout(() => btn.classList.remove('wrong'), 500);

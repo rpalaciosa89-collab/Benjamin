@@ -31,7 +31,7 @@ const MotiVoice = (() => {
     } catch(e) {}
   }
 
-  // ===== COLA TTS (evita solapamiento) =====
+  // ===== COLA TTS (evita solapamiento - SIN cancel) =====
   function processQueue() {
     if (_speaking || _queue.length === 0) return;
     _speaking = true;
@@ -45,7 +45,6 @@ const MotiVoice = (() => {
       msg.volume = 0.8;
       msg.onend = () => { _speaking = false; if (onEnd) onEnd(); setTimeout(processQueue, 80); };
       msg.onerror = () => { _speaking = false; setTimeout(processQueue, 80); };
-      speechSynthesis.cancel(); // cancelar lo que este sonando
       speechSynthesis.speak(msg);
     } catch(e) { _speaking = false; setTimeout(processQueue, 80); }
   }
@@ -54,6 +53,13 @@ const MotiVoice = (() => {
     if (!_enabled) return;
     _queue.push({ text, rate, pitch, onEnd });
     processQueue();
+  }
+
+  // Cancelar todo y limpiar cola (para emergencias)
+  function flush() {
+    _queue = [];
+    _speaking = false;
+    try { speechSynthesis.cancel(); } catch(e) {}
   }
 
   // ===== VOZ ESPAÑOL =====
@@ -156,5 +162,6 @@ const MotiVoice = (() => {
 
     mute() { _enabled = false; },
     unmute() { _enabled = true; },
+    flush() { flush(); },  // cancelar todo y limpiar cola
   };
 })();
