@@ -189,7 +189,7 @@ function resize() {
 }
 
 function renderAbacus() {
-    if (!W) return;
+    if (!W||!colXs||!beads.length) return;
     ctx.clearRect(0,0,W,H);
     
     // Marco
