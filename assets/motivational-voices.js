@@ -1,158 +1,159 @@
-// motivational-voices.js — Voces animadas de apoyo para niños
-// Usa SpeechSynthesis para frases motivacionales en español
-// + sonido "Yippee!" (MP3) para celebraciones
+// motivational-voices.js — Voces animadas + SFX energeticos para niños
+// SFX descargados de Mixkit (licencia libre, sin atribucion requerida)
+// TTS con cola para evitar solapamiento
 // Para todos los juegos de edgybenji.app
 
 const MotiVoice = (() => {
   let _enabled = true;
   let _voice = null;
-  let _volume = 0.8;
-  let _rate = 1.1;
-  let _pitch = 1.4; // más agudo = más animado
-  
-  // Sonido Yippee! clásico
-  const yippeeAudio = new Audio('../assets/yippee.mp3');
-  yippeeAudio.volume = 0.6;
+  let _speaking = false;
+  let _queue = [];
 
-  // Frases por categoría
-  const FRASES = {
-    // 🎉 Victoria / éxito
-    win: [
-      '¡Yupiii!',
-      '¡Perfecto!',
-      '¡Eres un genio!',
-      '¡Muy bien!',
-      '¡Excelente!',
-      '¡Bravo!',
-      '¡Eso es!',
-      '¡Lo lograste!',
-      '¡Qué bien lo haces!',
-      '¡Increíble!',
-    ],
-    // 💪 Ánimo / motivación
-    encourage: [
-      '¡Vamos, tú puedes!',
-      '¡Sigue así!',
-      '¡No te rindas!',
-      '¡Tú eres el mejor!',
-      '¡Vas muy bien!',
-      '¡Adelante!',
-      '¡Con todo!',
-      '¡Eres imparable!',
-    ],
-    // 😅 Casi / intentar de nuevo
-    almost: [
-      '¡Casi! Intenta de nuevo',
-      '¡Uy, por poquito!',
-      '¡No pasa nada! Otra vez',
-      '¡Tú puedes! Una vez más',
-      '¡Esa no era! Sigue intentando',
-    ],
-    // ⭐ Subir de nivel
-    levelUp: [
-      '¡Nuevo nivel!',
-      '¡Vas subiendo!',
-      '¡Cada vez mejor!',
-      '¡Eres un campeón!',
-      '¡A por el siguiente!',
-    ],
-    // 👋 Bienvenida / inicio
-    welcome: [
-      '¡A jugar!',
-      '¡Empecemos!',
-      '¡Vamos a divertirnos!',
-      '¡Tú puedes con todo!',
-    ],
+  // ===== SFX ENERGETICOS (Mixkit - libres de derechos) =====
+  const sfx = {
+    yippee:  new Audio('../assets/yippee.mp3'),
+    cheer1:  new Audio('../assets/sfx-cheer-1.mp3'),
+    cheer2:  new Audio('../assets/sfx-cheer-2.mp3'),
+    cheer3:  new Audio('../assets/sfx-cheer-3.mp3'),
+    kidsYay: new Audio('../assets/sfx-kids-yay.mp3'),
+    crowd:   new Audio('../assets/sfx-crowd-cheer.mp3'),
+    wow:     new Audio('../assets/sfx-wow.mp3'),
+    cartoon: new Audio('../assets/sfx-cartoon-cheer.mp3'),
   };
+  Object.values(sfx).forEach(a => { a.volume = 0.55; a.preload = 'auto'; });
 
-  // Buscar la mejor voz en español
+  function playSFX(name) {
+    try {
+      const a = sfx[name];
+      if (!a) return;
+      a.currentTime = 0;
+      a.play().catch(() => {});
+    } catch(e) {}
+  }
+
+  // ===== COLA TTS (evita solapamiento) =====
+  function processQueue() {
+    if (_speaking || _queue.length === 0) return;
+    _speaking = true;
+    const { text, rate, pitch, onEnd } = _queue.shift();
+    try {
+      const msg = new SpeechSynthesisUtterance(text);
+      msg.lang = 'es-MX';
+      msg.voice = getVoice();
+      msg.rate = rate || 1.1;
+      msg.pitch = pitch || 1.4;
+      msg.volume = 0.8;
+      msg.onend = () => { _speaking = false; if (onEnd) onEnd(); setTimeout(processQueue, 80); };
+      msg.onerror = () => { _speaking = false; setTimeout(processQueue, 80); };
+      speechSynthesis.cancel(); // cancelar lo que este sonando
+      speechSynthesis.speak(msg);
+    } catch(e) { _speaking = false; setTimeout(processQueue, 80); }
+  }
+
+  function speak(text, rate, pitch, onEnd) {
+    if (!_enabled) return;
+    _queue.push({ text, rate, pitch, onEnd });
+    processQueue();
+  }
+
+  // ===== VOZ ESPAÑOL =====
   function findBestVoice() {
     const voices = speechSynthesis.getVoices();
-    // Preferir voces nativas alegres
     const prefs = ['Paulina', 'Mónica', 'Sandy', 'Flo'];
     for (const pref of prefs) {
       const v = voices.find(v => v.name.includes(pref) && v.lang.startsWith('es'));
       if (v) return v;
     }
-    // Cualquier voz en español
     return voices.find(v => v.lang.startsWith('es')) || voices[0];
   }
 
   function getVoice() {
-    if (!_voice) _voice = findBestVoice();
     if (!_voice || !speechSynthesis.getVoices().includes(_voice)) {
       _voice = findBestVoice();
     }
     return _voice;
   }
 
-  function speak(text, rate, pitch) {
-    if (!_enabled) return;
-    try {
-      speechSynthesis.cancel();
-      const msg = new SpeechSynthesisUtterance(text);
-      msg.lang = 'es-MX';
-      msg.voice = getVoice();
-      msg.rate = rate || _rate;
-      msg.pitch = pitch || _pitch;
-      msg.volume = _volume;
-      speechSynthesis.speak(msg);
-    } catch(e) { /* TTS no disponible */ }
-  }
+  // ===== FRASES =====
+  const FRASES = {
+    win: [
+      '¡Yupiii!', '¡Perfecto!', '¡Eres un genio!', '¡Muy bien!',
+      '¡Excelente!', '¡Bravo!', '¡Eso es!', '¡Lo lograste!',
+    ],
+    encourage: [
+      '¡Vamos, tú puedes!', '¡Sigue así!', '¡No te rindas!',
+      '¡Tú eres el mejor!', '¡Vas muy bien!', '¡Adelante!',
+    ],
+    almost: [
+      '¡Casi! Intenta de nuevo', '¡Uy, por poquito!',
+      '¡No pasa nada! Otra vez', '¡Tú puedes! Una vez más',
+    ],
+    levelUp: [
+      '¡Nuevo nivel!', '¡Vas subiendo!', '¡Cada vez mejor!',
+      '¡Eres un campeón!', '¡A por el siguiente!',
+    ],
+  };
 
   function randomPhrase(category) {
     const list = FRASES[category] || FRASES.encourage;
     return list[Math.floor(Math.random() * list.length)];
   }
 
+  function randomSFX() {
+    const names = ['cheer1','cheer2','cheer3','kidsYay','wow','cartoon'];
+    return names[Math.floor(Math.random() * names.length)];
+  }
+
   return {
     init() {
-      // Precargar voces
       speechSynthesis.getVoices();
       speechSynthesis.onvoiceschanged = () => { _voice = null; };
     },
-
     setEnabled(v) { _enabled = !!v; },
 
-    // --- API principal ---
-
-    /** Celebración: sonido yippee + frase aleatoria de victoria */
+    // --- 🎉 CELEBRACION (yippee + SFX aleatorio + voz) ---
     celebrate() {
-      try { yippeeAudio.currentTime = 0; yippeeAudio.play().catch(() => {}); } catch(e) {}
-      setTimeout(() => speak(randomPhrase('win'), 1.0, 1.5), 300);
+      playSFX('yippee');
+      setTimeout(() => playSFX(randomSFX()), 400);
+      setTimeout(() => speak(randomPhrase('win'), 1.0, 1.5), 200);
     },
 
-    /** Ánimo durante el juego */
+    // --- 🏆 GRAN CELEBRACION (crowd + yippee + cartoon) ---
+    bigCelebrate() {
+      playSFX('yippee');
+      setTimeout(() => playSFX('crowd'), 300);
+      setTimeout(() => playSFX(randomSFX()), 700);
+      setTimeout(() => speak(randomPhrase('win'), 1.0, 1.5), 400);
+    },
+
+    // --- 💪 ANIMO (solo voz, sin SFX) ---
     cheer() {
       speak(randomPhrase('encourage'), 1.1, 1.3);
     },
 
-    /** Cuando casi acierta */
+    // --- 😅 CASI (solo voz) ---
     almost() {
       speak(randomPhrase('almost'), 0.95, 1.2);
     },
 
-    /** Al subir de nivel */
+    // --- ⭐ SUBIR NIVEL (SFX + voz) ---
     levelUp() {
-      setTimeout(() => speak(randomPhrase('levelUp'), 1.0, 1.4), 500);
+      playSFX(randomSFX());
+      setTimeout(() => speak(randomPhrase('levelUp'), 1.0, 1.4), 200);
     },
 
-    /** Bienvenida al empezar */
+    // --- 👋 BIENVENIDA ---
     welcome() {
-      setTimeout(() => speak(randomPhrase('welcome'), 0.9, 1.3), 800);
+      setTimeout(() => speak('¡A jugar!', 0.9, 1.3), 800);
     },
 
-    /** Frase personalizada */
-    say(text, rate, pitch) {
-      speak(text, rate, pitch);
-    },
+    // --- Solo SFX (sin voz) ---
+    yippee() { playSFX('yippee'); },
+    playRandomCheer() { playSFX(randomSFX()); },
 
-    /** Solo el sonido yippee (sin voz) */
-    yippee() {
-      try { yippeeAudio.currentTime = 0; yippeeAudio.play().catch(() => {}); } catch(e) {}
-    },
+    // --- Frase personalizada ---
+    say(text, rate, pitch) { speak(text, rate, pitch); },
 
-    /** Silenciar voces (no afecta yippee) */
     mute() { _enabled = false; },
     unmute() { _enabled = true; },
   };

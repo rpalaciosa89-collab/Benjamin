@@ -926,7 +926,7 @@ function nextItem() {
         if (state.level < LEVELS.length) {
             state.level++;
             AudioFX.nivelCompleto();
-            MotiVoice.levelUp();
+            MotiVoice.bigCelebrate();
             spawnConfetti(50);
             document.getElementById('guide-label').textContent = '🎉 ¡Nivel completado!';
         } else {

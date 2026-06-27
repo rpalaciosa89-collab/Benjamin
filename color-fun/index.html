@@ -551,6 +551,7 @@
                 isLocked = false;
                 
                 if (matchedPairs === totalPairs) {
+                    MotiVoice.bigCelebrate();
                     setTimeout(showWinModal, 600);
                 } else if (movesLeft === 0) {
                     setTimeout(showLoseModal, 600);
