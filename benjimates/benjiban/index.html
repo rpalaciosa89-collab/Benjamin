@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Benjiban 🧮 — El Ábaco de Benji</title>
+    <link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+    <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+        :root{
+            --red:#ef4444;--orange:#f97316;--gold:#fbbf24;--green:#22c55e;
+            --blue:#3b82f6;--purple:#a855f7;--pink:#f472b6;--white:#f8fafc;--dark:#1e293b;
+            --wood:#d4a574;--wood-dark:#8b5e3c;--wood-light:#f0d9b5;--bar:#5c3d2e;
+            --bead-upper:#fbbf24;--bead-lower:#60a5fa;--bead-upper-off:#d97706;--bead-lower-off:#93c5fd;
+        }
+        body{
+            font-family:'Baloo 2',cursive,sans-serif;min-height:100vh;min-height:100dvh;
+            background:linear-gradient(160deg,#fef3c7 0%,#fce7f3 50%,#e0e7ff 100%);
+            display:flex;align-items:center;justify-content:center;overflow:hidden;
+            -webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent;
+        }
+        .app{width:100%;max-width:480px;height:100vh;height:100dvh;display:flex;flex-direction:column;position:relative;background:rgba(255,255,255,0.5);backdrop-filter:blur(8px)}
+        @media(min-width:480px){.app{border-radius:28px;height:92vh;height:92dvh;box-shadow:0 20px 60px rgba(0,0,0,0.1)}}
+        
+        header{
+            display:flex;justify-content:space-between;align-items:center;
+            padding:12px 14px 6px;flex-shrink:0;
+        }
+        .back-btn{
+            width:40px;height:40px;background:rgba(255,255,255,0.8);border-radius:50%;
+            display:flex;align-items:center;justify-content:center;font-size:20px;
+            cursor:pointer;border:none;text-decoration:none;color:var(--dark);
+        }
+        .level-badge{font-size:14px;font-weight:700;color:var(--purple);background:rgba(168,85,247,0.12);padding:4px 14px;border-radius:50px}
+        .stars{font-size:16px;font-weight:700;color:var(--gold)}
+        .music-btn,.help-btn{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,0.8);border:none;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+        
+        .game-area{flex:1;display:flex;flex-direction:column;align-items:center;padding:8px 12px;overflow:hidden}
+        .target-display{
+            font-size:20px;font-weight:700;color:var(--dark);text-align:center;
+            min-height:28px;margin-bottom:4px;
+        }
+        .target-number{
+            font-size:52px;font-weight:900;color:var(--purple);line-height:1;
+            animation:pulse 1.5s ease-in-out infinite;
+        }
+        @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
+        .guide-label{font-size:14px;color:#64748b;margin-bottom:8px;text-align:center;min-height:20px}
+
+        .abacus-wrapper{
+            position:relative;width:100%;max-width:380px;flex:1;min-height:300px;
+            background:linear-gradient(180deg,var(--wood-light) 0%,var(--wood) 100%);
+            border-radius:24px;border:4px solid var(--wood-dark);
+            box-shadow:inset 0 4px 12px rgba(0,0,0,0.1),0 8px 24px rgba(0,0,0,0.15);
+            overflow:hidden;touch-action:none;
+        }
+        canvas{position:absolute;inset:0;width:100%;height:100%;touch-action:none}
+
+        .number-row{display:flex;justify-content:space-around;width:100%;max-width:380px;margin-top:8px}
+        .digit-display{
+            font-size:28px;font-weight:900;color:var(--dark);width:60px;text-align:center;
+            background:rgba(255,255,255,0.7);border-radius:14px;padding:4px 8px;
+        }
+        .digit-display.active{background:var(--gold);color:#92400e}
+
+        .progress-bar-wrap{width:100%;max-width:380px;height:8px;background:rgba(0,0,0,0.06);border-radius:4px;margin-top:10px;overflow:hidden}
+        .progress-fill{height:100%;border-radius:4px;background:var(--green);transition:width 0.3s ease;width:0%}
+
+        .btn-row{display:flex;gap:10px;margin-top:8px;flex-shrink:0;padding-bottom:10px}
+        .btn{
+            padding:14px 22px;border-radius:50px;border:none;
+            font-family:'Baloo 2',cursive,sans-serif;font-size:16px;font-weight:800;
+            cursor:pointer;transition:transform 0.15s,box-shadow 0.15s;min-height:50px;
+            box-shadow:0 4px 12px rgba(0,0,0,0.1);color:#fff;
+        }
+        .btn:active{transform:scale(0.95)}
+        .btn-reset{background:var(--blue)}
+        .btn-check{background:var(--green)}
+        .btn-hint{background:var(--orange)}
+
+        .overlay{
+            position:fixed;inset:0;background:rgba(0,0,0,0.4);backdrop-filter:blur(4px);
+            z-index:100;display:none;align-items:center;justify-content:center;padding:20px;
+        }
+        .overlay.show{display:flex}
+        .modal{
+            background:#fff;border-radius:28px;padding:28px 24px;max-width:320px;width:100%;
+            text-align:center;font-family:'Baloo 2',cursive;color:var(--dark);
+            box-shadow:0 20px 60px rgba(0,0,0,0.3);
+        }
+        .modal .m-emoji{font-size:64px;display:block;animation:bounce 1s ease-in-out infinite}
+        @keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-15px)}}
+        .modal h2{font-size:24px;font-weight:800;margin:8px 0 4px}
+        .modal p{font-size:15px;color:#64748b;margin-bottom:16px}
+        .modal .btn{width:100%}
+
+        .debug-levels{display:flex;gap:4px;justify-content:center;flex-wrap:wrap;margin-top:4px}
+        .debug-lvl-btn{padding:3px 8px;border-radius:10px;border:1px solid #d1d5db;background:#f9fafb;font-size:11px;font-weight:700;cursor:pointer;font-family:'Baloo 2',cursive;color:#6b7280}
+        .debug-lvl-btn.active{background:var(--purple);color:#fff;border-color:var(--purple)}
+    </style>
+</head>
+<body>
+<div class="app">
+    <header>
+        <a href="../index.html" class="back-btn">←</a>
+        <div class="level-badge" id="level-badge">Nivel 1</div>
+        <div class="stars" id="stars-display">⭐ 0</div>
+        <div id="profile-badge"></div>
+        <button class="help-btn" id="help-btn">✨</button>
+        <button class="music-btn" id="music-btn">🔇</button>
+    </header>
+
+    <div class="game-area">
+        <div class="target-display" id="target-display"></div>
+        <div class="guide-label" id="guide-label">Mueve las cuentas para formar números</div>
+        <div class="abacus-wrapper" id="abacus-wrapper">
+            <canvas id="abacus-canvas"></canvas>
+        </div>
+        <div class="number-row" id="number-row"></div>
+        <div class="progress-bar-wrap"><div class="progress-fill" id="progress-bar"></div></div>
+        <div class="debug-levels" id="debug-levels"></div>
+        <div class="btn-row">
+            <button class="btn btn-hint" id="btn-hint">✨ Pista</button>
+            <button class="btn btn-reset" id="btn-reset">🔄 Reset</button>
+        </div>
+    </div>
+</div>
+
+<div class="overlay" id="overlay-success">
+    <div class="modal">
+        <span class="m-emoji">🧮✨</span>
+        <h2>¡Correcto!</h2>
+        <p id="success-desc">¡Formaste el número!</p>
+        <button class="btn btn-check" id="btn-next">Siguiente ▶</button>
+    </div>
+</div>
+
+<script src="../../assets/user-system.js"></script>
+<script src="../../assets/music-player.js"></script>
+<script src="../../assets/audio-fx.js"></script>
+<script src="../../assets/motivational-voices.js"></script>
+<script>
+const GAME_ID = 'benjiban';
+const saved = UserSystem.getProgress(GAME_ID);
+let state = { level: saved.level||1, stars: saved.stars||0, completed:saved.completed||[] };
+
+// ===== ÁBACO ENGINE =====
+const BEAD_R = 16, COL_W = 90, PADDING_X = 40, BAR_Y_RATIO = 0.35;
+let columns = 3; // Número de columnas
+let beads = [];  // [{upper:0|1, lower:[0|1,0|1,0|1,0|1]}, ...]
+let targetNumber = 0;
+let dragging = null; // {col, type:'upper'|'lower', idx}
+
+const canvas = document.getElementById('abacus-canvas');
+const ctx = canvas.getContext('2d');
+const wrapper = document.getElementById('abacus-wrapper');
+let dpr = window.devicePixelRatio||1;
+let W, H, barY, colXs;
+
+function initBeads(n) {
+    columns = n;
+    beads = [];
+    for (let i=0;i<n;i++) beads.push({upper:0,lower:[0,0,0,0]});
+    renderAbacus();
+}
+
+function getValue() {
+    let val = 0;
+    for (let i=0;i<columns;i++) {
+        val = val*10 + (beads[i].upper*5 + beads[i].lower.reduce((a,b)=>a+b,0));
+    }
+    return val;
+}
+
+function resize() {
+    const w = wrapper.clientWidth, h = wrapper.clientHeight;
+    if (!w||!h) return;
+    canvas.width = w*dpr; canvas.height = h*dpr;
+    canvas.style.width = w+'px'; canvas.style.height = h+'px';
+    ctx.setTransform(1,0,0,1,0,0); ctx.scale(dpr,dpr);
+    W=w; H=h;
+    barY = H*BAR_Y_RATIO;
+    const totalW = columns*COL_W;
+    const startX = (W-totalW)/2 + COL_W/2;
+    colXs = [];
+    for (let i=0;i<columns;i++) colXs.push(startX + i*COL_W);
+    renderAbacus();
+}
+
+function renderAbacus() {
+    if (!W) return;
+    ctx.clearRect(0,0,W,H);
+    
+    // Marco
+    ctx.fillStyle = '#d4a574';
+    ctx.fillRect(0,0,W,H);
+    
+    // Barras verticales de cada columna
+    colXs.forEach(cx => {
+        ctx.strokeStyle = '#a0724a';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.moveTo(cx, 15); ctx.lineTo(cx, H-15);
+        ctx.stroke();
+    });
+    
+    // Barra horizontal (reckoning bar)
+    ctx.fillStyle = '#5c3d2e';
+    ctx.fillRect(10, barY-4, W-20, 8);
+    
+    // Sombras de la barra
+    ctx.fillStyle = 'rgba(0,0,0,0.15)';
+    ctx.fillRect(10, barY+4, W-20, 3);
+    ctx.fillStyle = 'rgba(255,255,255,0.2)';
+    ctx.fillRect(10, barY-5, W-20, 2);
+    
+    // Cuentas
+    colXs.forEach((cx, ci) => {
+        // Cuenta superior (valor 5)
+        const upperY = beads[ci].upper ? barY-20 : 35;
+        drawBead(cx, upperY, beads[ci].upper?'#fbbf24':'#d4a574', beads[ci].upper);
+        
+        // Cuentas inferiores (valor 1 cada una)
+        for (let i=0;i<4;i++) {
+            const spacing = (H-barY-40)/4;
+            const lowerY = beads[ci].lower[i] ? barY+18+i*spacing : H-25-(3-i)*spacing;
+            drawBead(cx, lowerY, beads[ci].lower[i]?'#60a5fa':'#d4a574', beads[ci].lower[i]);
+        }
+    });
+}
+
+function drawBead(x, y, color, active) {
+    ctx.beginPath();
+    ctx.arc(x, y, BEAD_R, 0, Math.PI*2);
+    const grad = ctx.createRadialGradient(x-3, y-5, 2, x, y, BEAD_R);
+    grad.addColorStop(0, active ? '#fff' : '#f0d9b5');
+    grad.addColorStop(0.5, color);
+    grad.addColorStop(1, active ? 'rgba(0,0,0,0.3)' : 'rgba(0,0,0,0.15)');
+    ctx.fillStyle = grad;
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(0,0,0,0.2)';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+    if (active) {
+        ctx.shadowColor = 'rgba(255,255,255,0.5)';
+        ctx.shadowBlur = 6;
+        ctx.fill();
+        ctx.shadowBlur = 0;
+    }
+}
+
+function findBead(ex, ey) {
+    for (let ci=0;ci<columns;ci++) {
+        const cx = colXs[ci];
+        // Cuenta superior
+        const upperY = beads[ci].upper ? barY-20 : 35;
+        if (Math.hypot(ex-cx, ey-upperY) < BEAD_R+8) return {col:ci, type:'upper'};
+        // Cuentas inferiores
+        const spacing = (H-barY-40)/4;
+        for (let i=0;i<4;i++) {
+            const lowerY = beads[ci].lower[i] ? barY+18+i*spacing : H-25-(3-i)*spacing;
+            if (Math.hypot(ex-cx, ey-lowerY) < BEAD_R+8) return {col:ci, type:'lower', idx:i};
+        }
+    }
+    return null;
+}
+
+// ===== TOUCH =====
+function getPos(e) {
+    const rect = canvas.getBoundingClientRect();
+    const cx = e.touches?e.touches[0].clientX:e.clientX;
+    const cy = e.touches?e.touches[0].clientY:e.clientY;
+    return {x:(cx-rect.left)*(W/rect.width), y:(cy-rect.top)*(H/rect.height)};
+}
+
+canvas.addEventListener('touchstart', e => { e.preventDefault(); const p=getPos(e); const b=findBead(p.x,p.y); if(b)dragging=b; });
+canvas.addEventListener('touchmove', e => { e.preventDefault(); if(!dragging)return; const p=getPos(e); handleDrag(p); });
+canvas.addEventListener('touchend', e => { e.preventDefault(); if(dragging){snapBead();dragging=null;checkAnswer();} });
+canvas.addEventListener('mousedown', e => { const p=getPos(e); const b=findBead(p.x,p.y); if(b)dragging=b; });
+canvas.addEventListener('mousemove', e => { if(!dragging)return; const p=getPos(e); handleDrag(p); });
+canvas.addEventListener('mouseup', e => { if(dragging){snapBead();dragging=null;checkAnswer();} });
+canvas.addEventListener('mouseleave', e => { if(dragging){snapBead();dragging=null;checkAnswer();} });
+
+function handleDrag(p) {
+    if (!dragging) return;
+    const ci = dragging.col;
+    if (dragging.type === 'upper') {
+        // Cuenta superior: arriba=0, abajo=1 (activada)
+        beads[ci].upper = p.y > barY ? 1 : 0;
+    } else {
+        // Cuenta inferior: index 0 (más cercana a barra) a 3 (más lejana)
+        const spacing = (H-barY-40)/4;
+        const idx = Math.round((p.y - barY - 18) / spacing);
+        const newIdx = Math.max(0, Math.min(3, idx));
+        // Activar cuentas hasta newIdx
+        for (let i=0;i<4;i++) beads[ci].lower[i] = (i <= newIdx) ? 1 : 0;
+    }
+    renderAbacus();
+    updateNumberDisplay();
+    AudioFX.traceTick();
+}
+
+function snapBead() {
+    if (!dragging) return;
+    AudioFX.tap();
+    renderAbacus();
+    updateNumberDisplay();
+}
+
+// ===== GAME LOGIC =====
+function generateTarget() {
+    const lvl = state.level;
+    if (lvl <= 2) {
+        targetNumber = Math.floor(Math.random()*9)+1; // 1-9
+    } else if (lvl <= 4) {
+        targetNumber = Math.floor(Math.random()*90)+10; // 10-99
+    } else {
+        const max = Math.pow(10, Math.min(columns,5))-1;
+        targetNumber = Math.floor(Math.random()*max)+1;
+    }
+    updateTargetDisplay();
+}
+
+function updateTargetDisplay() {
+    document.getElementById('target-display').innerHTML = 
+        `Forma el número <span class="target-number">${targetNumber}</span>`;
+}
+
+function updateNumberDisplay() {
+    const val = getValue();
+    const str = String(val).padStart(columns,'0');
+    const row = document.getElementById('number-row');
+    row.innerHTML = '';
+    for (let i=0;i<columns;i++) {
+        const d = document.createElement('div');
+        d.className = 'digit-display' + (i===columns-1?' active':'');
+        d.textContent = str[i];
+        row.appendChild(d);
+    }
+}
+
+function checkAnswer() {
+    const val = getValue();
+    updateNumberDisplay();
+    updateProgress();
+    if (val === targetNumber && targetNumber > 0) {
+        setTimeout(() => {
+            AudioFX.success();
+            MotiVoice.celebrate();
+            state.stars += 5;
+            saveProgress();
+            updateHUD();
+            document.getElementById('success-desc').textContent = `¡Formaste el ${targetNumber}!`;
+            document.getElementById('overlay-success').classList.add('show');
+        }, 400);
+    }
+}
+
+function updateProgress() {
+    const val = getValue();
+    const digits = String(val).padStart(columns,'0').split('').map(Number);
+    const target = String(targetNumber).padStart(columns,'0').split('').map(Number);
+    let correct = 0;
+    for (let i=0;i<columns;i++) if (digits[i]===target[i]) correct++;
+    document.getElementById('progress-bar').style.width = (correct/columns*100)+'%';
+}
+
+function resetBeads() {
+    beads = [];
+    for (let i=0;i<columns;i++) beads.push({upper:0,lower:[0,0,0,0]});
+    renderAbacus();
+    updateNumberDisplay();
+    updateProgress();
+}
+
+function nextProblem() {
+    document.getElementById('overlay-success').classList.remove('show');
+    resetBeads();
+    generateTarget();
+    updateHUD();
+    setTimeout(() => MotiVoice.say(`Forma el número ${targetNumber}`, 0.95, 1.2), 300);
+}
+
+function saveProgress() {
+    UserSystem.saveProgress(GAME_ID, {level:state.level, stars:state.stars, completed:state.completed});
+}
+
+function updateHUD() {
+    document.getElementById('level-badge').textContent = 'Nivel '+state.level;
+    document.getElementById('stars-display').textContent = '⭐ '+state.stars;
+    renderDebugLevels();
+}
+
+function renderDebugLevels() {
+    const c = document.getElementById('debug-levels');
+    c.innerHTML = '';
+    for (let l=1;l<=8;l++) {
+        const b = document.createElement('button');
+        b.className = 'debug-lvl-btn'+(l===state.level?' active':'');
+        b.textContent = 'N'+l;
+        b.onclick = () => { state.level=l; resetBeads(); generateTarget(); updateHUD(); };
+        c.appendChild(b);
+    }
+}
+
+function showHint() {
+    resetBeads();
+    const str = String(targetNumber).padStart(columns,'0');
+    for (let i=0;i<columns;i++) {
+        const d = parseInt(str[i]);
+        beads[i].upper = d>=5?1:0;
+        const ones = d%5;
+        for (let j=0;j<4;j++) beads[i].lower[j] = j<ones?1:0;
+    }
+    renderAbacus();
+    updateNumberDisplay();
+    updateProgress();
+    setTimeout(resetBeads, 2500);
+    MotiVoice.say('Así se forma el '+targetNumber, 0.9, 1.2);
+}
+
+// ===== INIT =====
+document.addEventListener('DOMContentLoaded', () => {
+    UserSystem.renderProfileBadge('profile-badge');
+    MusicPlayer.init('music-btn');
+    AudioFX.init();
+    MotiVoice.init();
+    
+    resize();
+    initBeads(state.level <= 2 ? 1 : state.level <= 4 ? 2 : 3);
+    generateTarget();
+    updateHUD();
+    updateNumberDisplay();
+    setTimeout(() => MotiVoice.welcome(), 600);
+});
+
+window.addEventListener('resize', resize);
+
+document.getElementById('btn-reset').onclick = () => { resetBeads(); updateProgress(); };
+document.getElementById('btn-hint').onclick = showHint;
+document.getElementById('btn-next').onclick = nextProblem;
+
+// Auto-resize on orientation change
+window.addEventListener('orientationchange', () => setTimeout(resize, 300));
+</script>
+</body>
+</html>
