@@ -16,18 +16,22 @@ const MotiVoice = (() => {
     cheer2:  new Audio('../assets/sfx-cheer-2.mp3'),
     cheer3:  new Audio('../assets/sfx-cheer-3.mp3'),
     kidsYay: new Audio('../assets/sfx-kids-yay.mp3'),
-    crowd:   new Audio('../assets/sfx-crowd-cheer.mp3'),
     wow:     new Audio('../assets/sfx-wow.mp3'),
     cartoon: new Audio('../assets/sfx-cartoon-cheer.mp3'),
   };
-  Object.values(sfx).forEach(a => { a.volume = 0.55; a.preload = 'auto'; });
+  Object.values(sfx).forEach(a => { a.volume = 0.50; a.preload = 'auto'; });
 
-  function playSFX(name) {
+  function playSFX(name, maxDuration) {
     try {
       const a = sfx[name];
       if (!a) return;
       a.currentTime = 0;
       a.play().catch(() => {});
+      // Limitar duración: yippee 3.5s, otros 2.5s máximo
+      const limit = maxDuration || (name === 'yippee' ? 3500 : 2500);
+      setTimeout(() => {
+        try { a.pause(); a.currentTime = 0; } catch(e) {}
+      }, limit);
     } catch(e) {}
   }
 
@@ -123,12 +127,11 @@ const MotiVoice = (() => {
       setTimeout(() => playSFX(randomSFX()), 400);
     },
 
-    // --- 🏆 GRAN CELEBRACION (SFX + TTS motivacional diferido) ---
+    // --- 🏆 GRAN CELEBRACION (SFX cortos + TTS diferido) ---
     bigCelebrate() {
       playSFX('yippee');
-      setTimeout(() => playSFX('crowd'), 300);
-      setTimeout(() => playSFX(randomSFX()), 700);
-      // TTS motivacional después de 2.5s (cuando termina la voz educativa)
+      setTimeout(() => playSFX(randomSFX()), 250);
+      setTimeout(() => playSFX(randomSFX()), 500);
       setTimeout(() => speak(randomPhrase('win'), 1.0, 1.5), 2500);
     },
 
