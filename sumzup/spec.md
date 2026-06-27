@@ -42,30 +42,30 @@ edgybenji.app/
 │   ├── index.html                 🏠 Sub-Hub SumzUp (5 mini-juegos)
 │   ├── spec.md                    Este archivo
 │   │
-│   ├── soroban/
-│   │   ├── index.html             🧮 Juego: Ábaco japonés
+│   ├── benjiban/
+│   │   ├── index.html             🧮 Benjiban — Ábaco japonés
 │   │   └── spec.md
 │   │
-│   ├── tablas/
-│   │   ├── index.html             🎵 Juego: Tablas de multiplicar con ritmo
+│   ├── multibeat/
+│   │   ├── index.html             🎵 MultiBeat — Tablas con ritmo
 │   │   └── spec.md
 │   │
-│   ├── flash/
-│   │   ├── index.html             ⚡ Juego: Cálculo mental Anzan
+│   ├── braindash/
+│   │   ├── index.html             ⚡ BrainDash — Cálculo mental Anzan
 │   │   └── spec.md
 │   │
-│   ├── figuras/
-│   │   ├── index.html             🔷 Juego: Geometría infantil
+│   ├── shapejoy/
+│   │   ├── index.html             🔷 ShapeJoy — Geometría infantil
 │   │   └── spec.md
 │   │
-│   └── medidas/
-│       ├── index.html             📏 Juego: Medidas cotidianas
+│   └── measureup/
+│       ├── index.html             📏 MeasureUp — Medidas cotidianas
 │       └── spec.md
 ```
 
 ---
 
-## 3. Los 5 Juegos
+## 4. Los 5 Juegos
 
 | # | Juego | Ícono | Qué enseña | Edad |
 |---|-------|:-----:|-----------|:---:|
@@ -77,7 +77,7 @@ edgybenji.app/
 
 ---
 
-## 4. Paleta Corporativa SumzUp®
+## 5. Paleta Corporativa SumzUp®
 
 **Luminosa, alegre, estilo japonés moderno**:
 
@@ -97,7 +97,7 @@ edgybenji.app/
 
 ---
 
-## 5. Sub-Hub (sumzup/index.html) — Diseño
+## 6. Sub-Hub (sumzup/index.html) — Diseño
 
 ```
 ┌──────────────────────────────────┐
@@ -107,17 +107,17 @@ edgybenji.app/
 ├──────────────────────────────────┤
 │  ┌────────┐  ┌────────┐         │
 │  │  🧮    │  │  🎵    │         │  5 cartas en
-│  │ Soroban│  │ Tablas │         │  grid responsive
+│  │Benjiban│  │MultiBeat│        │  grid responsive
 │  │ Ábaco  │  │ Ritmo  │         │  (móvil: vertical)
 │  └────────┘  └────────┘         │
 │  ┌────────┐  ┌────────┐         │
 │  │  ⚡    │  │  🔷    │         │
-│  │ Flash  │  │Figuras │         │
-│  │ Mental │  │Formas  │         │
+│  │BrainDash│ │ShapeJoy│         │
+│  │ Mental │  │ Formas │         │
 │  └────────┘  └────────┘         │
 │  ┌──────────────┐               │
 │  │     📏       │               │
-│  │   Medidas    │               │
+│  │  MeasureUp   │               │
 │  │  Cotidianas  │               │
 │  └──────────────┘               │
 ├──────────────────────────────────┤
@@ -129,7 +129,7 @@ Comparte header, footer, MusicPlayer, UserSystem con el resto de la app.
 
 ---
 
-## 6. Recursos Compartidos
+## 7. Recursos Compartidos
 
 Todos los juegos SumzUp usan:
 - `assets/audio-fx.js` — efectos Web Audio
@@ -141,7 +141,7 @@ Todos los juegos SumzUp usan:
 
 ---
 
-## 7. Plan de Implementación
+## 8. Plan de Implementación
 
 | Fase | Juego | Prioridad | Tiempo est. |
 |:----:|-------|:---------:|:-----------:|
