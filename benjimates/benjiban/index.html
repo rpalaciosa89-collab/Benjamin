@@ -399,7 +399,7 @@ function renderDebugLevels() {
         const b = document.createElement('button');
         b.className = 'debug-lvl-btn'+(l===state.level?' active':'');
         b.textContent = 'N'+l;
-        b.onclick = () => { state.level=l; resetBeads(); generateTarget(); updateHUD(); };
+        b.onclick = () => { state.level=l; initBeads(l<=2?1:l<=4?2:3); generateTarget(); updateHUD(); };
         c.appendChild(b);
     }
 }
