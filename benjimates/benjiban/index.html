@@ -420,21 +420,27 @@ function showHint() {
     MotiVoice.say('Así se forma el '+targetNumber, 0.9, 1.2);
 }
 
-// ===== INIT =====
+// ===== INIT (con rAF para asegurar layout antes de medir canvas) =====
 document.addEventListener('DOMContentLoaded', () => {
     UserSystem.renderProfileBadge('profile-badge');
     MusicPlayer.init('music-btn');
     AudioFX.init();
     MotiVoice.init();
     
-    initBeads(state.level <= 2 ? 1 : state.level <= 4 ? 2 : 3); // resize called inside
-    generateTarget();
-    updateHUD();
-    updateNumberDisplay();
-    setTimeout(() => MotiVoice.welcome(), 600);
+    // rAF asegura que el DOM esté renderizado antes de resize()
+    requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+            initBeads(state.level <= 2 ? 1 : state.level <= 4 ? 2 : 3);
+            generateTarget();
+            updateHUD();
+            updateNumberDisplay();
+            setTimeout(() => MotiVoice.welcome(), 600);
+        });
+    });
 });
 
 window.addEventListener('resize', resize);
+window.addEventListener('orientationchange', () => setTimeout(resize, 300));
 
 document.getElementById('btn-reset').onclick = () => { resetBeads(); updateProgress(); };
 document.getElementById('btn-hint').onclick = showHint;
