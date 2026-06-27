@@ -420,24 +420,28 @@ function showHint() {
     MotiVoice.say('Así se forma el '+targetNumber, 0.9, 1.2);
 }
 
-// ===== INIT (con rAF para asegurar layout antes de medir canvas) =====
-document.addEventListener('DOMContentLoaded', () => {
+// ===== INIT =====
+function bootAbacus() {
     UserSystem.renderProfileBadge('profile-badge');
     MusicPlayer.init('music-btn');
     AudioFX.init();
     MotiVoice.init();
     
-    // rAF asegura que el DOM esté renderizado antes de resize()
     requestAnimationFrame(() => {
         requestAnimationFrame(() => {
             initBeads(state.level <= 2 ? 1 : state.level <= 4 ? 2 : 3);
             generateTarget();
             updateHUD();
             updateNumberDisplay();
-            setTimeout(() => MotiVoice.welcome(), 600);
+            // Safety net: re-calcular 600ms después por si el layout cambió
+            setTimeout(() => { resize(); updateNumberDisplay(); }, 600);
+            setTimeout(() => MotiVoice.welcome(), 700);
         });
     });
-});
+}
+
+window.addEventListener('load', bootAbacus);
+if (document.readyState === 'complete') bootAbacus();
 
 window.addEventListener('resize', resize);
 window.addEventListener('orientationchange', () => setTimeout(resize, 300));
