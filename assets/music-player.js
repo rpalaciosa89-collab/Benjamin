@@ -33,8 +33,24 @@ const MusicPlayer = (() => {
       src: '../assets/Billie_Jean.mp3',
       emoji: '🪩'
     },
-    // Para agregar más canciones:
-    // { id: 'otra', name: '🎸 Rock Divertido', src: '../assets/rock-song.mp3', emoji: '🎸' },
+    { 
+      id: 'happykids', 
+      name: '😊 Kids Happy', 
+      src: '../assets/kids-happy-loop.mp3',
+      emoji: '😊'
+    },
+    { 
+      id: 'fungame', 
+      name: '🎮 Fun Game', 
+      src: '../assets/kids-fun-game.mp3',
+      emoji: '🎮'
+    },
+    { 
+      id: 'calmpiano', 
+      name: '🎹 Calm Piano', 
+      src: '../assets/kids-calm-piano.mp3',
+      emoji: '🎹'
+    },
   ];
 
   // ==========================================
