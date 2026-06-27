@@ -367,17 +367,9 @@
         AudioFX.init();
     });
 
-    // --- TTS SYSTEM ---
+    // --- TTS SYSTEM (usa la cola de MotiVoice para no cancelar otras voces) ---
     function speakColor(colorName) {
-        if ('speechSynthesis' in window) {
-            window.speechSynthesis.cancel(); // Stop any current speaking
-            const msg = new SpeechSynthesisUtterance();
-            msg.text = colorName;
-            msg.lang = 'es-ES'; 
-            msg.rate = 1.1; // Un poco más rápido y alegre
-            msg.pitch = 1.2; // Tono ligeramente más agudo para niños
-            window.speechSynthesis.speak(msg);
-        }
+        MotiVoice.say(colorName, 1.1, 1.2);
     }
 
     // --- GAME LOGIC ---

@@ -974,15 +974,9 @@ function resetItem() {
 //  TTS
 // ==========================================
 function speakItem() {
-    if (!('speechSynthesis' in window)) return;
-    window.speechSynthesis.cancel();
     const item = getCurrentItem();
     const text = getItemType() === 'letters' ? item : item.word;
-    const msg = new SpeechSynthesisUtterance(text);
-    msg.lang = 'es-ES';
-    msg.rate = 0.9;
-    msg.pitch = 1.2;
-    setTimeout(() => window.speechSynthesis.speak(msg), 300);
+    setTimeout(() => MotiVoice.say(text, 0.9, 1.2), 300);
 }
 
 // ==========================================

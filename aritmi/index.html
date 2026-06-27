@@ -431,22 +431,7 @@
 
     // --- TTS SYSTEM ---
     function speakText(text) {
-        if ('speechSynthesis' in window) {
-            // Cancel and resume to clear any stuck states
-            window.speechSynthesis.cancel();
-            window.speechSynthesis.resume();
-            
-            const msg = new SpeechSynthesisUtterance();
-            msg.text = text;
-            msg.lang = 'es'; // More generic Spanish
-            msg.rate = 1.0;
-            msg.pitch = 1.2;
-            
-            // Log for debugging (internal only)
-            console.log("Speaking:", text);
-            
-            window.speechSynthesis.speak(msg);
-        }
+        MotiVoice.say(text, 1.0, 1.2);
     }
 
     function speakProblem(a, b) {
