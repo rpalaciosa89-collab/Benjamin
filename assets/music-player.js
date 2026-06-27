@@ -51,6 +51,42 @@ const MusicPlayer = (() => {
       src: '../assets/kids-calm-piano.mp3',
       emoji: '🎹'
     },
+    { 
+      id: 'rockenergy', 
+      name: '🎸 Rock Energy', 
+      src: '../assets/rock-energy.mp3',
+      emoji: '⚡'
+    },
+    { 
+      id: 'rockpower', 
+      name: '🥁 Rock Power', 
+      src: '../assets/rock-power.mp3',
+      emoji: '🥁'
+    },
+    { 
+      id: 'upbeatrock', 
+      name: '🔥 Upbeat Rock', 
+      src: '../assets/upbeat-rock.mp3',
+      emoji: '🔥'
+    },
+    { 
+      id: 'gameon', 
+      name: '🎯 Game On!', 
+      src: '../assets/game-on.mp3',
+      emoji: '🎯'
+    },
+    { 
+      id: 'fastrock', 
+      name: '💨 Fast Rock', 
+      src: '../assets/fast-rock.mp3',
+      emoji: '💨'
+    },
+    { 
+      id: 'funrock', 
+      name: '🤘 Fun Rock', 
+      src: '../assets/fun-rock.mp3',
+      emoji: '🤘'
+    },
   ];
 
   // ==========================================
