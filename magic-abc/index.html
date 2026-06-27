@@ -974,9 +974,20 @@ function resetItem() {
 //  TTS
 // ==========================================
 function speakItem() {
+    // TTS directo - pronunciar la letra/palabra inmediatamente
+    if (!('speechSynthesis' in window)) return;
     const item = getCurrentItem();
     const text = getItemType() === 'letters' ? item : item.word;
-    setTimeout(() => MotiVoice.say(text, 0.9, 1.2), 300);
+    try {
+        const msg = new SpeechSynthesisUtterance(text);
+        msg.lang = 'es-ES';
+        msg.rate = 0.9;
+        msg.pitch = 1.2;
+        const voices = speechSynthesis.getVoices();
+        const esVoice = voices.find(v => v.lang.startsWith('es'));
+        if (esVoice) msg.voice = esVoice;
+        setTimeout(() => speechSynthesis.speak(msg), 300);
+    } catch(e) {}
 }
 
 // ==========================================

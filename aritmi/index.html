@@ -431,7 +431,19 @@
 
     // --- TTS SYSTEM ---
     function speakText(text) {
-        MotiVoice.say(text, 1.0, 1.2);
+        // TTS directo para contenido educativo (sin cola, debe ser inmediato)
+        if (!('speechSynthesis' in window)) return;
+        try {
+            const msg = new SpeechSynthesisUtterance(text);
+            msg.lang = 'es-MX';
+            msg.rate = 0.95;
+            msg.pitch = 1.15;
+            // Buscar voz en español si hay
+            const voices = speechSynthesis.getVoices();
+            const esVoice = voices.find(v => v.lang.startsWith('es'));
+            if (esVoice) msg.voice = esVoice;
+            speechSynthesis.speak(msg);
+        } catch(e) {}
     }
 
     function speakProblem(a, b) {

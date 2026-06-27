@@ -117,19 +117,19 @@ const MotiVoice = (() => {
     },
     setEnabled(v) { _enabled = !!v; },
 
-    // --- 🎉 CELEBRACION (yippee + SFX aleatorio + voz) ---
+    // --- 🎉 CELEBRACION (SFX energeticos, sin TTS para no interrumpir voz educativa) ---
     celebrate() {
       playSFX('yippee');
       setTimeout(() => playSFX(randomSFX()), 400);
-      setTimeout(() => speak(randomPhrase('win'), 1.0, 1.5), 200);
     },
 
-    // --- 🏆 GRAN CELEBRACION (crowd + yippee + cartoon) ---
+    // --- 🏆 GRAN CELEBRACION (SFX + TTS motivacional diferido) ---
     bigCelebrate() {
       playSFX('yippee');
       setTimeout(() => playSFX('crowd'), 300);
       setTimeout(() => playSFX(randomSFX()), 700);
-      setTimeout(() => speak(randomPhrase('win'), 1.0, 1.5), 400);
+      // TTS motivacional después de 2.5s (cuando termina la voz educativa)
+      setTimeout(() => speak(randomPhrase('win'), 1.0, 1.5), 2500);
     },
 
     // --- 💪 ANIMO (solo voz, sin SFX) ---

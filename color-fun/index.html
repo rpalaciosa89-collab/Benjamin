@@ -367,9 +367,19 @@
         AudioFX.init();
     });
 
-    // --- TTS SYSTEM (usa la cola de MotiVoice para no cancelar otras voces) ---
+    // --- TTS: dice el nombre del color inmediatamente (educativo) ---
     function speakColor(colorName) {
-        MotiVoice.say(colorName, 1.1, 1.2);
+        if (!('speechSynthesis' in window)) return;
+        try {
+            const msg = new SpeechSynthesisUtterance(colorName);
+            msg.lang = 'es-MX';
+            msg.rate = 1.05;
+            msg.pitch = 1.2;
+            const voices = speechSynthesis.getVoices();
+            const esVoice = voices.find(v => v.lang.startsWith('es'));
+            if (esVoice) msg.voice = esVoice;
+            speechSynthesis.speak(msg);
+        } catch(e) {}
     }
 
     // --- GAME LOGIC ---
