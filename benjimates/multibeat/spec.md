@@ -2,7 +2,7 @@
 
 > **Juego**: Tablas de multiplicar con ritmo musical y patrones visuales
 > **Nombre**: MultiBeat = Multiplicación + Beat (ritmo en inglés)
-> **Carpeta**: `sumzup/multibeat/`
+> **Carpeta**: `benjimates/multibeat/`
 
 ---
 

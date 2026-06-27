@@ -2,7 +2,7 @@
 
 > **Juego**: Aprender medidas con objetos de la vida diaria
 > **Nombre**: MeasureUp = Medir + Mejorar (frase común en inglés)
-> **Carpeta**: `sumzup/measureup/`
+> **Carpeta**: `benjimates/measureup/`
 
 ---
 

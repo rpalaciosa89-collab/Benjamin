@@ -2,7 +2,8 @@
 
 > **Juego**: Ábaco japonés (Soroban) interactivo para niños
 > **Nombre**: Benjiban = Benji + Soroban (suena japonés, divertido de decir)
-> **Carpeta**: `sumzup/benjiban/`
+> **Sub-Hub**: BenjiMates
+> **Carpeta**: `benjimates/benjiban/`
 
 ---
 

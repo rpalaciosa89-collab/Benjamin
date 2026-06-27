@@ -1,16 +1,17 @@
-# SumzUp® — Aritmética Modelo Japonés · Spec v1.0
+# BenjiMates 🧮 — Aritmética Modelo Japonés · Spec v2.0
 
-> **Tipo**: Sub-Hub de juegos matemáticos  
-> **Método**: Enseñanza japonesa (Soroban, Anzan, ritmo, visualización)  
-> **Audiencia**: 4-10 años  
-> **Stack**: HTML5 vanilla, misma arquitectura que edgybenji.app  
-> **Carpeta**: `sumzup/`
+> **Tipo**: Sub-Hub de juegos matemáticos
+> **Nombre**: BenjiMates = Benji + Mates (como los niños llaman a las matemáticas)
+> **Método**: Enseñanza japonesa (Soroban, Anzan, ritmo, visualización)
+> **Audiencia**: 4-10 años
+> **Stack**: HTML5 vanilla, misma arquitectura que edgybenji.app
+> **Carpeta**: `benjimates/`
 
 ---
 
 ## 1. Visión
 
-SumzUp® agrupa **5 juegos de matemáticas** inspirados en el modelo educativo japonés: ábaco, cálculo mental, tablas con ritmo, geometría visual y medición práctica. Todos comparten un diseño luminoso, colorido y alegre.
+BenjiMates agrupa **5 juegos de matemáticas** inspirados en el modelo educativo japonés: ábaco, cálculo mental, tablas con ritmo, geometría visual y medición práctica. Todos comparten un diseño luminoso, colorido y alegre.
 
 **Frase**: *"Tus dedos piensan más rápido que una calculadora."*
 
@@ -38,8 +39,8 @@ Cada juego tiene un nombre que mezcla **inglés + español + Benji** para ser in
 edgybenji.app/
 ├── index.html                     Hub principal (5 cartas)
 │
-├── sumzup/
-│   ├── index.html                 🏠 Sub-Hub SumzUp (5 mini-juegos)
+├── benjimates/
+│   ├── index.html                 🏠 Sub-Hub BenjiMates (5 mini-juegos)
 │   ├── spec.md                    Este archivo
 │   │
 │   ├── benjiban/
@@ -77,7 +78,7 @@ edgybenji.app/
 
 ---
 
-## 5. Paleta Corporativa SumzUp®
+## 5. Paleta Corporativa BenjiMates
 
 **Luminosa, alegre, estilo japonés moderno**:
 
@@ -97,11 +98,11 @@ edgybenji.app/
 
 ---
 
-## 6. Sub-Hub (sumzup/index.html) — Diseño
+## 6. Sub-Hub (benjimates/index.html) — Diseño
 
 ```
 ┌──────────────────────────────────┐
-│  🧮 SumzUp®                      │  Hero
+│  🧮 BenjiMates                   │  Hero
 │  Aritmética Modelo Japonés       │
 │  ¡Tus dedos piensan!             │
 ├──────────────────────────────────┤
@@ -131,13 +132,13 @@ Comparte header, footer, MusicPlayer, UserSystem con el resto de la app.
 
 ## 7. Recursos Compartidos
 
-Todos los juegos SumzUp usan:
+Todos los juegos BenjiMates usan:
 - `assets/audio-fx.js` — efectos Web Audio
 - `assets/motivational-voices.js` — voces TTS + SFX
 - `assets/music-player.js` — playlist de 12 canciones
 - `assets/user-system.js` — perfiles y progreso
 - Google Fonts: Baloo 2
-- Paleta SumzUp (CSS variables compartidas)
+- Paleta BenjiMates (CSS variables compartidas)
 
 ---
 
@@ -145,7 +146,7 @@ Todos los juegos SumzUp usan:
 
 | Fase | Juego | Prioridad | Tiempo est. |
 |:----:|-------|:---------:|:-----------:|
-| 1 | Sub-Hub SumzUp | 🔴 P1 | 1h |
+| 1 | Sub-Hub BenjiMates | 🔴 P1 | 1h |
 | 2 | Benjiban (ábaco) | 🔴 P1 | 8h |
 | 3 | MultiBeat (ritmo) | 🟡 P2 | 4h |
 | 4 | BrainDash (Anzan) | 🟡 P2 | 3h |

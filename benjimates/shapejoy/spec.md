@@ -2,7 +2,7 @@
 
 > **Juego**: Reconocer y dibujar formas geométricas básicas
 > **Nombre**: ShapeJoy = Formas + Alegría (shape + joy)
-> **Carpeta**: `sumzup/shapejoy/`
+> **Carpeta**: `benjimates/shapejoy/`
 
 ---
 

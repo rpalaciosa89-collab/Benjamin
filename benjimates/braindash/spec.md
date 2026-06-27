@@ -2,7 +2,7 @@
 
 > **Juego**: Cálculo mental rápido sin ábaco físico (Anzan)
 > **Nombre**: BrainDash = Cerebro + Carrera (dash = velocidad)
-> **Carpeta**: `sumzup/braindash/`
+> **Carpeta**: `benjimates/braindash/`
 
 ---
 
