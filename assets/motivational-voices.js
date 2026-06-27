@@ -9,15 +9,21 @@ const MotiVoice = (() => {
   let _speaking = false;
   let _queue = [];
 
-  // ===== SFX ENERGETICOS (Mixkit - libres de derechos) =====
+  // ===== SFX ENERGETICOS (paths relativos al script, no a la pagina) =====
+  const SFX_BASE = (() => {
+    const s = document.currentScript?.src || '';
+    const dir = s.substring(0, s.lastIndexOf('/') + 1);
+    return dir; // mismo directorio que motivational-voices.js = /assets/
+  })();
+  
   const sfx = {
-    yippee:  new Audio('/assets/yippee.mp3'),
-    cheer1:  new Audio('/assets/sfx-cheer-1.mp3'),
-    cheer2:  new Audio('/assets/sfx-cheer-2.mp3'),
-    cheer3:  new Audio('/assets/sfx-cheer-3.mp3'),
-    kidsYay: new Audio('/assets/sfx-kids-yay.mp3'),
-    wow:     new Audio('/assets/sfx-wow.mp3'),
-    cartoon: new Audio('/assets/sfx-cartoon-cheer.mp3'),
+    yippee:  new Audio(SFX_BASE + 'yippee.mp3'),
+    cheer1:  new Audio(SFX_BASE + 'sfx-cheer-1.mp3'),
+    cheer2:  new Audio(SFX_BASE + 'sfx-cheer-2.mp3'),
+    cheer3:  new Audio(SFX_BASE + 'sfx-cheer-3.mp3'),
+    kidsYay: new Audio(SFX_BASE + 'sfx-kids-yay.mp3'),
+    wow:     new Audio(SFX_BASE + 'sfx-wow.mp3'),
+    cartoon: new Audio(SFX_BASE + 'sfx-cartoon-cheer.mp3'),
   };
   Object.values(sfx).forEach(a => { a.volume = 0.50; a.preload = 'auto'; });
 

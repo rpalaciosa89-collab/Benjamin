@@ -14,77 +14,82 @@ const MusicPlayer = (() => {
   // ==========================================
   //  PLAYLIST  (agrega más canciones aquí)
   // ==========================================
+  const MUSIC_BASE = (() => {
+    const s = document.currentScript?.src || '';
+    return s.substring(0, s.lastIndexOf('/') + 1);
+  })();
+  
   const PLAYLIST = [
     { 
       id: 'alegre', 
       name: '🎵 Música Alegre', 
-      src: '/assets/bg_music.mp3',
+      src: MUSIC_BASE + 'bg_music.mp3',
       emoji: '🎵'
     },
     { 
       id: 'beatit', 
       name: '🕺 Beat It', 
-      src: '/assets/Beat_It.mp3',
+      src: MUSIC_BASE + 'Beat_It.mp3',
       emoji: '🎸'
     },
     { 
       id: 'billiejean', 
       name: '🕺 Billie Jean', 
-      src: '/assets/Billie_Jean.mp3',
+      src: MUSIC_BASE + 'Billie_Jean.mp3',
       emoji: '🪩'
     },
     { 
       id: 'happykids', 
       name: '😊 Kids Happy', 
-      src: '/assets/kids-happy-loop.mp3',
+      src: MUSIC_BASE + 'kids-happy-loop.mp3',
       emoji: '😊'
     },
     { 
       id: 'fungame', 
       name: '🎮 Fun Game', 
-      src: '/assets/kids-fun-game.mp3',
+      src: MUSIC_BASE + 'kids-fun-game.mp3',
       emoji: '🎮'
     },
     { 
       id: 'calmpiano', 
       name: '🎹 Calm Piano', 
-      src: '/assets/kids-calm-piano.mp3',
+      src: MUSIC_BASE + 'kids-calm-piano.mp3',
       emoji: '🎹'
     },
     { 
       id: 'rockenergy', 
       name: '🎸 Rock Energy', 
-      src: '/assets/rock-energy.mp3',
+      src: MUSIC_BASE + 'rock-energy.mp3',
       emoji: '⚡'
     },
     { 
       id: 'rockpower', 
       name: '🥁 Rock Power', 
-      src: '/assets/rock-power.mp3',
+      src: MUSIC_BASE + 'rock-power.mp3',
       emoji: '🥁'
     },
     { 
       id: 'upbeatrock', 
       name: '🔥 Upbeat Rock', 
-      src: '/assets/upbeat-rock.mp3',
+      src: MUSIC_BASE + 'upbeat-rock.mp3',
       emoji: '🔥'
     },
     { 
       id: 'gameon', 
       name: '🎯 Game On!', 
-      src: '/assets/game-on.mp3',
+      src: MUSIC_BASE + 'game-on.mp3',
       emoji: '🎯'
     },
     { 
       id: 'fastrock', 
       name: '💨 Fast Rock', 
-      src: '/assets/fast-rock.mp3',
+      src: MUSIC_BASE + 'fast-rock.mp3',
       emoji: '💨'
     },
     { 
       id: 'funrock', 
       name: '🤘 Fun Rock', 
-      src: '/assets/fun-rock.mp3',
+      src: MUSIC_BASE + 'fun-rock.mp3',
       emoji: '🤘'
     },
   ];
