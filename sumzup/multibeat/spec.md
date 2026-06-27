@@ -1,9 +1,8 @@
-# 🎵 Tablas — Multiplicación con Ritmo · Spec v1.0
+# 🎵 MultiBeat — Tablas de Multiplicar con Ritmo · Spec v1.0
 
-> **Juego**: Tablas de multiplicar con ritmo musical y patrones visuales  
-> **Método**: Aprendizaje rítmico japonés (kuchishōga — recitación oral)  
-> **Audiencia**: 6-10 años  
-> **Carpeta**: `sumzup/tablas/`
+> **Juego**: Tablas de multiplicar con ritmo musical y patrones visuales
+> **Nombre**: MultiBeat = Multiplicación + Beat (ritmo en inglés)
+> **Carpeta**: `sumzup/multibeat/`
 
 ---
 

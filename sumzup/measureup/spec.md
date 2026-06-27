@@ -1,9 +1,8 @@
-# 📏 Medidas — Cotidianas · Spec v1.0
+# 📏 MeasureUp — Medidas Cotidianas · Spec v1.0
 
-> **Juego**: Aprender medidas con objetos de la vida diaria  
-> **Método**: Comparación visual + estimación + juego  
-> **Audiencia**: 5-8 años  
-> **Carpeta**: `sumzup/medidas/`
+> **Juego**: Aprender medidas con objetos de la vida diaria
+> **Nombre**: MeasureUp = Medir + Mejorar (frase común en inglés)
+> **Carpeta**: `sumzup/measureup/`
 
 ---
 

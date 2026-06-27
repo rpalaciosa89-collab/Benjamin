@@ -16,7 +16,23 @@ SumzUp® agrupa **5 juegos de matemáticas** inspirados en el modelo educativo j
 
 ---
 
-## 2. Organización
+## 2. Naming — Combinaciones Bilingües Divertidas
+
+Cada juego tiene un nombre que mezcla **inglés + español + Benji** para ser intuitivo y memorable:
+
+| Juego | Nombre | Origen | Significado |
+|-------|--------|--------|-------------|
+| 🧮 Ábaco | **Benjiban** | Benji + Soro**ban** | "El ábaco de Benji" (suena japonés) |
+| 🎵 Tablas | **MultiBeat** | Multiplicación + Beat | "Ritmo de multiplicar" |
+| ⚡ Cálculo | **BrainDash** | Brain + Dash | "Carrera del cerebro" |
+| 🔷 Formas | **ShapeJoy** | Shape + Joy | "Alegría de las formas" |
+| 📏 Medidas | **MeasureUp** | Measure + Up | "Mide y mejora" |
+
+**Criterios**: 2-3 sílabas · Funciona en inglés y español · Los niños lo pronuncian fácil · Sugiere el contenido.
+
+---
+
+## 3. Organización
 
 ```
 edgybenji.app/
@@ -53,11 +69,11 @@ edgybenji.app/
 
 | # | Juego | Ícono | Qué enseña | Edad |
 |---|-------|:-----:|-----------|:---:|
-| 1 | **Soroban** | 🧮 | Ábaco japonés: representar números, sumar, restar | 4-10 |
-| 2 | **Tablas** | 🎵 | Multiplicación con ritmo musical y patrones visuales | 6-10 |
-| 3 | **Flash** | ⚡ | Cálculo mental rápido (Anzan sin ábaco físico) | 7-10 |
-| 4 | **Figuras** | 🔷 | Reconocer y dibujar formas geométricas básicas | 4-7 |
-| 5 | **Medidas** | 📏 | Longitud, peso, tiempo con objetos cotidianos | 5-8 |
+| 1 | **Benjiban** | 🧮 | Ábaco japonés: representar números, sumar, restar | 4-10 |
+| 2 | **MultiBeat** | 🎵 | Multiplicación con ritmo musical y patrones visuales | 6-10 |
+| 3 | **BrainDash** | ⚡ | Cálculo mental rápido (Anzan sin ábaco físico) | 7-10 |
+| 4 | **ShapeJoy** | 🔷 | Reconocer y dibujar formas geométricas básicas | 4-7 |
+| 5 | **MeasureUp** | 📏 | Longitud, peso, tiempo con objetos cotidianos | 5-8 |
 
 ---
 
@@ -130,11 +146,11 @@ Todos los juegos SumzUp usan:
 | Fase | Juego | Prioridad | Tiempo est. |
 |:----:|-------|:---------:|:-----------:|
 | 1 | Sub-Hub SumzUp | 🔴 P1 | 1h |
-| 2 | Soroban (ábaco) | 🔴 P1 | 8h |
-| 3 | Tablas (ritmo) | 🟡 P2 | 4h |
-| 4 | Flash (Anzan) | 🟡 P2 | 3h |
-| 5 | Figuras (geo) | 🟢 P3 | 3h |
-| 6 | Medidas | 🟢 P3 | 3h |
+| 2 | Benjiban (ábaco) | 🔴 P1 | 8h |
+| 3 | MultiBeat (ritmo) | 🟡 P2 | 4h |
+| 4 | BrainDash (Anzan) | 🟡 P2 | 3h |
+| 5 | ShapeJoy (geo) | 🟢 P3 | 3h |
+| 6 | MeasureUp | 🟢 P3 | 3h |
 | **Total** | | | **~22h** |
 
 ---

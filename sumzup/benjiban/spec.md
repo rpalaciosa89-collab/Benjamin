@@ -1,9 +1,8 @@
-# SumzUp® — Soroban Math Lessons · Spec v1.0
+# 🧮 Benjiban — El Ábaco de Benji · Spec v1.0
 
-> **Juego**: Ábaco japonés (Soroban) interactivo para niños  
-> **Audiencia**: 4-10 años  
-> **Stack**: HTML5 + Canvas + Web Audio + TTS + Touch  
-> **Carpeta**: `soroban/`
+> **Juego**: Ábaco japonés (Soroban) interactivo para niños
+> **Nombre**: Benjiban = Benji + Soroban (suena japonés, divertido de decir)
+> **Carpeta**: `sumzup/benjiban/`
 
 ---
 

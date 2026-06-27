@@ -1,9 +1,8 @@
-# 🔷 Figuras — Geometría Infantil · Spec v1.0
+# 🔷 ShapeJoy — Geometría Infantil · Spec v1.0
 
-> **Juego**: Reconocer y dibujar formas geométricas básicas  
-> **Método**: Visual + táctil (trazar con el dedo)  
-> **Audiencia**: 4-7 años  
-> **Carpeta**: `sumzup/figuras/`
+> **Juego**: Reconocer y dibujar formas geométricas básicas
+> **Nombre**: ShapeJoy = Formas + Alegría (shape + joy)
+> **Carpeta**: `sumzup/shapejoy/`
 
 ---
 

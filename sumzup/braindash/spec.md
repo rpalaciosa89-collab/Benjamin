@@ -1,9 +1,8 @@
-# ⚡ Flash — Cálculo Mental Anzan · Spec v1.0
+# ⚡ BrainDash — Cálculo Mental Anzan · Spec v1.0
 
-> **Juego**: Cálculo mental rápido sin ábaco físico (Anzan)  
-> **Método**: Visualización del Soroban en la mente  
-> **Audiencia**: 7-10 años (requiere haber practicado Soroban)  
-> **Carpeta**: `sumzup/flash/`
+> **Juego**: Cálculo mental rápido sin ábaco físico (Anzan)
+> **Nombre**: BrainDash = Cerebro + Carrera (dash = velocidad)
+> **Carpeta**: `sumzup/braindash/`
 
 ---
 
