@@ -53,9 +53,9 @@
             background:linear-gradient(180deg,var(--wood-light) 0%,var(--wood) 100%);
             border-radius:20px;border:3px solid var(--wood-dark);
             box-shadow:inset 0 4px 12px rgba(0,0,0,0.1),0 8px 24px rgba(0,0,0,0.15);
-            overflow:hidden;touch-action:none;
+            overflow:hidden;
         }
-        canvas{position:absolute;inset:0;width:100%;height:100%;touch-action:none}
+        canvas{position:absolute;inset:0;width:100%;height:100%}
 
         .number-row{display:flex;justify-content:space-around;width:100%;max-width:380px;margin-top:4px}
         .digit-display{
@@ -252,17 +252,21 @@ function drawBead(x, y, color, active) {
 }
 
 function findBead(ex, ey) {
+    // Área generosa: tocar en cualquier parte de la columna
     for (let ci=0;ci<columns;ci++) {
         const cx = colXs[ci];
-        // Cuenta superior
+        if (Math.abs(ex - cx) > COL_W/2 + 10) continue; // fuera de la columna
+        
+        // ¿Más cerca de la cuenta superior o de las inferiores?
         const upperY = beads[ci].upper ? barY-14 : 22;
-        if (Math.hypot(ex-cx, ey-upperY) < BEAD_R+8) return {col:ci, type:'upper'};
-        // Cuentas inferiores
-        const spacing = (H-barY-24)/5;
-        for (let i=0;i<4;i++) {
-            const lowerY = beads[ci].lower[i] ? barY+12+i*spacing : H-16-(3-i)*spacing;
-            if (Math.hypot(ex-cx, ey-lowerY) < BEAD_R+8) return {col:ci, type:'lower', idx:i};
-        }
+        const distUpper = Math.abs(ey - upperY);
+        
+        // Si el dedo está claramente arriba de la barra → cuenta superior
+        if (ey < barY - 15) return {col:ci, type:'upper'};
+        // Si está claramente abajo → cuentas inferiores
+        if (ey > barY + 5) return {col:ci, type:'lower'};
+        // Zona ambigua (cerca de la barra): usar la más cercana
+        return distUpper < 30 ? {col:ci, type:'upper'} : {col:ci, type:'lower'};
     }
     return null;
 }
@@ -286,16 +290,31 @@ canvas.addEventListener('mouseleave', e => { if(dragging){snapBead();dragging=nu
 function handleDrag(p) {
     if (!dragging) return;
     const ci = dragging.col;
+    const colX = colXs[ci];
+    
+    // Si el dedo se fue a otra columna, cambiar de columna
+    let newCi = ci;
+    let minDist = Math.abs(p.x - colXs[ci]);
+    for (let i=0;i<columns;i++) {
+        const d = Math.abs(p.x - colXs[i]);
+        if (d < minDist) { minDist = d; newCi = i; }
+    }
+    if (newCi !== ci && minDist < COL_W/2 + 15) {
+        dragging.col = newCi;
+        ci = newCi;
+    }
+    
     if (dragging.type === 'upper') {
-        // Cuenta superior: arriba=0, abajo=1 (activada)
-        beads[ci].upper = p.y > barY ? 1 : 0;
+        // Cuenta superior: snap al cruzar la barra
+        beads[ci].upper = p.y > barY - 5 ? 1 : 0;
     } else {
-        // Cuenta inferior: index 0 (más cercana a barra) a 3 (más lejana)
-        const spacing = (H-barY-24)/5;
-        const idx = Math.round((p.y - barY - 12) / spacing);
-        const newIdx = Math.max(0, Math.min(3, idx));
-        // Activar cuentas hasta newIdx
-        for (let i=0;i<4;i++) beads[ci].lower[i] = (i <= newIdx) ? 1 : 0;
+        // Cuentas inferiores: mapeo continuo de Y a cantidad de cuentas
+        const spacing = (H - barY - 24) / 5;
+        // 0 cuentas = finger abajo, 4 cuentas = finger arriba (cerca de la barra)
+        const distFromBar = Math.max(0, p.y - barY - 4);
+        const count = Math.round(4 - distFromBar / spacing);
+        const n = Math.max(0, Math.min(4, count));
+        for (let i=0;i<4;i++) beads[ci].lower[i] = (i < n) ? 1 : 0;
     }
     renderAbacus();
     updateNumberDisplay();
