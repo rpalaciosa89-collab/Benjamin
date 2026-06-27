@@ -237,6 +237,7 @@
 
 <script src="../assets/user-system.js"></script>
 <script src="../assets/music-player.js"></script>
+<script src="../assets/audio-fx.js"></script>
 <script>
 // ==========================================
 //  MAGICABC — Juego de Trazado de Letras
@@ -599,44 +600,6 @@ function calculateRealTimeProgress(mx, my) {
 }
 
 // ==========================================
-//  AUDIO (Web Audio API)
-// ==========================================
-const AudioFX = (() => {
-    let ctx = null;
-    function getCtx() {
-        if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)();
-        return ctx;
-    }
-    function tone(freq, dur, type='sine', vol=0.2, delay=0) {
-        try {
-            const c = getCtx();
-            const o = c.createOscillator();
-            const g = c.createGain();
-            o.connect(g); g.connect(c.destination);
-            o.type = type;
-            o.frequency.setValueAtTime(freq, c.currentTime + delay);
-            g.gain.setValueAtTime(0, c.currentTime + delay);
-            g.gain.linearRampToValueAtTime(vol, c.currentTime + delay + 0.01);
-            g.gain.exponentialRampToValueAtTime(0.001, c.currentTime + delay + dur);
-            o.start(c.currentTime + delay);
-            o.stop(c.currentTime + delay + dur);
-        } catch(e) {}
-    }
-    return {
-        guia() { tone(600, 0.05, 'sine', 0.1); },
-        trazoExito() { tone(523,0.1,'sine',0.2,0); tone(659,0.1,'sine',0.2,0.1); tone(784,0.15,'sine',0.25,0.2); },
-        trazoReintento() { tone(400,0.08,'sine',0.15,0); tone(300,0.12,'sine',0.15,0.08); },
-        moneda() { tone(1200,0.08,'triangle',0.25); },
-        logro() { tone(523,0.1,'square',0.2,0); tone(659,0.1,'square',0.2,0.12); tone(784,0.1,'square',0.2,0.24); tone(1047,0.2,'square',0.25,0.36); },
-        nivelCompleto() {
-            [523,659,784,1047].forEach((f,i) => tone(f,0.2,'square',0.2,i*0.12));
-            setTimeout(() => { tone(523,0.4,'sine',0.15); tone(659,0.4,'sine',0.15); tone(784,0.4,'sine',0.15); }, 600);
-        },
-        confetiPop() { tone(900,0.03,'sine',0.08); }
-    };
-})();
-
-// ==========================================
 //  PARTICLES (Stars + Confetti)
 // ==========================================
 let particles = [];
@@ -744,6 +707,7 @@ function handleStart(e) {
     // Si no estamos dibujando: empezar un nuevo intento en el trazo actual
     if (!traceState.isDrawing) {
         traceState.isDrawing = true;
+        AudioFX.traceStart();
         traceState.userPoints = [pos];
         traceState.segmentsCovered = new Set();
         traceState.lastPoint = pos;
@@ -1127,6 +1091,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     UserSystem.renderProfileBadge('profile-badge');
     MusicPlayer.init('music-btn');
+    AudioFX.init();
     
     updateHUD();
     calculateRenderPath();

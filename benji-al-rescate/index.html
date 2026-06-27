@@ -328,9 +328,9 @@
 
 <script src="../assets/user-system.js"></script>
 <script src="../assets/music-player.js"></script>
+<script src="../assets/audio-fx.js"></script>
 <script>
     const GAME_ID = 'benji';
-    const successSound = new Audio('../color-fun/floraphonic-woman-excited-cheers-and-phrases-says-yippee-2-186752.mp3');
 
     // --- DROPDOWN MENU ---
     document.addEventListener('DOMContentLoaded', () => {
@@ -356,6 +356,7 @@
 
     // 🎵 Music Player (cancion seleccionable, se guarda entre sesiones)
     MusicPlayer.init('music-btn');
+    AudioFX.init();
 
     const savedProgress = UserSystem.getProgress(GAME_ID);
     let currentLevel = savedProgress.currentLevel || 1;
@@ -577,7 +578,7 @@
                     if(isAnimating) return;
                     if(tile.type === 'start' || tile.type === 'end') return;
                     
-                    // Play pop sound (optional/visual only here)
+                    AudioFX.rotate();
                     tile.rot = (tile.rot + 1) % 4;
                     const svg = el.querySelector('svg');
                     
