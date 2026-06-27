@@ -216,17 +216,17 @@ function renderAbacus() {
     ctx.fillStyle = 'rgba(255,255,255,0.2)';
     ctx.fillRect(10, barY-5, W-20, 2);
     
-    // Cuentas — ON/OFF con poco padding para móvil
-    const PAD = 16; // padding superior+inferior total
+    // Cuentas — ON/OFF compacto
+    const PAD = 12;
     const spacing = (H - barY - PAD) / 4;
     colXs.forEach((cx, ci) => {
-        const upperOffY = 18, upperOnY = barY - 12;
+        const upperOffY = 16, upperOnY = barY - 12;
         const upperY = beads[ci].upper ? upperOnY : upperOffY;
         drawBead(cx, upperY, beads[ci].upper?'#fbbf24':'#d4a574', beads[ci].upper);
         
         for (let i=0;i<4;i++) {
-            const onY = barY + 10 + i * spacing;
-            const offY = H - 8 - (3-i) * spacing;
+            const onY = barY + 8 + i * spacing;
+            const offY = H - 6 - (3-i) * spacing;
             const lowerY = beads[ci].lower[i] ? onY : offY;
             drawBead(cx, lowerY, beads[ci].lower[i]?'#60a5fa':'#d4a574', beads[ci].lower[i]);
         }
@@ -291,9 +291,9 @@ function handleDrag(p) {
     if (dragging.type === 'upper') {
         beads[ci].upper = p.y > barY - 5 ? 1 : 0;
     } else {
-        const PAD = 16;
+        const PAD = 12;
         const spacing = (H - barY - PAD) / 4;
-        const idx = Math.round((p.y - barY - 10) / spacing);
+        const idx = Math.round((p.y - barY - 8) / spacing);
         const n = Math.max(0, Math.min(4, idx + 1));
         for (let i=0;i<4;i++) beads[ci].lower[i] = (i < n) ? 1 : 0;
     }
