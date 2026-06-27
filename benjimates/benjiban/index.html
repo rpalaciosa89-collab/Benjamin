@@ -146,7 +146,7 @@ const saved = UserSystem.getProgress(GAME_ID);
 let state = { level: saved.level||1, stars: saved.stars||0, completed:saved.completed||[] };
 
 // ===== ÁBACO ENGINE =====
-const BEAD_R = 12, COL_W = 80, PADDING_X = 35, BAR_Y_RATIO = 0.25;
+const BEAD_R = 11, COL_W = 80, BAR_Y_RATIO = 0.30;
 let columns = 3; // Número de columnas
 let beads = [];  // [{upper:0|1, lower:[0|1,0|1,0|1,0|1]}, ...]
 let targetNumber = 0;
@@ -217,15 +217,17 @@ function renderAbacus() {
     ctx.fillRect(10, barY-5, W-20, 2);
     
     // Cuentas
+    const upperOffY = 18, upperOnY = barY - 12;
+    const lowerSpace = H - barY - 24; // espacio total para 4 cuentas
+    const lowerSpacing = lowerSpace / 3; // 3 gaps entre 4 cuentas
     colXs.forEach((cx, ci) => {
         // Cuenta superior (valor 5)
-        const upperY = beads[ci].upper ? barY-14 : 22;
+        const upperY = beads[ci].upper ? upperOnY : upperOffY;
         drawBead(cx, upperY, beads[ci].upper?'#fbbf24':'#d4a574', beads[ci].upper);
         
-        // Cuentas inferiores (valor 1 cada una)
+        // Cuentas inferiores (valor 1 cada una) — siempre visibles
         for (let i=0;i<4;i++) {
-            const spacing = (H-barY-24)/5;
-            const lowerY = beads[ci].lower[i] ? barY+12+i*spacing : H-16-(3-i)*spacing;
+            const lowerY = barY + 12 + i * lowerSpacing;
             drawBead(cx, lowerY, beads[ci].lower[i]?'#60a5fa':'#d4a574', beads[ci].lower[i]);
         }
     });
@@ -252,21 +254,11 @@ function drawBead(x, y, color, active) {
 }
 
 function findBead(ex, ey) {
-    // Área generosa: tocar en cualquier parte de la columna
     for (let ci=0;ci<columns;ci++) {
-        const cx = colXs[ci];
-        if (Math.abs(ex - cx) > COL_W/2 + 10) continue; // fuera de la columna
-        
-        // ¿Más cerca de la cuenta superior o de las inferiores?
-        const upperY = beads[ci].upper ? barY-14 : 22;
-        const distUpper = Math.abs(ey - upperY);
-        
-        // Si el dedo está claramente arriba de la barra → cuenta superior
-        if (ey < barY - 15) return {col:ci, type:'upper'};
-        // Si está claramente abajo → cuentas inferiores
-        if (ey > barY + 5) return {col:ci, type:'lower'};
-        // Zona ambigua (cerca de la barra): usar la más cercana
-        return distUpper < 30 ? {col:ci, type:'upper'} : {col:ci, type:'lower'};
+        if (Math.abs(ex - colXs[ci]) > COL_W/2 + 12) continue;
+        // Arriba de la barra → cuenta superior. Abajo → inferiores.
+        if (ey < barY - 8) return {col:ci, type:'upper'};
+        return {col:ci, type:'lower'};
     }
     return null;
 }
@@ -289,31 +281,24 @@ canvas.addEventListener('mouseleave', e => { if(dragging){snapBead();dragging=nu
 
 function handleDrag(p) {
     if (!dragging) return;
-    const ci = dragging.col;
-    const colX = colXs[ci];
+    let ci = dragging.col;
     
-    // Si el dedo se fue a otra columna, cambiar de columna
-    let newCi = ci;
-    let minDist = Math.abs(p.x - colXs[ci]);
+    // Cambiar de columna si el dedo se mueve横向
+    let best = ci, bestD = Math.abs(p.x - colXs[ci]);
     for (let i=0;i<columns;i++) {
         const d = Math.abs(p.x - colXs[i]);
-        if (d < minDist) { minDist = d; newCi = i; }
+        if (d < bestD) { bestD = d; best = i; }
     }
-    if (newCi !== ci && minDist < COL_W/2 + 15) {
-        dragging.col = newCi;
-        ci = newCi;
-    }
+    if (best !== ci && bestD < COL_W/2 + 10) dragging.col = ci = best;
     
     if (dragging.type === 'upper') {
-        // Cuenta superior: snap al cruzar la barra
-        beads[ci].upper = p.y > barY - 5 ? 1 : 0;
+        beads[ci].upper = p.y < barY - 4 ? 0 : 1;
     } else {
-        // Cuentas inferiores: mapeo continuo de Y a cantidad de cuentas
-        const spacing = (H - barY - 24) / 5;
-        // 0 cuentas = finger abajo, 4 cuentas = finger arriba (cerca de la barra)
-        const distFromBar = Math.max(0, p.y - barY - 4);
-        const count = Math.round(4 - distFromBar / spacing);
-        const n = Math.max(0, Math.min(4, count));
+        // Mapeo continuo: finger arriba = más cuentas, finger abajo = menos
+        const lowerSpace = H - barY - 24, lowerSpacing = lowerSpace / 3;
+        const distFromTop = p.y - barY - 12;
+        const idx = Math.round(distFromTop / lowerSpacing);
+        const n = Math.max(0, Math.min(4, idx + 1));
         for (let i=0;i<4;i++) beads[ci].lower[i] = (i < n) ? 1 : 0;
     }
     renderAbacus();
@@ -425,7 +410,6 @@ function renderDebugLevels() {
 }
 
 function showHint() {
-    resetBeads();
     const str = String(targetNumber).padStart(columns,'0');
     for (let i=0;i<columns;i++) {
         const d = parseInt(str[i]);
