@@ -25,7 +25,7 @@
         
         header{
             display:flex;justify-content:space-between;align-items:center;
-            padding:12px 14px 6px;flex-shrink:0;
+            padding:6px 10px 4px;flex-shrink:0;
         }
         .back-btn{
             width:40px;height:40px;background:rgba(255,255,255,0.8);border-radius:50%;
@@ -36,17 +36,17 @@
         .stars{font-size:16px;font-weight:700;color:var(--gold)}
         .music-btn,.help-btn{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,0.8);border:none;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center}
         
-        .game-area{flex:1;display:flex;flex-direction:column;align-items:center;padding:8px 12px;overflow:hidden}
+        .game-area{flex:1;display:flex;flex-direction:column;align-items:center;padding:4px 10px;overflow:hidden}
         .target-display{
-            font-size:20px;font-weight:700;color:var(--dark);text-align:center;
-            min-height:28px;margin-bottom:4px;
+            font-size:16px;font-weight:700;color:var(--dark);text-align:center;
+            min-height:22px;margin-bottom:2px;line-height:1.2;
         }
         .target-number{
-            font-size:52px;font-weight:900;color:var(--purple);line-height:1;
+            font-size:38px;font-weight:900;color:var(--purple);line-height:1;
             animation:pulse 1.5s ease-in-out infinite;
         }
         @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
-        .guide-label{font-size:14px;color:#64748b;margin-bottom:8px;text-align:center;min-height:20px}
+        .guide-label{font-size:13px;color:#64748b;margin-bottom:4px;text-align:center;min-height:18px}
 
         .abacus-wrapper{
             position:relative;width:100%;max-width:380px;flex:1;min-height:300px;
@@ -57,21 +57,21 @@
         }
         canvas{position:absolute;inset:0;width:100%;height:100%;touch-action:none}
 
-        .number-row{display:flex;justify-content:space-around;width:100%;max-width:380px;margin-top:8px}
+        .number-row{display:flex;justify-content:space-around;width:100%;max-width:380px;margin-top:4px}
         .digit-display{
-            font-size:28px;font-weight:900;color:var(--dark);width:60px;text-align:center;
-            background:rgba(255,255,255,0.7);border-radius:14px;padding:4px 8px;
+            font-size:24px;font-weight:900;color:var(--dark);min-width:44px;text-align:center;
+            background:rgba(255,255,255,0.7);border-radius:12px;padding:2px 6px;
         }
         .digit-display.active{background:var(--gold);color:#92400e}
 
-        .progress-bar-wrap{width:100%;max-width:380px;height:8px;background:rgba(0,0,0,0.06);border-radius:4px;margin-top:10px;overflow:hidden}
+        .progress-bar-wrap{width:100%;max-width:380px;height:6px;background:rgba(0,0,0,0.06);border-radius:3px;margin-top:6px;overflow:hidden}
         .progress-fill{height:100%;border-radius:4px;background:var(--green);transition:width 0.3s ease;width:0%}
 
-        .btn-row{display:flex;gap:10px;margin-top:8px;flex-shrink:0;padding-bottom:10px}
+        .btn-row{display:flex;gap:8px;margin-top:6px;flex-shrink:0;padding-bottom:8px}
         .btn{
-            padding:14px 22px;border-radius:50px;border:none;
-            font-family:'Baloo 2',cursive,sans-serif;font-size:16px;font-weight:800;
-            cursor:pointer;transition:transform 0.15s,box-shadow 0.15s;min-height:50px;
+            padding:12px 20px;border-radius:50px;border:none;
+            font-family:'Baloo 2',cursive,sans-serif;font-size:15px;font-weight:800;
+            cursor:pointer;transition:transform 0.15s,box-shadow 0.15s;min-height:44px;
             box-shadow:0 4px 12px rgba(0,0,0,0.1);color:#fff;
         }
         .btn:active{transform:scale(0.95)}
@@ -95,7 +95,7 @@
         .modal p{font-size:15px;color:#64748b;margin-bottom:16px}
         .modal .btn{width:100%}
 
-        .debug-levels{display:flex;gap:4px;justify-content:center;flex-wrap:wrap;margin-top:4px}
+        .debug-levels{display:flex;gap:3px;justify-content:center;flex-wrap:wrap;margin-top:2px}
         .debug-lvl-btn{padding:3px 8px;border-radius:10px;border:1px solid #d1d5db;background:#f9fafb;font-size:11px;font-weight:700;cursor:pointer;font-family:'Baloo 2',cursive;color:#6b7280}
         .debug-lvl-btn.active{background:var(--purple);color:#fff;border-color:var(--purple)}
     </style>
@@ -146,7 +146,7 @@ const saved = UserSystem.getProgress(GAME_ID);
 let state = { level: saved.level||1, stars: saved.stars||0, completed:saved.completed||[] };
 
 // ===== ÁBACO ENGINE =====
-const BEAD_R = 16, COL_W = 90, PADDING_X = 40, BAR_Y_RATIO = 0.35;
+const BEAD_R = 14, COL_W = 80, PADDING_X = 35, BAR_Y_RATIO = 0.28;
 let columns = 3; // Número de columnas
 let beads = [];  // [{upper:0|1, lower:[0|1,0|1,0|1,0|1]}, ...]
 let targetNumber = 0;
@@ -219,13 +219,13 @@ function renderAbacus() {
     // Cuentas
     colXs.forEach((cx, ci) => {
         // Cuenta superior (valor 5)
-        const upperY = beads[ci].upper ? barY-20 : 35;
+        const upperY = beads[ci].upper ? barY-16 : 28;
         drawBead(cx, upperY, beads[ci].upper?'#fbbf24':'#d4a574', beads[ci].upper);
         
         // Cuentas inferiores (valor 1 cada una)
         for (let i=0;i<4;i++) {
-            const spacing = (H-barY-40)/4;
-            const lowerY = beads[ci].lower[i] ? barY+18+i*spacing : H-25-(3-i)*spacing;
+            const spacing = (H-barY-30)/4;
+            const lowerY = beads[ci].lower[i] ? barY+14+i*spacing : H-18-(3-i)*spacing;
             drawBead(cx, lowerY, beads[ci].lower[i]?'#60a5fa':'#d4a574', beads[ci].lower[i]);
         }
     });
@@ -255,12 +255,12 @@ function findBead(ex, ey) {
     for (let ci=0;ci<columns;ci++) {
         const cx = colXs[ci];
         // Cuenta superior
-        const upperY = beads[ci].upper ? barY-20 : 35;
+        const upperY = beads[ci].upper ? barY-16 : 28;
         if (Math.hypot(ex-cx, ey-upperY) < BEAD_R+8) return {col:ci, type:'upper'};
         // Cuentas inferiores
-        const spacing = (H-barY-40)/4;
+        const spacing = (H-barY-30)/4;
         for (let i=0;i<4;i++) {
-            const lowerY = beads[ci].lower[i] ? barY+18+i*spacing : H-25-(3-i)*spacing;
+            const lowerY = beads[ci].lower[i] ? barY+14+i*spacing : H-18-(3-i)*spacing;
             if (Math.hypot(ex-cx, ey-lowerY) < BEAD_R+8) return {col:ci, type:'lower', idx:i};
         }
     }
@@ -291,8 +291,8 @@ function handleDrag(p) {
         beads[ci].upper = p.y > barY ? 1 : 0;
     } else {
         // Cuenta inferior: index 0 (más cercana a barra) a 3 (más lejana)
-        const spacing = (H-barY-40)/4;
-        const idx = Math.round((p.y - barY - 18) / spacing);
+        const spacing = (H-barY-30)/4;
+        const idx = Math.round((p.y - barY - 14) / spacing);
         const newIdx = Math.max(0, Math.min(3, idx));
         // Activar cuentas hasta newIdx
         for (let i=0;i<4;i++) beads[ci].lower[i] = (i <= newIdx) ? 1 : 0;
