@@ -376,9 +376,12 @@
 <script src="../assets/user-system.js"></script>
 <script src="../assets/music-player.js"></script>
 <script src="../assets/audio-fx.js"></script>
+<script src="../assets/motivational-voices.js"></script>
 <script>
     // --- CONFIG ---
     const GAME_ID = 'aritmi';
+    MotiVoice.init();
+    setTimeout(() => MotiVoice.welcome(), 600);
     const EMOJIS = ['🍎', '⭐', '🎈', '🍪', '🐸', '🦁', '🚗', '🍦'];
 
     // Cargar progreso guardado
@@ -507,12 +510,14 @@
             UserSystem.saveProgress(GAME_ID, { score, currentLevel, consecutiveWins });
             
             AudioFX.correct();
+            MotiVoice.celebrate();
             setTimeout(() => {
                 speakText(`${currentProblem.a} más ${currentProblem.b} es ${currentProblem.result}`);
             }, 100);
             setTimeout(() => showWinModal(), 2000); 
         } else {
             AudioFX.wrong();
+            MotiVoice.almost();
             btn.classList.add('wrong');
             speakText('Ese no');
             setTimeout(() => btn.classList.remove('wrong'), 500);

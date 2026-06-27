@@ -329,8 +329,11 @@
 <script src="../assets/user-system.js"></script>
 <script src="../assets/music-player.js"></script>
 <script src="../assets/audio-fx.js"></script>
+<script src="../assets/motivational-voices.js"></script>
 <script>
     const GAME_ID = 'benji';
+    MotiVoice.init();
+    setTimeout(() => MotiVoice.welcome(), 600);
 
     // --- DROPDOWN MENU ---
     document.addEventListener('DOMContentLoaded', () => {
@@ -401,8 +404,8 @@
         const modalDesc = document.getElementById('modal-desc');
         
         if(win) {
-            successSound.currentTime = 0;
-            successSound.play().catch(e => console.log("Audio play failed", e));
+            AudioFX.complete();
+            MotiVoice.celebrate();
             modalEmoji.innerText = '🌟';
             modalTitle.innerText = '¡Lo lograste!';
             modalTitle.style.color = '#10b981';

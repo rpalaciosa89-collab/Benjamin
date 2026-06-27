@@ -238,6 +238,7 @@
 <script src="../assets/user-system.js"></script>
 <script src="../assets/music-player.js"></script>
 <script src="../assets/audio-fx.js"></script>
+<script src="../assets/motivational-voices.js"></script>
 <script>
 // ==========================================
 //  MAGICABC — Juego de Trazado de Letras
@@ -765,6 +766,7 @@ function onStrokeComplete() {
     traceState.pathProgress = (currentStrokeIdx / currentStrokes.length) * 100;
     updateProgressBar();
     AudioFX.trazoExito();
+    MotiVoice.cheer();
     spawnStars(canvas.width/2, canvas.height/2, 5);
     
     if (currentStrokeIdx >= currentStrokes.length) {
@@ -783,6 +785,7 @@ function onStrokeComplete() {
 
 function onStrokeRetry(msg) {
     AudioFX.trazoReintento();
+    MotiVoice.almost();
     traceState.userPoints = [];
     traceState.segmentsCovered = new Set();
     traceState.pathProgress = (currentStrokeIdx / currentStrokes.length) * 100;
@@ -860,6 +863,7 @@ function onTraceSuccess() {
     wrapper.classList.add('success');
     setTimeout(() => wrapper.classList.remove('success'), 600);
     AudioFX.trazoExito();
+    MotiVoice.celebrate();
     spawnStars(canvas.width/2, canvas.height/2, 15);
     spawnConfetti(30);
     
@@ -922,6 +926,7 @@ function nextItem() {
         if (state.level < LEVELS.length) {
             state.level++;
             AudioFX.nivelCompleto();
+            MotiVoice.levelUp();
             spawnConfetti(50);
             document.getElementById('guide-label').textContent = '🎉 ¡Nivel completado!';
         } else {
@@ -1092,6 +1097,8 @@ document.addEventListener('DOMContentLoaded', () => {
     UserSystem.renderProfileBadge('profile-badge');
     MusicPlayer.init('music-btn');
     AudioFX.init();
+    MotiVoice.init();
+    setTimeout(() => MotiVoice.welcome(), 600);
     
     updateHUD();
     calculateRenderPath();

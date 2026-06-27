@@ -1,7 +1,7 @@
 // Service Worker — Edgy Benji
 // Precachea archivos esenciales. Los MP3 se cachean bajo demanda.
 
-const CACHE_NAME = 'edgy-benji-v18';
+const CACHE_NAME = 'edgy-benji-v19';
 
 // Solo archivos pequeños/esenciales — NADA de MP3 aquí
 const PRECACHE = [
@@ -14,6 +14,7 @@ const PRECACHE = [
   './assets/music-player.js',
   './assets/user-system.js',
   './assets/audio-fx.js',
+  './assets/motivational-voices.js',
   './aritmi/index.html',
   './benji-al-rescate/index.html',
   './color-fun/index.html',

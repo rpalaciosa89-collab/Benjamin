@@ -334,9 +334,12 @@
 <script src="../assets/user-system.js"></script>
 <script src="../assets/music-player.js"></script>
 <script src="../assets/audio-fx.js"></script>
+<script src="../assets/motivational-voices.js"></script>
 <script>
     const GAME_ID = 'colorfun';
     AudioFX.init();
+    MotiVoice.init();
+    setTimeout(() => MotiVoice.welcome(), 600);
 
     // --- DROPDOWN MENU ---
     document.addEventListener('DOMContentLoaded', () => {
@@ -533,6 +536,7 @@
         if (card1.name === card2.name) {
             // Match!
             AudioFX.match();
+            MotiVoice.celebrate();
             matchedPairs++;
             pairsDisplay.innerText = `Pares: ${matchedPairs}/${totalPairs}`;
             
@@ -556,6 +560,7 @@
         } else {
             // No match
             AudioFX.mismatch();
+            MotiVoice.almost();
             setTimeout(() => {
                 card1.element.classList.remove('flipped');
                 card2.element.classList.remove('flipped');
