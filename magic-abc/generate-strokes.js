@@ -161,8 +161,8 @@ const strokes = {
 ],
 'h': [
   [{x:35,y:20},{x:35,y:225}],       // | (tallo)
-  // Arco que sale de la parte ALTA del tallo (y=100), NO del medio como 'b' (y=142)
-  [{x:35,y:100},{x:55,y:95},{x:80,y:92},{x:105,y:95},{x:125,y:102},{x:140,y:118},{x:148,y:142},{x:150,y:168},{x:145,y:192},{x:130,y:208},{x:108,y:215},{x:85,y:215},{x:62,y:210},{x:45,y:200},{x:38,y:195}], // arch (HIGH start → RIGHT → down)
+  // Arco ABIERTO: sale alto (y=95), va →, arquea, y baja RECTO. NO se cierra al tallo como 'b'.
+  [{x:35,y:95},{x:55,y:88},{x:80,y:85},{x:108,y:90},{x:130,y:105},{x:145,y:130},{x:150,y:158},{x:148,y:185},{x:140,y:205},{x:128,y:218},{x:115,y:225}],
 ],
 'i': [
   [{x:92,y:108},{x:92,y:225}],      // |
