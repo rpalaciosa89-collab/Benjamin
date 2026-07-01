@@ -98,6 +98,8 @@
         .debug-levels{display:flex;gap:3px;justify-content:center;flex-wrap:wrap;margin-top:2px}
         .debug-lvl-btn{padding:3px 8px;border-radius:10px;border:1px solid #d1d5db;background:#f9fafb;font-size:11px;font-weight:700;cursor:pointer;font-family:'Baloo 2',cursive;color:#6b7280}
         .debug-lvl-btn.active{background:var(--purple);color:#fff;border-color:var(--purple)}
+    @media (prefers-reduced-motion: reduce) { *,*::before,*::after { animation: none !important; transition: none !important; } }
+
     </style>
 </head>
 <body>
@@ -115,7 +117,7 @@
         <div class="target-display" id="target-display"></div>
         <div class="guide-label" id="guide-label">Mueve las cuentas para formar números</div>
         <div class="abacus-wrapper" id="abacus-wrapper">
-            <canvas id="abacus-canvas"></canvas>
+            <canvas id="abacus-canvas" aria-label="Ábaco interactivo"></canvas>
         </div>
         <div class="number-row" id="number-row"></div>
         <div class="progress-bar-wrap"><div class="progress-fill" id="progress-bar"></div></div>

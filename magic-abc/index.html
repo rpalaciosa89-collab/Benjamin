@@ -167,6 +167,8 @@
         }
         .debug-lvl-btn.active { background: #7c3aed; color: #fff; border-color: #7c3aed; }
         .debug-lvl-btn.minus { background: #fef3c7; border-color: #f59e0b; color: #92400e; }
+    @media (prefers-reduced-motion: reduce) { *,*::before,*::after { animation: none !important; transition: none !important; } }
+
     </style>
 </head>
 <body>
@@ -195,7 +197,7 @@
         <div class="letter-display" id="letter-display"></div>
         <div class="guide-label" id="guide-label">¡Sigue el camino punteado!</div>
         <div class="canvas-wrapper" id="canvas-wrapper">
-            <canvas id="trace-canvas"></canvas>
+            <canvas id="trace-canvas" aria-label="Área de trazado de letras"></canvas>
         </div>
         <div class="progress-bar-wrap"><div class="progress-bar-fill" id="progress-bar"></div></div>
         <div class="debug-levels" id="debug-levels"></div>
