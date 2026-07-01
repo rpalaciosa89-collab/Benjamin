@@ -152,9 +152,9 @@ const strokes = {
   [{x:95,y:148},{x:130,y:148},{x:155,y:140},{x:148,y:110},{x:115,y:100},{x:75,y:102},{x:45,y:115},{x:28,y:140},{x:28,y:170},{x:48,y:205},{x:85,y:218},{x:125,y:212},{x:155,y:192},{x:165,y:165},{x:158,y:142},{x:135,y:145}],
 ],
 'f': [
-  // Stroke 1: raya superior → larga + palo que baja desde el extremo
-  [{x:92,y:28},{x:130,y:28},{x:130,y:200},{x:122,y:218}],
-  // Stroke 2: crossbar alineada a la derecha
+  // Stroke 1: palo izquierdo + raya superior extendida a la derecha
+  [{x:92,y:28},{x:130,y:28},{x:92,y:35},{x:92,y:200},{x:85,y:218}],
+  // Stroke 2: crossbar a la derecha
   [{x:92,y:105},{x:140,y:105}],
 ],
 'g': [
