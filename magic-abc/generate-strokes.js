@@ -152,10 +152,10 @@ const strokes = {
   [{x:95,y:148},{x:130,y:148},{x:155,y:140},{x:148,y:110},{x:115,y:100},{x:75,y:102},{x:45,y:115},{x:28,y:140},{x:28,y:170},{x:48,y:205},{x:85,y:218},{x:125,y:212},{x:155,y:192},{x:165,y:165},{x:158,y:142},{x:135,y:145}],
 ],
 'f': [
-  // Stroke 1: gancho visible (30×17px) + palo con remate curvo inferior
-  [{x:62,y:30},{x:88,y:15},{x:92,y:32},{x:92,y:198},{x:80,y:222},{x:92,y:228}],
-  // Stroke 2: crossbar a y=100 (18px de separacion con 't' en y=82)
-  [{x:25,y:100},{x:138,y:100}],
+  // Stroke 1: gancho curvo compacto (nace del tallo, no lejos) + descendente con curva sutil
+  [{x:92,y:28},{x:78,y:15},{x:72,y:25},{x:92,y:38},{x:92,y:200},{x:85,y:218}],
+  // Stroke 2: crossbar a y=105 (23px sobre 't' en y=82)
+  [{x:28,y:105},{x:140,y:105}],
 ],
 'g': [
   [{x:92,y:200},{x:58,y:200},{x:38,y:178},{x:32,y:145},{x:42,y:115},{x:70,y:98},{x:105,y:98},{x:138,y:112},{x:152,y:140},{x:148,y:170},{x:132,y:195},{x:102,y:200}], // circle
