@@ -160,9 +160,9 @@ const strokes = {
   [{x:125,y:200},{x:142,y:235},{x:120,y:255},{x:68,y:252},{x:40,y:232}], // tail
 ],
 'h': [
-  [{x:35,y:20},{x:35,y:225}],       // | (tallo)
-  // Arco ABIERTO: sale alto (y=95), va →, arquea, y baja RECTO. NO se cierra al tallo como 'b'.
-  [{x:35,y:95},{x:55,y:88},{x:80,y:85},{x:108,y:90},{x:130,y:105},{x:145,y:130},{x:150,y:158},{x:148,y:185},{x:140,y:205},{x:128,y:218},{x:115,y:225}],
+  [{x:35,y:20},{x:35,y:225}],       // | tallo (asta ascendente)
+  // Arco de 'n' desplazado -28px en X: Mismo arco que 'n', pegado al tallo
+  [{x:35,y:135},{x:45,y:127},{x:55,y:118},{x:73,y:119},{x:91,y:120},{x:100,y:130},{x:108,y:140},{x:108,y:228}],
 ],
 'i': [
   [{x:92,y:108},{x:92,y:225}],      // |
