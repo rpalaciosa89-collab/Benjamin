@@ -153,7 +153,7 @@ const strokes = {
 ],
 'f': [
   // Stroke 1: rayita horizontal arriba-derecha + palo descendente
-  [{x:92,y:28},{x:108,y:28},{x:92,y:35},{x:92,y:200},{x:85,y:218}],
+  [{x:92,y:28},{x:124,y:28},{x:92,y:35},{x:92,y:200},{x:85,y:218}],
   // Stroke 2: crossbar
   [{x:28,y:105},{x:140,y:105}],
 ],
