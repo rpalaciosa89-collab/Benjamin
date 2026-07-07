@@ -479,8 +479,7 @@ function onTraceMove(e){
     if(currentStrokeIdx<currentStrokes.length){
         const stroke=currentStrokes[currentStrokeIdx];
         const covered=checkCoverage(stroke,traceState.userPoints);
-        const minPts = Math.max(8, stroke.length * 0.6);
-        if(covered>=0.92 && traceState.userPoints.length >= minPts){
+        if(covered>=0.90){
             currentStrokeIdx++;
             traceState.userPoints=[];
             if(typeof AudioFX!=='undefined') AudioFX.success();
@@ -502,26 +501,45 @@ function onTraceEnd(e){
 }
 
 function checkCoverage(stroke,userPoints){
-    if(userPoints.length<2) return 0;
-    let coveredSegs=0;
-    const tolerance=10;
+    if(userPoints.length<3) return 0;
+    const TOL=8;
+    // Precompute cumulative distances along stroke
+    const cumDist=[0];
     for(let i=1;i<stroke.length;i++){
-        const a=stroke[i-1],b=stroke[i];
-        for(let j=1;j<userPoints.length;j++){
-            const d=distToSegment(userPoints[j].x,userPoints[j].y,a.x,a.y,b.x,b.y);
-            if(d<tolerance){coveredSegs++;break;}
-        }
+        const dx=stroke[i].x-stroke[i-1].x;
+        const dy=stroke[i].y-stroke[i-1].y;
+        cumDist.push(cumDist[i-1]+Math.sqrt(dx*dx+dy*dy));
     }
-    return coveredSegs/(stroke.length-1);
-}
-
-function distToSegment(px,py,ax,ay,bx,by){
-    const dx=bx-ax,dy=by-ay;
-    const lenSq=dx*dx+dy*dy;
-    if(lenSq===0)return Math.hypot(px-ax,py-ay);
-    let t=((px-ax)*dx+(py-ay)*dy)/lenSq;
-    t=Math.max(0,Math.min(1,t));
-    return Math.hypot(px-(ax+t*dx),py-(ay+t*dy));
+    const totalLen=cumDist[cumDist.length-1];
+    if(totalLen<1) return 0;
+    // Collect covered intervals on the stroke
+    const covered=[];
+    for(let j=0;j<userPoints.length;j++){
+        const p=userPoints[j];
+        let bestDist=Infinity,bestT=0;
+        for(let i=1;i<stroke.length;i++){
+            const a=stroke[i-1],b=stroke[i];
+            const dx=b.x-a.x,dy=b.y-a.y;
+            const lenSq=dx*dx+dy*dy;
+            let t=lenSq>0?((p.x-a.x)*dx+(p.y-a.y)*dy)/lenSq:0;
+            t=Math.max(0,Math.min(1,t));
+            const cx=a.x+t*dx, cy=a.y+t*dy;
+            const d=Math.hypot(p.x-cx,p.y-cy);
+            if(d<bestDist){bestDist=d;bestT=cumDist[i-1]+t*(cumDist[i]-cumDist[i-1]);}
+        }
+        if(bestDist<TOL) covered.push(bestT);
+    }
+    if(covered.length===0) return 0;
+    covered.sort((a,b)=>a-b);
+    // Merge intervals (each point covers ±TOL along stroke)
+    let unionLen=0, curStart=covered[0]-TOL, curEnd=covered[0]+TOL;
+    for(let i=1;i<covered.length;i++){
+        const s=covered[i]-TOL, e=covered[i]+TOL;
+        if(s<=curEnd){curEnd=Math.max(curEnd,e);}
+        else{unionLen+=curEnd-curStart;curStart=s;curEnd=e;}
+    }
+    unionLen+=curEnd-curStart;
+    return Math.min(1, unionLen/totalLen);
 }
 
 // ─── NAVIGATION ───
