@@ -329,9 +329,13 @@ function renderMira(){
     contentArea.innerHTML = `
         <div class="shape-display">${shape.emoji}</div>
         <div class="shape-name">${shape.name}</div>
+        <button class="btn btn-next" onclick="nextItem()" style="margin-top:12px">Siguiente ▶</button>
     `;
     speakShape(shape);
     updateProgress();
+    // Auto-avanzar despues de 4s para que el niño no se quede atascado
+    clearTimeout(state._miraTimer);
+    state._miraTimer = setTimeout(() => nextItem(), 4000);
 }
 
 // ─── MODE: TOCA ───
@@ -532,6 +536,7 @@ function renderMode(){
 }
 
 function nextItem(){
+    clearTimeout(state._miraTimer);
     overlaySuccess.classList.remove('show');
     const lvl=getCurrentLevel();
     const totalItems=lvl.shapes.length*lvl.modes.length;
