@@ -124,7 +124,7 @@
         <div class="level-badge" id="level-badge">Nivel 1</div>
         <div class="hud-stars">⭐ <span id="stars-display">0</span></div>
         <div class="user-btn" id="user-btn" onclick="toggleUser()">👤 Invitado</div>
-        <button class="music-btn" id="music-btn" onclick="toggleMusic()">🔇</button>
+        <button class="music-btn" id="music-btn">🔇</button>
     </header>
 
     <div class="game-area" id="game-area">
@@ -590,22 +590,12 @@ function speakText(text){
     }
 }
 
-// ─── MUSIC ───
-function toggleMusic(){
-    if(typeof MusicPlayer!=='undefined'){
-        if(MusicPlayer.isPlaying()){ MusicPlayer.stop(); updateMusicBtn(); }
-        else { MusicPlayer.showMenu(); }
-    }
+// ─── INIT ───
+function init(){
+    updateHUD();
+    renderMode();
+    if(typeof MusicPlayer!=='undefined') MusicPlayer.init('music-btn');
 }
-function updateMusicBtn(){
-    const btn=document.getElementById('music-btn');
-    if(typeof MusicPlayer!=='undefined' && MusicPlayer.isPlaying()){
-        btn.textContent='🎵';
-    }else{btn.textContent='🔇';}
-}
-setInterval(updateMusicBtn,2000);
-
-// ─── UI ───
 function updateProgress(){
     const lvl=getCurrentLevel();
     const total=lvl.shapes.length*lvl.modes.length;
