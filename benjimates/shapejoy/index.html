@@ -640,29 +640,6 @@ function init(){
     updateHUD();
     renderMode();
     if(typeof MusicPlayer!=='undefined') MusicPlayer.init('music-btn');
-}
-function updateProgress(){
-    const lvl=getCurrentLevel();
-    const total=lvl.shapes.length*lvl.modes.length;
-    const pct=Math.round((state.currentItemIdx%total)/total*100);
-    progressFill.style.width=pct+'%';
-}
-
-function updateHUD(){
-    levelBadge.textContent=`Nivel ${state.level}`;
-    starsDisplay.textContent=state.stars;
-}
-
-function resetGame(){
-    state.level=1;state.stars=0;state.currentItemIdx=0;
-    updateHUD();renderMode();
-    if(typeof AudioFX!=='undefined') AudioFX.back();
-}
-
-// ─── INIT ───
-function init(){
-    updateHUD();
-    renderMode();
 
     // Init audio on first touch
     const onceInit=()=>{
