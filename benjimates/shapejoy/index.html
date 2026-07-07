@@ -479,7 +479,7 @@ function onTraceMove(e){
     if(currentStrokeIdx<currentStrokes.length){
         const stroke=currentStrokes[currentStrokeIdx];
         const covered=checkCoverage(stroke,traceState.userPoints);
-        if(covered>=0.75){
+        if(covered>=0.88){
             currentStrokeIdx++;
             traceState.userPoints=[];
             if(typeof AudioFX!=='undefined') AudioFX.success();
@@ -502,7 +502,7 @@ function onTraceEnd(e){
 
 function checkCoverage(stroke,userPoints){
     if(userPoints.length<3) return 0;
-    const TOL=8;
+    const TOL=16; // pulso de bebé: tolerancia generosa
     // Precompute cumulative distances along stroke
     const cumDist=[0];
     for(let i=1;i<stroke.length;i++){
