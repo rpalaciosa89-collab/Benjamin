@@ -523,7 +523,7 @@ function onTraceEnd(e){
 
 function checkCoverage(stroke,userPoints){
     if(userPoints.length<3) return 0;
-    const TOL=16; // pulso de bebé: tolerancia generosa
+    const TOL=25; // pulso de bebé: tolerancia generosa
     // Precompute cumulative distances along stroke
     const cumDist=[0];
     for(let i=1;i<stroke.length;i++){
