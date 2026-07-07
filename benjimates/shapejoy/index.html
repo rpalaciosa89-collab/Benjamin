@@ -626,7 +626,7 @@ function init(){
 
     // Init audio on first touch
     const onceInit=()=>{
-        if(typeof MusicPlayer!=='undefined' && MusicPlayer.init) MusicPlayer.init();
+        if(typeof AudioFX!=='undefined') AudioFX.init();
         document.removeEventListener('touchstart',onceInit);
         document.removeEventListener('click',onceInit);
     };
