@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ShapeJoy 🔷 — ¡Formas y Figuras!</title>
+    <link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+    <link rel="manifest" href="../../manifest.json">
+    <meta name="theme-color" content="#a78bfa">
+    <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&display=swap" rel="stylesheet">
+    <style>
+        *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+        :root{
+            --bg1:#ede9fe;--bg2:#fef3c7;--purple:#8b5cf6;--pink:#ec4899;
+            --yellow:#f59e0b;--green:#10b981;--blue:#3b82f6;
+            --orange:#f97316;--text:#1e293b;--text2:#64748b;
+        }
+        body{
+            font-family:'Baloo 2',cursive,sans-serif;
+            background:linear-gradient(135deg,var(--bg1),var(--bg2));
+            min-height:100vh;min-height:100dvh;
+            display:flex;align-items:center;justify-content:center;
+            overflow:hidden;touch-action:manipulation;
+            -webkit-user-select:none;user-select:none;
+            -webkit-tap-highlight-color:transparent;
+        }
+        .app{
+            width:100%;max-width:480px;height:100vh;height:100dvh;
+            max-height:900px;background:#fff;
+            box-shadow:0 20px 50px rgba(0,0,0,.1);
+            display:flex;flex-direction:column;position:relative;
+        }
+        @media(min-width:480px){.app{border-radius:24px;height:92vh;height:92dvh}}
+
+        header{
+            display:flex;justify-content:space-between;align-items:center;
+            padding:12px 16px 8px;background:#fff;border-bottom:2px solid #f1f5f9;
+            z-index:10;flex-shrink:0;
+        }
+        .level-badge{font-size:13px;font-weight:700;color:var(--purple);background:#ede9fe;padding:4px 12px;border-radius:50px}
+        .hud-stars{font-size:15px;font-weight:700;color:var(--yellow)}
+        .user-btn{font-size:15px;font-weight:600;color:var(--text2);cursor:pointer;display:flex;align-items:center;gap:4px}
+        .music-btn{width:38px;height:38px;border-radius:50%;background:#f1f5f9;border:none;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:transform .15s}
+        .music-btn:active{transform:scale(.9)}
+
+        .game-area{
+            flex:1;display:flex;flex-direction:column;align-items:center;
+            justify-content:center;padding:16px;overflow:hidden;position:relative;gap:12px;
+        }
+        .mode-label{font-size:13px;color:var(--text2);font-weight:600;text-transform:uppercase;letter-spacing:1px}
+        .instruction{font-size:22px;font-weight:700;color:var(--text);text-align:center;min-height:32px}
+        .shape-name{font-size:48px;font-weight:800;color:var(--purple);text-align:center}
+
+        /* MIRA mode */
+        .shape-display{
+            width:180px;height:180px;display:flex;align-items:center;justify-content:center;
+            font-size:120px;animation:popIn .4s cubic-bezier(.175,.885,.32,1.275);
+            background:#faf5ff;border-radius:32px;border:3px dashed #ddd6fe;
+        }
+        @keyframes popIn{0%{transform:scale(0);opacity:0}100%{transform:scale(1);opacity:1}}
+
+        /* TOCA mode */
+        .toca-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;width:100%;max-width:340px}
+        .toca-card{
+            aspect-ratio:1;background:#faf5ff;border-radius:24px;
+            display:flex;align-items:center;justify-content:center;
+            font-size:64px;cursor:pointer;transition:transform .15s,box-shadow .15s;
+            border:3px solid #e2e8f0;
+        }
+        .toca-card:active{transform:scale(.95)}
+        .toca-card.correct{border-color:var(--green);background:#d1fae5;animation:popIn .3s ease}
+        .toca-card.wrong{border-color:#ef4444;background:#fee2e2;animation:shake .4s ease}
+        @keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-6px)}80%{transform:translateX(6px)}}
+
+        /* TRAZA mode */
+        .canvas-wrapper{
+            position:relative;width:100%;max-width:340px;aspect-ratio:1;
+            background:#fffef9;border-radius:24px;border:3px dashed #e5e7eb;
+            overflow:hidden;touch-action:none;
+        }
+        .canvas-wrapper canvas{width:100%;height:100%;display:block}
+
+        /* Progress */
+        .progress-wrap{width:100%;max-width:340px;height:8px;background:#e2e8f0;border-radius:99px;overflow:hidden}
+        .progress-fill{height:100%;background:var(--green);border-radius:99px;transition:width .3s ease}
+
+        /* Buttons */
+        .btn-row{display:flex;gap:12px;flex-shrink:0}
+        .btn{
+            font-family:'Baloo 2',cursive;font-size:16px;font-weight:700;
+            padding:12px 28px;border-radius:50px;border:none;cursor:pointer;
+            transition:transform .15s,box-shadow .15s;min-height:44px;
+        }
+        .btn:active{transform:scale(.95)}
+        .btn-reset{background:#f1f5f9;color:var(--text2)}
+        .btn-next{background:var(--purple);color:#fff;box-shadow:0 4px 16px rgba(139,92,246,.3)}
+        .btn-mira{background:var(--blue);color:#fff;font-size:18px;padding:16px 36px}
+
+        /* Overlay */
+        .overlay{
+            display:none;position:absolute;inset:0;background:rgba(0,0,0,.4);
+            z-index:50;align-items:center;justify-content:center;
+        }
+        .overlay.show{display:flex}
+        .modal{
+            background:#fff;border-radius:24px;padding:32px;text-align:center;
+            max-width:320px;width:90%;animation:popIn .3s ease;
+        }
+        .modal .m-emoji{font-size:60px}
+        .modal h2{font-size:24px;margin:8px 0;color:var(--text)}
+        .modal p{color:var(--text2);margin-bottom:16px}
+
+        footer{
+            text-align:center;padding:8px 16px 14px;color:#94a3b8;
+            font-size:12px;font-weight:500;flex-shrink:0;
+        }
+
+        @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+    </style>
+</head>
+<body>
+<div class="app">
+    <header>
+        <div class="level-badge" id="level-badge">Nivel 1</div>
+        <div class="hud-stars">⭐ <span id="stars-display">0</span></div>
+        <div class="user-btn" id="user-btn" onclick="toggleUser()">👤 Invitado</div>
+        <button class="music-btn" id="music-btn" onclick="toggleMusic()">🔇</button>
+    </header>
+
+    <div class="game-area" id="game-area">
+        <div class="mode-label" id="mode-label">👀 MIRA</div>
+        <div class="instruction" id="instruction">Mira la forma</div>
+        <div id="content-area"></div>
+        <div class="progress-wrap"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+        <div class="btn-row" id="btn-row">
+            <button class="btn btn-reset" onclick="resetGame()">🔄 Reiniciar</button>
+        </div>
+    </div>
+
+    <div class="overlay" id="overlay-success">
+        <div class="modal">
+            <span class="m-emoji">🌟</span>
+            <h2 id="success-title">¡Perfecto!</h2>
+            <p id="success-desc">¡Conoces muy bien las formas!</p>
+            <div style="font-size:20px;color:var(--yellow);font-weight:700;margin-bottom:12px">+5 ⭐</div>
+            <button class="btn btn-next" onclick="nextItem()">Siguiente ▶</button>
+        </div>
+    </div>
+
+    <footer>Hecho con ❤️ para Benjamín · edgybenji.app</footer>
+</div>
+
+<script src="../../assets/user-system.js"></script>
+<script src="../../assets/music-player.js"></script>
+<script src="../../assets/audio-fx.js"></script>
+<script src="../../assets/motivational-voices.js"></script>
+<script>
+// ==========================================
+//  SHAPEJOY — Geometría Infantil
+// ==========================================
+const GAME_ID = 'shapejoy';
+
+// ─── STATE ───
+const state = {
+    level: 1,
+    stars: 0,
+    mode: 'mira',    // mira | toca | traza
+    currentItemIdx: 0,
+    tocaTarget: null,
+    tracing: false,
+    tracePoints: [],
+    traceDone: false,
+};
+
+// ─── SHAPES ───
+const ALL_SHAPES = [
+    { id:'circulo',   emoji:'🔵', name:'Círculo',   color:'#3b82f6' },
+    { id:'cuadrado',  emoji:'🟥', name:'Cuadrado',  color:'#ef4444' },
+    { id:'triangulo', emoji:'🔺', name:'Triángulo', color:'#10b981' },
+    { id:'rectangulo',emoji:'🔷', name:'Rectángulo',color:'#8b5cf6' },
+    { id:'ovalo',     emoji:'⬭', name:'Óvalo',      color:'#f59e0b' },
+    { id:'rombo',     emoji:'🔶', name:'Rombo',      color:'#ec4899' },
+    { id:'estrella',  emoji:'⭐', name:'Estrella',   color:'#f97316' },
+    { id:'corazon',   emoji:'❤️', name:'Corazón',   color:'#ef4444' },
+    { id:'hexagono',  emoji:'🛑', name:'Hexágono',   color:'#6366f1' },
+    { id:'medialuna', emoji:'🌙', name:'Media Luna', color:'#8b5cf6' },
+    { id:'cruz',      emoji:'✚', name:'Cruz',       color:'#10b981' },
+    { id:'casa',      emoji:'🏠', name:'Casa',       color:'#f97316' },
+];
+
+const LEVELS = [
+    { level:1, shapes:['circulo','cuadrado'],                modes:['mira','toca'] },
+    { level:2, shapes:['circulo','cuadrado','triangulo'],    modes:['toca','traza'] },
+    { level:3, shapes:['circulo','cuadrado','triangulo','rectangulo','ovalo'], modes:['traza'] },
+    { level:4, shapes:['triangulo','rectangulo','ovalo','rombo','estrella'], modes:['traza','toca'] },
+    { level:5, shapes:['rombo','estrella','corazon','hexagono','medialuna'], modes:['toca','traza'] },
+    { level:6, shapes:['circulo','triangulo','rectangulo','estrella','corazon','hexagono','cruz','casa'], modes:['toca','traza'] },
+];
+
+// ─── TRACE PATHS (200×200 space) ───
+const TRACE_PATHS = {
+    circulo:   [circlePoints(100,100,80,32)],
+    cuadrado:  [[{x:30,y:30},{x:170,y:30},{x:170,y:190},{x:30,y:190},{x:30,y:30}]],
+    triangulo: [[{x:100,y:20},{x:20,y:190},{x:180,y:190},{x:100,y:20}]],
+    rectangulo:[[{x:25,y:40},{x:175,y:40},{x:175,y:180},{x:25,y:180},{x:25,y:40}]],
+    ovalo:     [ovalPoints(100,110,75,60,32)],
+    rombo:     [[{x:100,y:20},{x:180,y:110},{x:100,y:200},{x:20,y:110},{x:100,y:20}]],
+    estrella:  [starPoints(100,110,75,35,5)],
+    corazon:   [heartPoints(100,125,70)],
+    hexagono:  [hexagonPoints(100,110,80)],
+    medialuna: [crescentPoints(100,110,75)],
+    cruz:      [[{x:60,y:20},{x:60,y:80},{x:20,y:80},{x:20,y:140},{x:60,y:140},{x:60,y:200},{x:140,y:200},{x:140,y:140},{x:180,y:140},{x:180,y:80},{x:140,y:80},{x:140,y:20},{x:60,y:20}]],
+    casa:      [[{x:100,y:20},{x:20,y:100},{x:20,y:200},{x:180,y:200},{x:180,y:100},{x:100,y:20}]],
+};
+
+function circlePoints(cx,cy,r,n){
+    const pts=[];
+    for(let i=0;i<=n;i++){
+        const a=Math.PI*2*i/n - Math.PI/2;
+        pts.push({x:Math.round(cx+r*Math.cos(a)),y:Math.round(cy+r*Math.sin(a))});
+    }
+    return pts;
+}
+function ovalPoints(cx,cy,rx,ry,n){
+    const pts=[];
+    for(let i=0;i<=n;i++){
+        const a=Math.PI*2*i/n - Math.PI/2;
+        pts.push({x:Math.round(cx+rx*Math.cos(a)),y:Math.round(cy+ry*Math.sin(a))});
+    }
+    return pts;
+}
+function starPoints(cx,cy,ro,ri,n){
+    const pts=[];
+    for(let i=0;i<n*2;i++){
+        const a=Math.PI*2*i/(n*2)-Math.PI/2;
+        const r=i%2===0?ro:ri;
+        pts.push({x:Math.round(cx+r*Math.cos(a)),y:Math.round(cy+r*Math.sin(a))});
+    }
+    pts.push(pts[0]);
+    return pts;
+}
+function heartPoints(cx,cy,s){
+    const pts=[];
+    for(let i=0;i<=40;i++){
+        const t=Math.PI*2*i/40;
+        const x=16*Math.pow(Math.sin(t),3);
+        const y=13*Math.cos(t)-5*Math.cos(2*t)-2*Math.cos(3*t)-Math.cos(4*t);
+        pts.push({x:Math.round(cx+x*(s/16)),y:Math.round(cy-y*(s/13))});
+    }
+    return pts;
+}
+function hexagonPoints(cx,cy,r){
+    const pts=[];
+    for(let i=0;i<=6;i++){
+        const a=Math.PI*2*i/6-Math.PI/2;
+        pts.push({x:Math.round(cx+r*Math.cos(a)),y:Math.round(cy+r*Math.sin(a))});
+    }
+    return pts;
+}
+function crescentPoints(cx,cy,r){
+    const pts=[];
+    for(let i=0;i<=40;i++){
+        const a=Math.PI*i/40 + Math.PI/4;
+        const x=Math.cos(a)*r;
+        const y=Math.sin(a)*r;
+        pts.push({x:Math.round(cx+x),y:Math.round(cy-y*0.85)});
+    }
+    for(let i=0;i<=40;i++){
+        const a=Math.PI*i/40 + Math.PI/4;
+        const x=Math.cos(a)*r*0.65;
+        const y=Math.sin(a)*r*0.5;
+        pts.push({x:Math.round(cx+x),y:Math.round(cy-y*0.85+10)});
+    }
+    return pts;
+}
+
+// ─── DOM REFS ───
+const gameArea = document.getElementById('game-area');
+const contentArea = document.getElementById('content-area');
+const instruction = document.getElementById('instruction');
+const modeLabel = document.getElementById('mode-label');
+const progressFill = document.getElementById('progress-fill');
+const levelBadge = document.getElementById('level-badge');
+const starsDisplay = document.getElementById('stars-display');
+const overlaySuccess = document.getElementById('overlay-success');
+const successTitle = document.getElementById('success-title');
+const successDesc = document.getElementById('success-desc');
+
+// ─── CANVAS (for traza) ───
+let canvas, ctx, wrapper, currentStrokes=[], currentStrokeIdx=0;
+let traceState={points:[], guideActive:false, userPoints:[]};
+
+function initCanvas(){
+    const existing = contentArea.querySelector('.canvas-wrapper');
+    if(existing) return;
+    contentArea.innerHTML = `<div class="canvas-wrapper" id="canvas-wrapper"><canvas id="trace-canvas" aria-label="Área de trazado"></canvas></div>`;
+    wrapper = document.getElementById('canvas-wrapper');
+    canvas = document.getElementById('trace-canvas');
+    ctx = canvas.getContext('2d');
+    resizeCanvas();
+    canvas.addEventListener('pointerdown', onTraceStart);
+    canvas.addEventListener('pointermove', onTraceMove);
+    canvas.addEventListener('pointerup', onTraceEnd);
+    canvas.addEventListener('pointerleave', onTraceEnd);
+    window.addEventListener('resize', () => { resizeCanvas(); renderTrace(); });
+}
+
+function resizeCanvas(){
+    if(!wrapper||!canvas) return;
+    const w=wrapper.clientWidth,h=wrapper.clientHeight;
+    canvas.width=w;canvas.height=h;
+}
+
+function getCurrentShape(){
+    const lvl = LEVELS[state.level-1];
+    const shapes = lvl.shapes;
+    return ALL_SHAPES.find(s=>s.id===shapes[state.currentItemIdx % shapes.length]);
+}
+
+function getCurrentLevel(){
+    return LEVELS[state.level-1];
+}
+
+// ─── MODE: MIRA ───
+function renderMira(){
+    modeLabel.textContent = '👀 MIRA';
+    const shape = getCurrentShape();
+    instruction.textContent = 'Mira la forma';
+    contentArea.innerHTML = `
+        <div class="shape-display">${shape.emoji}</div>
+        <div class="shape-name">${shape.name}</div>
+    `;
+    speakShape(shape);
+    updateProgress();
+}
+
+// ─── MODE: TOCA ───
+function renderToca(){
+    modeLabel.textContent = '👆 TOCA';
+    const shape = getCurrentShape();
+    state.tocaTarget = shape.id;
+    instruction.textContent = `¿Dónde está el ${shape.name.toLowerCase()}?`;
+    speakText(`¿Dónde está el ${shape.name.toLowerCase()}?`);
+
+    // Pick 3 wrong shapes + 1 correct
+    const others = ALL_SHAPES.filter(s=>s.id!==shape.id);
+    const shuffled = [...others].sort(()=>Math.random()-.5).slice(0,3);
+    const options = [...shuffled, shape].sort(()=>Math.random()-.5);
+
+    contentArea.innerHTML = `<div class="toca-grid">${options.map(s=>`
+        <div class="toca-card" data-shape="${s.id}" onclick="onTocaTap(this,'${s.id}')">${s.emoji}</div>
+    `).join('')}</div>`;
+    updateProgress();
+}
+
+function onTocaTap(el,shapeId){
+    if(el.classList.contains('correct')||el.classList.contains('wrong')) return;
+    if(shapeId === state.tocaTarget){
+        el.classList.add('correct');
+        if(typeof AudioFX!=='undefined') AudioFX.play('success');
+        if(typeof MotiVoice!=='undefined') MotiVoice.celebrate();
+        setTimeout(()=>nextItem(),800);
+    } else {
+        el.classList.add('wrong');
+        if(typeof AudioFX!=='undefined') AudioFX.play('error');
+        setTimeout(()=>el.classList.remove('wrong'),400);
+    }
+}
+
+// ─── MODE: TRAZA ───
+function renderTraza(){
+    modeLabel.textContent = '✏️ TRAZA';
+    const shape = getCurrentShape();
+    instruction.textContent = `Traza el ${shape.name.toLowerCase()}`;
+    speakText(`Traza el ${shape.name.toLowerCase()}`);
+
+    initCanvas();
+    const shapeId = shape.id;
+    const paths = TRACE_PATHS[shapeId] || TRACE_PATHS['circulo'];
+    const w=wrapper.clientWidth, h=wrapper.clientHeight;
+    const scale = Math.min(w/200, h/200)*0.85;
+    const ox = (w-200*scale)/2, oy = (h-200*scale)/2;
+    currentStrokes = paths.map(s=>s.map(p=>({x:p.x*scale+ox, y:p.y*scale+oy})));
+    currentStrokeIdx = 0;
+    traceState = {points:[], guideActive:true, userPoints:[]};
+    state.tracing = false; state.traceDone = false;
+    renderTrace();
+    updateProgress();
+}
+
+function renderTrace(){
+    if(!ctx||!canvas) return;
+    const w=canvas.width, h=canvas.height;
+    ctx.clearRect(0,0,w,h);
+    if(!currentStrokes.length) return;
+
+    for(let si=0;si<currentStrokes.length;si++){
+        const stroke=currentStrokes[si];
+        if(stroke.length<2) continue;
+
+        if(si<currentStrokeIdx){
+            ctx.setLineDash([]);
+            ctx.strokeStyle='#10b981';ctx.lineWidth=5;ctx.lineCap='round';ctx.lineJoin='round';
+            drawPath(stroke);ctx.stroke();
+        }else if(si===currentStrokeIdx){
+            ctx.setLineDash([8,10]);
+            ctx.strokeStyle='#94a3b8';ctx.lineWidth=6;ctx.lineCap='round';ctx.lineJoin='round';
+            drawPath(stroke);ctx.stroke();
+            ctx.setLineDash([]);
+            // Start dot
+            ctx.fillStyle='#10b981';ctx.beginPath();
+            ctx.arc(stroke[0].x,stroke[0].y,6,0,Math.PI*2);ctx.fill();
+            // End dot
+            ctx.fillStyle='#f97316';ctx.beginPath();
+            const end=stroke[stroke.length-1];
+            ctx.arc(end.x,end.y,5,0,Math.PI*2);ctx.fill();
+        }else{
+            ctx.setLineDash([4,12]);
+            ctx.strokeStyle='#e2e8f0';ctx.lineWidth=3;ctx.lineCap='round';ctx.lineJoin='round';
+            ctx.globalAlpha=0.4;drawPath(stroke);ctx.stroke();
+            ctx.setLineDash([]);ctx.globalAlpha=1;
+        }
+    }
+    // User trace
+    if(traceState.userPoints.length>1){
+        ctx.strokeStyle='#8b5cf6';ctx.lineWidth=6;ctx.lineCap='round';ctx.lineJoin='round';
+        ctx.shadowColor='rgba(139,92,246,.5)';ctx.shadowBlur=8;
+        ctx.beginPath();ctx.moveTo(traceState.userPoints[0].x,traceState.userPoints[0].y);
+        for(let i=1;i<traceState.userPoints.length;i++) ctx.lineTo(traceState.userPoints[i].x,traceState.userPoints[i].y);
+        ctx.stroke();ctx.shadowBlur=0;
+    }
+    // Guide dot
+    if(traceState.guideActive && currentStrokeIdx<currentStrokes.length){
+        const stroke=currentStrokes[currentStrokeIdx];
+        if(stroke.length>0){
+            const t=(Date.now()%3000)/3000;
+            const idx=Math.floor(t*(stroke.length-1));
+            const p=stroke[Math.min(idx,stroke.length-1)];
+            ctx.fillStyle='#f59e0b';ctx.shadowColor='rgba(245,158,11,.6)';ctx.shadowBlur=12;
+            ctx.beginPath();ctx.arc(p.x,p.y,8,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;
+        }
+    }
+    // Progress text
+    if(currentStrokeIdx<currentStrokes.length){
+        ctx.fillStyle='#64748b';ctx.font='bold 12px "Baloo 2",cursive';
+        ctx.textAlign='right';ctx.fillText(`Trazo ${currentStrokeIdx+1}/${currentStrokes.length}`,w-10,h-10);
+    }
+}
+
+function drawPath(stroke){
+    ctx.beginPath();ctx.moveTo(stroke[0].x,stroke[0].y);
+    for(let i=1;i<stroke.length;i++) ctx.lineTo(stroke[i].x,stroke[i].y);
+}
+
+function getCanvasPos(e){
+    const rect=canvas.getBoundingClientRect();
+    return {x:e.clientX-rect.left, y:e.clientY-rect.top};
+}
+
+function onTraceStart(e){
+    if(state.traceDone) return;
+    e.preventDefault();
+    state.tracing=true;
+    const p=getCanvasPos(e);
+    traceState.userPoints=[p];
+    if(typeof AudioFX!=='undefined') AudioFX.play('tap');
+}
+
+function onTraceMove(e){
+    if(!state.tracing||state.traceDone) return;
+    e.preventDefault();
+    const p=getCanvasPos(e);
+    traceState.userPoints.push(p);
+    // Validate progress
+    if(currentStrokeIdx<currentStrokes.length){
+        const stroke=currentStrokes[currentStrokeIdx];
+        const covered=checkCoverage(stroke,traceState.userPoints);
+        if(covered>=0.85){
+            currentStrokeIdx++;
+            traceState.userPoints=[];
+            if(typeof AudioFX!=='undefined') AudioFX.play('success');
+            if(currentStrokeIdx>=currentStrokes.length){
+                state.traceDone=true;
+                traceState.guideActive=false;
+                if(typeof MotiVoice!=='undefined') MotiVoice.celebrate();
+                speakText('¡Muy bien!');
+                state.stars+=5;updateHUD();
+                setTimeout(()=>showSuccess(),600);
+            }
+        }
+    }
+    renderTrace();
+}
+
+function onTraceEnd(e){
+    state.tracing=false;
+}
+
+function checkCoverage(stroke,userPoints){
+    if(userPoints.length<2) return 0;
+    let coveredSegs=0;
+    const tolerance=18;
+    for(let i=1;i<stroke.length;i++){
+        const a=stroke[i-1],b=stroke[i];
+        for(let j=1;j<userPoints.length;j++){
+            const d=distToSegment(userPoints[j].x,userPoints[j].y,a.x,a.y,b.x,b.y);
+            if(d<tolerance){coveredSegs++;break;}
+        }
+    }
+    return coveredSegs/(stroke.length-1);
+}
+
+function distToSegment(px,py,ax,ay,bx,by){
+    const dx=bx-ax,dy=by-ay;
+    const lenSq=dx*dx+dy*dy;
+    if(lenSq===0)return Math.hypot(px-ax,py-ay);
+    let t=((px-ax)*dx+(py-ay)*dy)/lenSq;
+    t=Math.max(0,Math.min(1,t));
+    return Math.hypot(px-(ax+t*dx),py-(ay+t*dy));
+}
+
+// ─── NAVIGATION ───
+function renderMode(){
+    const lvl=getCurrentLevel();
+    const modes=lvl.modes;
+    const modeIdx=state.currentItemIdx % modes.length;
+    state.mode=modes[modeIdx];
+
+    if(state.mode==='mira') renderMira();
+    else if(state.mode==='toca') renderToca();
+    else if(state.mode==='traza') renderTraza();
+}
+
+function nextItem(){
+    overlaySuccess.classList.remove('show');
+    const lvl=getCurrentLevel();
+    const totalItems=lvl.shapes.length*lvl.modes.length;
+    state.currentItemIdx++;
+
+    if(state.currentItemIdx>=totalItems){
+        // Level complete
+        if(state.level<LEVELS.length){
+            state.level++;
+            state.currentItemIdx=0;
+            showLevelUp();
+        } else {
+            state.currentItemIdx=0;
+            showCelebration();
+        }
+    }
+    updateHUD();
+    renderMode();
+}
+
+function showSuccess(){
+    const shape=getCurrentShape();
+    successTitle.textContent='¡Perfecto!';
+    successDesc.textContent=`¡Trazaste un ${shape.name.toLowerCase()} genial!`;
+    overlaySuccess.classList.add('show');
+}
+
+function showLevelUp(){
+    const emoji=['','🌟','🎉','🏆','💎','👑','🚀'][state.level]||'🌟';
+    successTitle.textContent=`¡Nivel ${state.level}!`;
+    successDesc.textContent=`Has desbloqueado nuevas formas`;
+    overlaySuccess.querySelector('.m-emoji').textContent=emoji;
+    overlaySuccess.classList.add('show');
+    if(typeof MotiVoice!=='undefined') MotiVoice.levelUp();
+}
+
+function showCelebration(){
+    successTitle.textContent='¡Increíble!';
+    successDesc.textContent='¡Conoces todas las formas! 🎉';
+    overlaySuccess.querySelector('.m-emoji').textContent='🏆';
+    overlaySuccess.classList.add('show');
+    if(typeof MotiVoice!=='undefined') MotiVoice.bigCelebrate();
+}
+
+// ─── AUDIO ───
+function speakShape(shape){
+    speakText(shape.name);
+}
+
+function speakText(text){
+    if(typeof speechSynthesis!=='undefined'){
+        speechSynthesis.cancel();
+        const u=new SpeechSynthesisUtterance(text);
+        u.lang='es-MX';u.rate=0.9;u.pitch=1.1;
+        speechSynthesis.speak(u);
+    }
+}
+
+// ─── MUSIC ───
+function toggleMusic(){
+    if(typeof MusicPlayer!=='undefined'){
+        if(MusicPlayer.isPlaying()){ MusicPlayer.stop(); updateMusicBtn(); }
+        else { MusicPlayer.showMenu(); }
+    }
+}
+function updateMusicBtn(){
+    const btn=document.getElementById('music-btn');
+    if(typeof MusicPlayer!=='undefined' && MusicPlayer.isPlaying()){
+        btn.textContent='🎵';
+    }else{btn.textContent='🔇';}
+}
+setInterval(updateMusicBtn,2000);
+
+// ─── UI ───
+function updateProgress(){
+    const lvl=getCurrentLevel();
+    const total=lvl.shapes.length*lvl.modes.length;
+    const pct=Math.round((state.currentItemIdx%total)/total*100);
+    progressFill.style.width=pct+'%';
+}
+
+function updateHUD(){
+    levelBadge.textContent=`Nivel ${state.level}`;
+    starsDisplay.textContent=state.stars;
+}
+
+function resetGame(){
+    state.level=1;state.stars=0;state.currentItemIdx=0;
+    updateHUD();renderMode();
+    if(typeof AudioFX!=='undefined') AudioFX.play('back');
+}
+
+// ─── INIT ───
+function init(){
+    updateHUD();
+    renderMode();
+
+    // Init audio on first touch
+    const onceInit=()=>{
+        if(typeof MusicPlayer!=='undefined' && MusicPlayer.init) MusicPlayer.init();
+        document.removeEventListener('touchstart',onceInit);
+        document.removeEventListener('click',onceInit);
+    };
+    document.addEventListener('touchstart',onceInit,{once:true});
+    document.addEventListener('click',onceInit,{once:true});
+}
+
+function toggleUser(){
+    if(typeof UserSystem!=='undefined') UserSystem.showMenu();
+}
+
+// Animation loop for traza
+function animLoop(){
+    if(state.mode==='traza' && traceState.guideActive) renderTrace();
+    requestAnimationFrame(animLoop);
+}
+requestAnimationFrame(animLoop);
+
+window.addEventListener('load',init);
+</script>
+</body>
+</html>
