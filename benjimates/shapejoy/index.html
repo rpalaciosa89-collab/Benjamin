@@ -479,7 +479,8 @@ function onTraceMove(e){
     if(currentStrokeIdx<currentStrokes.length){
         const stroke=currentStrokes[currentStrokeIdx];
         const covered=checkCoverage(stroke,traceState.userPoints);
-        if(covered>=0.85){
+        const minPts = Math.max(8, stroke.length * 0.6);
+        if(covered>=0.92 && traceState.userPoints.length >= minPts){
             currentStrokeIdx++;
             traceState.userPoints=[];
             if(typeof AudioFX!=='undefined') AudioFX.success();
@@ -503,7 +504,7 @@ function onTraceEnd(e){
 function checkCoverage(stroke,userPoints){
     if(userPoints.length<2) return 0;
     let coveredSegs=0;
-    const tolerance=18;
+    const tolerance=10;
     for(let i=1;i<stroke.length;i++){
         const a=stroke[i-1],b=stroke[i];
         for(let j=1;j<userPoints.length;j++){
