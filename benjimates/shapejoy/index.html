@@ -352,9 +352,30 @@ function renderToca(){
     const options = [...shuffled, shape].sort(()=>Math.random()-.5);
 
     contentArea.innerHTML = `<div class="toca-grid">${options.map(s=>`
-        <div class="toca-card" data-shape="${s.id}" onclick="onTocaTap(this,'${s.id}')">${s.emoji}</div>
+        <div class="toca-card" data-shape="${s.id}" onclick="onTocaTap(this,'${s.id}')">
+            ${shapeToSVG(s.id, s.color, 80)}
+        </div>
     `).join('')}</div>`;
     updateProgress();
+}
+
+function shapeToSVG(id, color, size){
+    const s=size, hs=s/2;
+    switch(id){
+        case 'circulo':   return `<svg width="${s}" height="${s}" viewBox="0 0 100 100"><circle cx="50" cy="50" r="42" fill="${color}" opacity="0.85"/></svg>`;
+        case 'cuadrado':  return `<svg width="${s}" height="${s}" viewBox="0 0 100 100"><rect x="10" y="10" width="80" height="80" rx="4" fill="${color}" opacity="0.85"/></svg>`;
+        case 'triangulo': return `<svg width="${s}" height="${s}" viewBox="0 0 100 100"><polygon points="50,8 8,92 92,92" fill="${color}" opacity="0.85"/></svg>`;
+        case 'rectangulo':return `<svg width="${s}" height="${s}" viewBox="0 0 100 70"><rect x="5" y="5" width="90" height="60" rx="3" fill="${color}" opacity="0.85"/></svg>`;
+        case 'ovalo':     return `<svg width="${s}" height="${s}" viewBox="0 0 100 70"><ellipse cx="50" cy="35" rx="45" ry="28" fill="${color}" opacity="0.85"/></svg>`;
+        case 'rombo':     return `<svg width="${s}" height="${s}" viewBox="0 0 100 100"><polygon points="50,5 95,50 50,95 5,50" fill="${color}" opacity="0.85"/></svg>`;
+        case 'estrella':  return `<svg width="${s}" height="${s}" viewBox="0 0 100 100"><polygon points="50,5 63,38 98,38 70,58 80,92 50,72 20,92 30,58 2,38 37,38" fill="${color}" opacity="0.85"/></svg>`;
+        case 'corazon':   return `<svg width="${s}" height="${s}" viewBox="0 0 100 90"><path d="M50,85 C20,60 0,45 0,25 C0,5 20,-5 35,5 C42,10 48,18 50,28 C52,18 58,10 65,5 C80,-5 100,5 100,25 C100,45 80,60 50,85Z" fill="${color}" opacity="0.85"/></svg>`;
+        case 'hexagono':  return `<svg width="${s}" height="${s}" viewBox="0 0 100 100"><polygon points="50,5 90,28 90,72 50,95 10,72 10,28" fill="${color}" opacity="0.85"/></svg>`;
+        case 'medialuna': return `<svg width="${s}" height="${s}" viewBox="0 0 100 100"><path d="M60,10 C30,10 10,40 10,50 C10,60 30,90 60,90 C50,80 45,65 45,50 C45,35 50,20 60,10Z" fill="${color}" opacity="0.85"/></svg>`;
+        case 'cruz':      return `<svg width="${s}" height="${s}" viewBox="0 0 100 100"><rect x="35" y="5" width="30" height="90" rx="2" fill="${color}" opacity="0.85"/><rect x="5" y="35" width="90" height="30" rx="2" fill="${color}" opacity="0.85"/></svg>`;
+        case 'casa':      return `<svg width="${s}" height="${s}" viewBox="0 0 100 100"><polygon points="50,5 95,45 5,45" fill="${color}" opacity="0.85"/><rect x="10" y="45" width="80" height="50" fill="${color}" opacity="0.6"/></svg>`;
+        default:          return `<svg width="${s}" height="${s}"><circle cx="${hs}" cy="${hs}" r="${hs-5}" fill="#ccc"/></svg>`;
+    }
 }
 
 function onTocaTap(el,shapeId){
