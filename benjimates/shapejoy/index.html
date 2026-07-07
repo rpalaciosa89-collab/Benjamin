@@ -361,12 +361,12 @@ function onTocaTap(el,shapeId){
     if(el.classList.contains('correct')||el.classList.contains('wrong')) return;
     if(shapeId === state.tocaTarget){
         el.classList.add('correct');
-        if(typeof AudioFX!=='undefined') AudioFX.play('success');
+        if(typeof AudioFX!=='undefined') AudioFX.success();
         if(typeof MotiVoice!=='undefined') MotiVoice.celebrate();
         setTimeout(()=>nextItem(),800);
     } else {
         el.classList.add('wrong');
-        if(typeof AudioFX!=='undefined') AudioFX.play('error');
+        if(typeof AudioFX!=='undefined') AudioFX.error();
         setTimeout(()=>el.classList.remove('wrong'),400);
     }
 }
@@ -467,7 +467,7 @@ function onTraceStart(e){
     state.tracing=true;
     const p=getCanvasPos(e);
     traceState.userPoints=[p];
-    if(typeof AudioFX!=='undefined') AudioFX.play('tap');
+    if(typeof AudioFX!=='undefined') AudioFX.tap();
 }
 
 function onTraceMove(e){
@@ -482,7 +482,7 @@ function onTraceMove(e){
         if(covered>=0.85){
             currentStrokeIdx++;
             traceState.userPoints=[];
-            if(typeof AudioFX!=='undefined') AudioFX.play('success');
+            if(typeof AudioFX!=='undefined') AudioFX.success();
             if(currentStrokeIdx>=currentStrokes.length){
                 state.traceDone=true;
                 traceState.guideActive=false;
@@ -616,7 +616,7 @@ function updateHUD(){
 function resetGame(){
     state.level=1;state.stars=0;state.currentItemIdx=0;
     updateHUD();renderMode();
-    if(typeof AudioFX!=='undefined') AudioFX.play('back');
+    if(typeof AudioFX!=='undefined') AudioFX.back();
 }
 
 // ─── INIT ───
